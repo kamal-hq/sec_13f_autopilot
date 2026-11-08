@@ -13,6 +13,7 @@ authors = [
     { name = "Muhammad Kamal" },
 ]
 dependencies = [
+    "sec_13f_analyzer @ git+https://github.com/kamal-hq/sec_13f_analyzer@v1.1.0",
     "requests>=2.31.0",
     "pyyaml>=6.0.1",
     "python-dotenv>=1.0.0",
@@ -20,11 +21,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Local development uses: pip install -e ../sec_13f_analyzer
-# CI installs the pinned release tag v1.1.0:
-analyzer = [
-    "sec-13f-analyzer @ git+https://github.com/kamal-hq/sec_13f_analyzer.git@v1.1.0",
-]
 dev = [
     "pytest>=8.0.0",
     "ruff>=0.8.0",

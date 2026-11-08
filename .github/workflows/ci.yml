@@ -32,8 +32,7 @@ jobs:
       - name: Install sec_13f_analyzer (pinned tag v1.1.0) and project dependencies
         run: |
           python -m pip install --upgrade pip
-          # Install upstream analyzer pinned to git tag v1.1.0 when published:
-          pip install "git+https://github.com/kamal-hq/sec_13f_analyzer.git@v1.1.0" || true
+          pip install "sec_13f_analyzer @ git+https://github.com/kamal-hq/sec_13f_analyzer@v1.1.0"
           pip install -e ".[dev]"
 
       - name: Run Ruff linter
