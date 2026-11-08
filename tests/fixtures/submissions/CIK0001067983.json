@@ -1,0 +1,31 @@
+{
+  "cik": "0001067983",
+  "entityType": "other",
+  "sic": "6331",
+  "sicDescription": "FIRE, MARINE & CASUALTY INSURANCE",
+  "name": "BERKSHIRE HATHAWAY INC",
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0001193125-26-352200",
+        "0001193125-26-226661"
+      ],
+      "form": [
+        "13F-HR",
+        "13F-HR"
+      ],
+      "filingDate": [
+        "2026-08-14",
+        "2026-05-15"
+      ],
+      "reportDate": [
+        "2026-06-30",
+        "2026-03-31"
+      ],
+      "primaryDocument": [
+        "primary_doc.xml",
+        "primary_doc.xml"
+      ]
+    }
+  }
+}

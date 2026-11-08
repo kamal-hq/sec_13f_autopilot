@@ -1,0 +1,152 @@
+{
+  "0000899140-26-000547": {
+    "accession": "0000899140-26-000547",
+    "amendment_type": null,
+    "cik": "0001179392",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 4546,
+    "table_value_total": 123930684213
+  },
+  "0000899140-26-000855": {
+    "accession": "0000899140-26-000855",
+    "amendment_type": null,
+    "cik": "0001179392",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 5017,
+    "table_value_total": 138117670065
+  },
+  "0000919079-26-000006": {
+    "accession": "0000919079-26-000006",
+    "amendment_type": null,
+    "cik": "0000919079",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 1064,
+    "table_value_total": 162486869017
+  },
+  "0000919079-26-000011": {
+    "accession": "0000919079-26-000011",
+    "amendment_type": null,
+    "cik": "0000919079",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 1061,
+    "table_value_total": 177384494361
+  },
+  "0001021944-26-000011": {
+    "accession": "0001021944-26-000011",
+    "amendment_type": null,
+    "cik": "0001021944",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 152,
+    "table_value_total": 30484854533
+  },
+  "0001021944-26-000013": {
+    "accession": "0001021944-26-000013",
+    "amendment_type": null,
+    "cik": "0001021944",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 196,
+    "table_value_total": 37253810301
+  },
+  "0001037389-26-000033": {
+    "accession": "0001037389-26-000033",
+    "amendment_type": null,
+    "cik": "0001037389",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 3213,
+    "table_value_total": 63929893013
+  },
+  "0001037389-26-000059": {
+    "accession": "0001037389-26-000059",
+    "amendment_type": null,
+    "cik": "0001037389",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 3140,
+    "table_value_total": 72617871974
+  },
+  "0001104659-26-062477": {
+    "accession": "0001104659-26-062477",
+    "amendment_type": null,
+    "cik": "0001423053",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 15589,
+    "table_value_total": 618473172395
+  },
+  "0001104659-26-097200": {
+    "accession": "0001104659-26-097200",
+    "amendment_type": null,
+    "cik": "0001423053",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 16122,
+    "table_value_total": 875011794337
+  },
+  "0001104659-26-104387": {
+    "accession": "0001104659-26-104387",
+    "amendment_type": "RESTATEMENT",
+    "cik": "0001423053",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": true,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 16122,
+    "table_value_total": 875011794337
+  },
+  "0001193125-26-226661": {
+    "accession": "0001193125-26-226661",
+    "amendment_type": null,
+    "cik": "0001067983",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 90,
+    "table_value_total": 263095703570
+  },
+  "0001193125-26-352200": {
+    "accession": "0001193125-26-352200",
+    "amendment_type": null,
+    "cik": "0001067983",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 89,
+    "table_value_total": 299253556246
+  },
+  "0001350694-26-000002": {
+    "accession": "0001350694-26-000002",
+    "amendment_type": null,
+    "cik": "0001350694",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 993,
+    "table_value_total": 22404547213
+  },
+  "0001350694-26-000003": {
+    "accession": "0001350694-26-000003",
+    "amendment_type": null,
+    "cik": "0001350694",
+    "infotable_doc": "form13fInfoTable.xml",
+    "is_amendment": false,
+    "primary_doc": "primary_doc.xml",
+    "table_entry_total": 997,
+    "table_value_total": 24376086530
+  }
+}

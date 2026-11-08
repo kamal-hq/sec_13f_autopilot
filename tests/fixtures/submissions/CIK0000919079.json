@@ -1,0 +1,31 @@
+{
+  "cik": "0000919079",
+  "entityType": "other",
+  "sic": "6371",
+  "sicDescription": "PENSION, HEALTH & WELFARE FUNDS",
+  "name": "CALIFORNIA PUBLIC EMPLOYEES RETIREMENT SYSTEM",
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0000919079-26-000011",
+        "0000919079-26-000006"
+      ],
+      "form": [
+        "13F-HR",
+        "13F-HR"
+      ],
+      "filingDate": [
+        "2026-08-11",
+        "2026-05-12"
+      ],
+      "reportDate": [
+        "2026-06-30",
+        "2026-03-31"
+      ],
+      "primaryDocument": [
+        "primary_doc.xml",
+        "primary_doc.xml"
+      ]
+    }
+  }
+}

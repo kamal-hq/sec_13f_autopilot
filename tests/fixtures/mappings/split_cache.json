@@ -1,0 +1,37 @@
+{
+  "CURX": {
+    "confirmation_status": "UNCONFIRMED",
+    "expected_factor": 2.0,
+    "split_date": null
+  },
+  "CVNA": {
+    "confirmation_status": "CONFIRMED",
+    "expected_factor": 5.0,
+    "split_date": "2026-05-08"
+  },
+  "LPCN": {
+    "confirmation_status": "UNCONFIRMED",
+    "expected_factor": 3.0,
+    "split_date": null
+  },
+  "PSIG": {
+    "confirmation_status": "UNCONFIRMED",
+    "expected_factor": 5.0,
+    "split_date": null
+  },
+  "SLNH": {
+    "confirmation_status": "UNCONFIRMED",
+    "expected_factor": 0.5,
+    "split_date": null
+  },
+  "TDUP": {
+    "confirmation_status": "UNCONFIRMED",
+    "expected_factor": 0.5,
+    "split_date": null
+  },
+  "TMCI": {
+    "confirmation_status": "UNCONFIRMED",
+    "expected_factor": 0.3333333333333333,
+    "split_date": null
+  }
+}

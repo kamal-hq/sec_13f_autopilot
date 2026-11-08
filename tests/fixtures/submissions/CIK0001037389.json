@@ -1,0 +1,31 @@
+{
+  "cik": "0001037389",
+  "entityType": "other",
+  "sic": "6282",
+  "sicDescription": "INVESTMENT ADVICE",
+  "name": "RENAISSANCE TECHNOLOGIES LLC",
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0001037389-26-000059",
+        "0001037389-26-000033"
+      ],
+      "form": [
+        "13F-HR",
+        "13F-HR"
+      ],
+      "filingDate": [
+        "2026-08-13",
+        "2026-05-13"
+      ],
+      "reportDate": [
+        "2026-06-30",
+        "2026-03-31"
+      ],
+      "primaryDocument": [
+        "primary_doc.xml",
+        "primary_doc.xml"
+      ]
+    }
+  }
+}

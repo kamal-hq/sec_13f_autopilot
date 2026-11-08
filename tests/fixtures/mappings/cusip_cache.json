@@ -1,0 +1,1077 @@
+{
+  "007903107": {
+    "name": "ADVANCED MICRO DEVICES INC",
+    "security_type": "Common Stock",
+    "ticker": "AMD"
+  },
+  "009066101": {
+    "name": "AIRBNB INC",
+    "security_type": "Common Stock",
+    "ticker": "ABNB"
+  },
+  "013872106": {
+    "name": "ALCOA CORP",
+    "security_type": "Common Stock",
+    "ticker": "AA"
+  },
+  "01609W102": {
+    "name": "ALIBABA GROUP HLDG LTD",
+    "security_type": "SPONSORED ADS",
+    "ticker": "BABA"
+  },
+  "02005N100": {
+    "name": "ALLY FINANCIAL INC",
+    "security_type": "Common Stock",
+    "ticker": "ALLY"
+  },
+  "02079K107": {
+    "name": "ALPHABET INC-CL C",
+    "security_type": "Common Stock",
+    "ticker": "GOOG"
+  },
+  "02079K305": {
+    "name": "ALPHABET INC-CL A",
+    "security_type": "Common Stock",
+    "ticker": "GOOGL"
+  },
+  "023135106": {
+    "name": "AMAZON COM INC",
+    "security_type": "Common Stock",
+    "ticker": "AMZN"
+  },
+  "025816109": {
+    "name": "AMERICAN EXPRESS CO",
+    "security_type": "Common Stock",
+    "ticker": "AXP"
+  },
+  "032654105": {
+    "name": "ANALOG DEVICES INC",
+    "security_type": "Common Stock",
+    "ticker": "ADI"
+  },
+  "03769M106": {
+    "name": "APOLLO GLOBAL MGMT INC",
+    "security_type": "Common Stock",
+    "ticker": "APO"
+  },
+  "037833100": {
+    "name": "APPLE INC",
+    "security_type": "Common Stock",
+    "ticker": "AAPL"
+  },
+  "03815J107": {
+    "name": "APPLIED AEROSPACE & DEFENSE",
+    "security_type": "Common Stock",
+    "ticker": "AADX"
+  },
+  "03831W108": {
+    "name": "APPLOVIN CORP",
+    "security_type": "Common Stock",
+    "ticker": "APP"
+  },
+  "04010E109": {
+    "name": "ARGAN INC",
+    "security_type": "Common Stock",
+    "ticker": "AGX"
+  },
+  "040413205": {
+    "name": "ARISTA NETWORKS INC",
+    "security_type": "Common Stock",
+    "ticker": "ANET"
+  },
+  "04339D105": {
+    "name": "ARXIS INC",
+    "security_type": "Common Stock",
+    "ticker": "ARXS"
+  },
+  "04965M106": {
+    "name": "ATOUR LIFESTYLE HLDGS LTD",
+    "security_type": "SPONSORED ADS",
+    "ticker": "ATAT"
+  },
+  "060505104": {
+    "name": "BANK OF AMERICA CORP",
+    "security_type": "Common Stock",
+    "ticker": "BAC"
+  },
+  "064058100": {
+    "name": "BANK NEW YORK MELLON CORP",
+    "security_type": "Common Stock",
+    "ticker": "BNY"
+  },
+  "07725L102": {
+    "name": "BEONE MEDICINES LTD",
+    "security_type": "SPONSORED ADS",
+    "ticker": "ONC"
+  },
+  "09075V102": {
+    "name": "BIONTECH SE",
+    "security_type": "SPONSORED ADS",
+    "ticker": "BNTX"
+  },
+  "09263B207": {
+    "name": "BLACKSKY TECHNOLOGY INC",
+    "security_type": "CL A NEW",
+    "ticker": "BKSY"
+  },
+  "09290D101": {
+    "name": "BLACKROCK INC",
+    "security_type": "Common Stock",
+    "ticker": "BLK"
+  },
+  "092915107": {
+    "name": "BLAIZE HLDGS INC",
+    "security_type": "Common Stock",
+    "ticker": "BZAI"
+  },
+  "093712107": {
+    "name": "BLOOM ENERGY CORP",
+    "security_type": "Common Stock",
+    "ticker": "BE"
+  },
+  "09857L108": {
+    "name": "BOOKING HOLDINGS INC",
+    "security_type": "Common Stock",
+    "ticker": "BKNG"
+  },
+  "101137107": {
+    "name": "BOSTON SCIENTIFIC CORP",
+    "security_type": "Common Stock",
+    "ticker": "BSX"
+  },
+  "11135F101": {
+    "name": "BROADCOM INC",
+    "security_type": "Common Stock",
+    "ticker": "AVGO"
+  },
+  "127387108": {
+    "name": "CADENCE DESIGN SYSTEM INC",
+    "security_type": "Common Stock",
+    "ticker": "CDNS"
+  },
+  "13321L108": {
+    "name": "CAMECO CORP",
+    "security_type": "Common Stock",
+    "ticker": "CCJ"
+  },
+  "14040H105": {
+    "name": "CAPITAL ONE FINANCIAL CORP",
+    "security_type": "Common Stock",
+    "ticker": "COF"
+  },
+  "142152107": {
+    "name": "CARIS LIFE SCIENCES INC",
+    "security_type": "Common Stock",
+    "ticker": "CAI"
+  },
+  "144285103": {
+    "name": "CARPENTER TECHNOLOGY CORP",
+    "security_type": "Common Stock",
+    "ticker": "CRS"
+  },
+  "149123101": {
+    "name": "CATERPILLAR INC",
+    "security_type": "Common Stock",
+    "ticker": "CAT"
+  },
+  "15101Q207": {
+    "name": "CELESTICA INC",
+    "security_type": "Common Stock",
+    "ticker": "CLS"
+  },
+  "15675D103": {
+    "name": "CEREBRAS SYSTEMS INC",
+    "security_type": "Common Stock",
+    "ticker": "CBRS"
+  },
+  "166764100": {
+    "name": "CHEVRON CORP",
+    "security_type": "Common Stock",
+    "ticker": "CVX"
+  },
+  "171779309": {
+    "name": "CIENA CORP",
+    "security_type": "Common Stock",
+    "ticker": "CIEN"
+  },
+  "17275R102": {
+    "name": "CISCO SYS INC",
+    "security_type": "Common Stock",
+    "ticker": "CSCO"
+  },
+  "172967424": {
+    "name": "CITIGROUP INC",
+    "security_type": "Common Stock",
+    "ticker": "C"
+  },
+  "174610105": {
+    "name": "CITIZENS FINL GROUP INC",
+    "security_type": "Common Stock",
+    "ticker": "CFG"
+  },
+  "191216100": {
+    "name": "COCA-COLA CO/THE",
+    "security_type": "Common Stock",
+    "ticker": "KO"
+  },
+  "192446102": {
+    "name": "COGNIZANT TECHNOLOGY SOLUTIO",
+    "security_type": "CL A",
+    "ticker": "CTSH"
+  },
+  "19247G107": {
+    "name": "COHERENT CORP",
+    "security_type": "Common Stock",
+    "ticker": "COHR"
+  },
+  "199908104": {
+    "name": "COMFORT SYS USA INC",
+    "security_type": "Common Stock",
+    "ticker": "FIX"
+  },
+  "21036P108": {
+    "name": "CONSTELLATION BRANDS INC-A",
+    "security_type": "Common Stock",
+    "ticker": "STZ"
+  },
+  "219350105": {
+    "name": "CORNING INC",
+    "security_type": "Common Stock",
+    "ticker": "GLW"
+  },
+  "231021106": {
+    "name": "CUMMINS INC",
+    "security_type": "Common Stock",
+    "ticker": "CMI"
+  },
+  "23331A109": {
+    "name": "DR HORTON INC",
+    "security_type": "Common Stock",
+    "ticker": "DHI"
+  },
+  "235851102": {
+    "name": "DANAHER CORP DEL",
+    "security_type": "Common Stock",
+    "ticker": "DHR"
+  },
+  "23918K108": {
+    "name": "DAVITA INC",
+    "security_type": "Common Stock",
+    "ticker": "DVA"
+  },
+  "244199105": {
+    "name": "DEERE & CO",
+    "security_type": "Common Stock",
+    "ticker": "DE"
+  },
+  "247361702": {
+    "name": "DELTA AIR LINES INC",
+    "security_type": "Common Stock",
+    "ticker": "DAL"
+  },
+  "24823R105": {
+    "name": "DENALI THERAPEUTICS INC",
+    "security_type": "Common Stock",
+    "ticker": "DNLI"
+  },
+  "248356107": {
+    "name": "DENISON MINES CORP",
+    "security_type": "Common Stock",
+    "ticker": "DNN"
+  },
+  "249906108": {
+    "name": "DESCARTES SYS GROUP INC",
+    "security_type": "Common Stock",
+    "ticker": "DSGX"
+  },
+  "25809K105": {
+    "name": "DOORDASH INC",
+    "security_type": "CL A",
+    "ticker": "DASH"
+  },
+  "27579R104": {
+    "name": "EAST WEST BANCORP INC",
+    "security_type": "Common Stock",
+    "ticker": "EWBC"
+  },
+  "284902509": {
+    "name": "ELDORADO GOLD CORP NEW",
+    "security_type": "Common Stock",
+    "ticker": "EGO"
+  },
+  "292671708": {
+    "name": "ENERGY FUELS INC",
+    "security_type": "Common Stock",
+    "ticker": "UUUU"
+  },
+  "296006109": {
+    "name": "ERO COPPER CORP",
+    "security_type": "Common Stock",
+    "ticker": "ERO"
+  },
+  "302492103": {
+    "name": "FLYWIRE CORPORATION",
+    "security_type": "Common Stock",
+    "ticker": "FLYW"
+  },
+  "30303M102": {
+    "name": "META PLATFORMS INC",
+    "security_type": "CL A",
+    "ticker": "META"
+  },
+  "316773100": {
+    "name": "FIFTH THIRD BANCORP",
+    "security_type": "Common Stock",
+    "ticker": "FITB"
+  },
+  "31816X106": {
+    "name": "FIREFLY AEROSPACE INC",
+    "security_type": "Common Stock",
+    "ticker": "FLY"
+  },
+  "320517105": {
+    "name": "FIRST HORIZON CORPORATION",
+    "security_type": "Common Stock",
+    "ticker": "FHN"
+  },
+  "346375108": {
+    "name": "FORMFACTOR INC",
+    "security_type": "Common Stock",
+    "ticker": "FORM"
+  },
+  "349381103": {
+    "name": "FIGURE TECHNOLOGY SOLUTIO",
+    "security_type": "Common Stock",
+    "ticker": "FIGR"
+  },
+  "35671D857": {
+    "name": "FREEPORT MCMORAN INC",
+    "security_type": "CL B",
+    "ticker": "FCX"
+  },
+  "36266G107": {
+    "name": "GE HEALTHCARE TECHNOLOGIES I",
+    "security_type": "Common Stock",
+    "ticker": "GEHC"
+  },
+  "36828A101": {
+    "name": "GE VERNOVA INC",
+    "security_type": "Common Stock",
+    "ticker": "GEV"
+  },
+  "369604301": {
+    "name": "GE AEROSPACE",
+    "security_type": "Common Stock",
+    "ticker": "GE"
+  },
+  "37954Y830": {
+    "name": "GLOBAL X FDS",
+    "security_type": "GLOBAL X COPPER",
+    "ticker": null
+  },
+  "38141G104": {
+    "name": "GOLDMAN SACHS GROUP INC",
+    "security_type": "Common Stock",
+    "ticker": "GS"
+  },
+  "40131M109": {
+    "name": "GUARDANT HEALTH INC",
+    "security_type": "Common Stock",
+    "ticker": "GH"
+  },
+  "40412C101": {
+    "name": "HCA HEALTHCARE INC",
+    "security_type": "Common Stock",
+    "ticker": "HCA"
+  },
+  "40415F101": {
+    "name": "HDFC BANK LTD",
+    "security_type": "SPONSORED ADS",
+    "ticker": "HDB"
+  },
+  "42238D107": {
+    "name": "HEARTFLOW INC",
+    "security_type": "Common Stock",
+    "ticker": "HTFL"
+  },
+  "433313103": {
+    "name": "HINGE HEALTH INC",
+    "security_type": "CL A",
+    "ticker": "HNGE"
+  },
+  "437076102": {
+    "name": "HOME DEPOT INC",
+    "security_type": "Common Stock",
+    "ticker": "HD"
+  },
+  "44332N106": {
+    "name": "H WORLD GROUP LTD",
+    "security_type": "SPONSORED ADS",
+    "ticker": "HTHT"
+  },
+  "443628102": {
+    "name": "HUDBAY MINERALS INC",
+    "security_type": "Common Stock",
+    "ticker": "HBM"
+  },
+  "446150104": {
+    "name": "HUNTINGTON BANCSHARES INC",
+    "security_type": "Common Stock",
+    "ticker": "HBAN"
+  },
+  "45104G104": {
+    "name": "ICICI BANK LIMITED",
+    "security_type": "ADR",
+    "ticker": "IBN"
+  },
+  "45827U109": {
+    "name": "INTAPP INC",
+    "security_type": "Common Stock",
+    "ticker": "INTA"
+  },
+  "461202103": {
+    "name": "INTUIT",
+    "security_type": "Common Stock",
+    "ticker": "INTU"
+  },
+  "46120E602": {
+    "name": "INTUITIVE SURGICAL INC",
+    "security_type": "Common Stock",
+    "ticker": "ISRG"
+  },
+  "46138E628": {
+    "name": "INVESCO KBW BANK ETF",
+    "security_type": "ETP",
+    "ticker": "KBE"
+  },
+  "464286400": {
+    "name": "ISHARES INC",
+    "security_type": "MSCI BRAZIL ETF",
+    "ticker": null
+  },
+  "464286772": {
+    "name": "ISHARES INC",
+    "security_type": "MSCI STH KOR ETF",
+    "ticker": "EWY"
+  },
+  "46434V878": {
+    "name": "ISHARES TR",
+    "security_type": "ULTRA SHORT DUR",
+    "ticker": null
+  },
+  "46625H100": {
+    "name": "JPMORGAN CHASE & CO",
+    "security_type": "Common Stock",
+    "ticker": "JPM"
+  },
+  "46641Q837": {
+    "name": "J P MORGAN EXCHANGE TRADED F",
+    "security_type": "ULTRA SHRT ETF",
+    "ticker": null
+  },
+  "47233W109": {
+    "name": "JEFFERIES FINANCIAL GROUP IN",
+    "security_type": "Common Stock",
+    "ticker": "JEF"
+  },
+  "482480100": {
+    "name": "KLA CORP",
+    "security_type": "Common Stock",
+    "ticker": "KLAC"
+  },
+  "482497104": {
+    "name": "KE HLDGS INC",
+    "security_type": "SPONSORED ADS",
+    "ticker": "BEKE"
+  },
+  "48251W104": {
+    "name": "KKR & CO INC",
+    "security_type": "Common Stock",
+    "ticker": "KKR"
+  },
+  "48553T106": {
+    "name": "KANZHUN LIMITED",
+    "security_type": "SPONSORED ADS",
+    "ticker": "BZ"
+  },
+  "49271V100": {
+    "name": "KEURIG DR PEPPER INC",
+    "security_type": "Common Stock",
+    "ticker": "KDP"
+  },
+  "493267108": {
+    "name": "KEYCORP",
+    "security_type": "Common Stock",
+    "ticker": "KEY"
+  },
+  "500754106": {
+    "name": "KRAFT HEINZ CO/THE",
+    "security_type": "Common Stock",
+    "ticker": "KHC"
+  },
+  "500767306": {
+    "name": "KRANESHARES TRUST",
+    "security_type": "CSI CHI INTERNET",
+    "ticker": null
+  },
+  "501044101": {
+    "name": "KROGER CO",
+    "security_type": "Common Stock",
+    "ticker": "KR"
+  },
+  "512807306": {
+    "name": "LAM RESEARCH CORP",
+    "security_type": "Common Stock",
+    "ticker": "LRCX"
+  },
+  "526057104": {
+    "name": "LENNAR CORP-A",
+    "security_type": "Common Stock",
+    "ticker": "LEN"
+  },
+  "526057302": {
+    "name": "LENNAR CORP - B SHS",
+    "security_type": "Common Stock",
+    "ticker": "LEN/B"
+  },
+  "530909100": {
+    "name": "LIBERTY LIVE HOLDINGS-A",
+    "security_type": "Common Stock",
+    "ticker": "LLYVA"
+  },
+  "530909308": {
+    "name": "LIBERTY LIVE HOLDINGS-C",
+    "security_type": "Common Stock",
+    "ticker": "LLYVK"
+  },
+  "532457108": {
+    "name": "ELI LILLY & CO",
+    "security_type": "Common Stock",
+    "ticker": "LLY"
+  },
+  "546347105": {
+    "name": "LOUISIANA-PACIFIC CORP",
+    "security_type": "Common Stock",
+    "ticker": "LPX"
+  },
+  "55024U109": {
+    "name": "LUMENTUM HLDGS INC",
+    "security_type": "Common Stock",
+    "ticker": "LITE"
+  },
+  "55261F104": {
+    "name": "M & T BK CORP",
+    "security_type": "Common Stock",
+    "ticker": "MTB"
+  },
+  "55354G100": {
+    "name": "MSCI INC",
+    "security_type": "Common Stock",
+    "ticker": "MSCI"
+  },
+  "55405Y100": {
+    "name": "MACOM TECH SOLUTIONS HLDGS I",
+    "security_type": "Common Stock",
+    "ticker": null
+  },
+  "55616P104": {
+    "name": "MACYS INC",
+    "security_type": "Common Stock",
+    "ticker": "M"
+  },
+  "571748102": {
+    "name": "MARSH & MCLENNAN COS INC",
+    "security_type": "Common Stock",
+    "ticker": "MRSH"
+  },
+  "573874104": {
+    "name": "MARVELL TECHNOLOGY INC",
+    "security_type": "Common Stock",
+    "ticker": "MRVL"
+  },
+  "57636Q104": {
+    "name": "MASTERCARD INCORPORATED",
+    "security_type": "CL A",
+    "ticker": "MA"
+  },
+  "58155Q103": {
+    "name": "MCKESSON CORP",
+    "security_type": "Common Stock",
+    "ticker": "MCK"
+  },
+  "58933Y105": {
+    "name": "MERCK & CO INC",
+    "security_type": "Common Stock",
+    "ticker": "MRK"
+  },
+  "594918104": {
+    "name": "MICROSOFT CORP",
+    "security_type": "Common Stock",
+    "ticker": "MSFT"
+  },
+  "595112103": {
+    "name": "MICRON TECHNOLOGY INC",
+    "security_type": "Common Stock",
+    "ticker": "MU"
+  },
+  "615369105": {
+    "name": "MOODYS CORP",
+    "security_type": "Common Stock",
+    "ticker": "MCO"
+  },
+  "617446448": {
+    "name": "MORGAN STANLEY",
+    "security_type": "Common Stock",
+    "ticker": "MS"
+  },
+  "62944T105": {
+    "name": "NVR INC",
+    "security_type": "Common Stock",
+    "ticker": "NVR"
+  },
+  "632307104": {
+    "name": "NATERA INC",
+    "security_type": "Common Stock",
+    "ticker": "NTRA"
+  },
+  "64110L106": {
+    "name": "NETFLIX INC.",
+    "security_type": "Common Stock",
+    "ticker": "NFLX"
+  },
+  "64110W102": {
+    "name": "NETEASE COM INC",
+    "security_type": "SPONSORED ADS",
+    "ticker": "NTES"
+  },
+  "650111107": {
+    "name": "NEW YORK TIMES CO-A",
+    "security_type": "Common Stock",
+    "ticker": "NYT"
+  },
+  "65339F101": {
+    "name": "NEXTERA ENERGY INC",
+    "security_type": "Common Stock",
+    "ticker": "NEE"
+  },
+  "65340P106": {
+    "name": "NEXGEN ENERGY LTD",
+    "security_type": "Common Stock",
+    "ticker": "NXE"
+  },
+  "654106103": {
+    "name": "NIKE INC",
+    "security_type": "CL B",
+    "ticker": "NKE"
+  },
+  "654902204": {
+    "name": "NOKIA CORP",
+    "security_type": "SPONSORED ADR",
+    "ticker": "NOK"
+  },
+  "665859104": {
+    "name": "NORTHERN TR CORP",
+    "security_type": "Common Stock",
+    "ticker": "NTRS"
+  },
+  "670346105": {
+    "name": "NUCOR CORP",
+    "security_type": "Common Stock",
+    "ticker": "NUE"
+  },
+  "67066G104": {
+    "name": "NVIDIA CORPORATION",
+    "security_type": "Common Stock",
+    "ticker": "NVDA"
+  },
+  "674599105": {
+    "name": "OCCIDENTAL PETROLEUM CORP",
+    "security_type": "Common Stock",
+    "ticker": "OXY"
+  },
+  "68278B107": {
+    "name": "ONESTREAM INC",
+    "security_type": "CL A",
+    "ticker": null
+  },
+  "693475105": {
+    "name": "PNC FINL SVCS GROUP INC",
+    "security_type": "Common Stock",
+    "ticker": "PNC"
+  },
+  "697435105": {
+    "name": "PALO ALTO NETWORKS INC",
+    "security_type": "Common Stock",
+    "ticker": "PANW"
+  },
+  "70451X104": {
+    "name": "PAYONEER GLOBAL INC",
+    "security_type": "Common Stock",
+    "ticker": "PAYO"
+  },
+  "713448108": {
+    "name": "PEPSICO INC",
+    "security_type": "Common Stock",
+    "ticker": "PEP"
+  },
+  "722304102": {
+    "name": "PDD HOLDINGS INC",
+    "security_type": "SPONSORED ADS",
+    "ticker": "PDD"
+  },
+  "72348N109": {
+    "name": "PINNACLE FINL PARTNERS INC",
+    "security_type": "Common Stock",
+    "ticker": "PNFP"
+  },
+  "732908108": {
+    "name": "PONY AI INC",
+    "security_type": "SPONSORED ADS",
+    "ticker": "PONY"
+  },
+  "743315103": {
+    "name": "PROGRESSIVE CORP",
+    "security_type": "Common Stock",
+    "ticker": "PGR"
+  },
+  "747525103": {
+    "name": "QUALCOMM INC",
+    "security_type": "Common Stock",
+    "ticker": "QCOM"
+  },
+  "750491102": {
+    "name": "RADNET INC",
+    "security_type": "Common Stock",
+    "ticker": "RDNT"
+  },
+  "75340L104": {
+    "name": "RAPID MICRO BIOSYSTEMS INC",
+    "security_type": "Common Stock",
+    "ticker": "RPID"
+  },
+  "7591EP100": {
+    "name": "REGIONS FINANCIAL CORP NEW",
+    "security_type": "Common Stock",
+    "ticker": "RF"
+  },
+  "771049103": {
+    "name": "ROBLOX CORP",
+    "security_type": "CL A",
+    "ticker": "RBLX"
+  },
+  "78397Q109": {
+    "name": "SES AI CORPORATION",
+    "security_type": "Common Stock",
+    "ticker": "SES"
+  },
+  "78409V104": {
+    "name": "S&P GLOBAL INC",
+    "security_type": "Common Stock",
+    "ticker": "SPGI"
+  },
+  "78463V107": {
+    "name": "SPDR GOLD TRUST",
+    "security_type": "ETP",
+    "ticker": "GLD"
+  },
+  "79466L302": {
+    "name": "SALESFORCE INC",
+    "security_type": "Common Stock",
+    "ticker": "CRM"
+  },
+  "80004C200": {
+    "name": "SANDISK CORP",
+    "security_type": "Common Stock",
+    "ticker": "SNDK"
+  },
+  "81141R100": {
+    "name": "SEA LTD",
+    "security_type": "SPONSORD ADS",
+    "ticker": "SE"
+  },
+  "81762P102": {
+    "name": "SERVICENOW INC",
+    "security_type": "Common Stock",
+    "ticker": "NOW"
+  },
+  "829933100": {
+    "name": "SIRIUS XM HOLDINGS INC",
+    "security_type": "Common Stock",
+    "ticker": "SIRI"
+  },
+  "833445109": {
+    "name": "SNOWFLAKE INC",
+    "security_type": "Common Stock",
+    "ticker": "SNOW"
+  },
+  "84265V105": {
+    "name": "SOUTHERN COPPER CORP",
+    "security_type": "Common Stock",
+    "ticker": "SCCO"
+  },
+  "84615Q103": {
+    "name": "SPACE EXPLORATION TECHNOLOGIES CORP",
+    "security_type": "Common Stock",
+    "ticker": "SPCX"
+  },
+  "857477103": {
+    "name": "STATE STR CORP",
+    "security_type": "Common Stock",
+    "ticker": null
+  },
+  "859241101": {
+    "name": "STERLING INFRASTRUCTURE INC",
+    "security_type": "Common Stock",
+    "ticker": "STRL"
+  },
+  "871607107": {
+    "name": "SYNOPSYS INC",
+    "security_type": "Common Stock",
+    "ticker": "SNPS"
+  },
+  "872540109": {
+    "name": "TJX COS INC NEW",
+    "security_type": "Common Stock",
+    "ticker": "TJX"
+  },
+  "872657101": {
+    "name": "TPG INC",
+    "security_type": "Common Stock",
+    "ticker": "TPG"
+  },
+  "876511106": {
+    "name": "TASEKO MINES LTD",
+    "security_type": "Common Stock",
+    "ticker": null
+  },
+  "878742204": {
+    "name": "TECK RESOURCES LTD",
+    "security_type": "CL B",
+    "ticker": "TECK"
+  },
+  "88023B103": {
+    "name": "TEMPUS AI INC",
+    "security_type": "CL A",
+    "ticker": "TEM"
+  },
+  "88034P109": {
+    "name": "TENCENT MUSIC ENTMT GROUP",
+    "security_type": "SPON ADS",
+    "ticker": "TME"
+  },
+  "880770102": {
+    "name": "TERADYNE INC",
+    "security_type": "Common Stock",
+    "ticker": "TER"
+  },
+  "883556102": {
+    "name": "THERMO FISHER SCIENTIFIC INC",
+    "security_type": "Common Stock",
+    "ticker": "TMO"
+  },
+  "893641100": {
+    "name": "TRANSDIGM GROUP INC",
+    "security_type": "Common Stock",
+    "ticker": "TDG"
+  },
+  "89472Y107": {
+    "name": "TREKOR METALS LTD",
+    "security_type": "Common Stock",
+    "ticker": "TGB"
+  },
+  "89677Q107": {
+    "name": "TRIP COM GROUP LTD",
+    "security_type": "ADS",
+    "ticker": "TCOM"
+  },
+  "89832Q109": {
+    "name": "TRUIST FINL CORP",
+    "security_type": "Common Stock",
+    "ticker": "TFC"
+  },
+  "90138A103": {
+    "name": "VNET GROUP INC",
+    "security_type": "SPONSORED ADS A",
+    "ticker": "VNET"
+  },
+  "902973304": {
+    "name": "US BANCORP",
+    "security_type": "Common Stock",
+    "ticker": "USB"
+  },
+  "904767803": {
+    "name": "UNILEVER PLC",
+    "security_type": "SPON ADR NEW",
+    "ticker": "UL"
+  },
+  "91324P102": {
+    "name": "UNITEDHEALTH GROUP INC",
+    "security_type": "Common Stock",
+    "ticker": "UNH"
+  },
+  "91332U101": {
+    "name": "UNITY SOFTWARE INC",
+    "security_type": "Common Stock",
+    "ticker": "U"
+  },
+  "916896103": {
+    "name": "URANIUM ENERGY CORP",
+    "security_type": "Common Stock",
+    "ticker": "UEC"
+  },
+  "92189F106": {
+    "name": "VANECK GOLD MINERS ETF",
+    "security_type": "ETP",
+    "ticker": "GDX"
+  },
+  "92343E102": {
+    "name": "VERISIGN INC",
+    "security_type": "Common Stock",
+    "ticker": "VRSN"
+  },
+  "92537N108": {
+    "name": "VERTIV HOLDINGS CO",
+    "security_type": "Common Stock",
+    "ticker": "VRT"
+  },
+  "92826C839": {
+    "name": "VISA INC",
+    "security_type": "Common Stock",
+    "ticker": "V"
+  },
+  "931142103": {
+    "name": "WALMART INC",
+    "security_type": "Common Stock",
+    "ticker": "WMT"
+  },
+  "949746101": {
+    "name": "WELLS FARGO & CO",
+    "security_type": "Common Stock",
+    "ticker": "WFC"
+  },
+  "957638109": {
+    "name": "WESTERN ALLIANCE BANCORP",
+    "security_type": "Common Stock",
+    "ticker": "WAL"
+  },
+  "958102105": {
+    "name": "WESTERN DIGITAL CORP",
+    "security_type": "Common Stock",
+    "ticker": "WDC"
+  },
+  "98138H101": {
+    "name": "WORKDAY INC",
+    "security_type": "CL A",
+    "ticker": "WDAY"
+  },
+  "98422D105": {
+    "name": "XPENG INC",
+    "security_type": "ADS",
+    "ticker": "XPEV"
+  },
+  "987084100": {
+    "name": "YORK SPACE SYSTEMS INC",
+    "security_type": "Common Stock",
+    "ticker": "YSS"
+  },
+  "98850P109": {
+    "name": "YUM CHINA HLDGS INC",
+    "security_type": "Common Stock",
+    "ticker": "YUMC"
+  },
+  "989701107": {
+    "name": "ZIONS BANCORPORATION NATL AS",
+    "security_type": "Common Stock",
+    "ticker": "ZION"
+  },
+  "98980A105": {
+    "name": "ZTO EXPRESS CAYMAN INC",
+    "security_type": "SPONSORED ADS A",
+    "ticker": "ZTO"
+  },
+  "G0260P102": {
+    "name": "AMER SPORTS INC",
+    "security_type": "Common Stock",
+    "ticker": "AS"
+  },
+  "G0593M107": {
+    "name": "ASTRAZENECA PLC",
+    "security_type": "ORD",
+    "ticker": "AZN"
+  },
+  "G25457105": {
+    "name": "CREDO TECHNOLOGY GROUP HOLDI",
+    "security_type": "ORDINARY SHARES",
+    "ticker": "CRDO"
+  },
+  "G2R11M108": {
+    "name": "DPC HOLDINGS PLC",
+    "security_type": "ORDINARY SHARES",
+    "ticker": "DPC"
+  },
+  "G3323L100": {
+    "name": "FABRINET",
+    "security_type": "SHS",
+    "ticker": "FN"
+  },
+  "G3730V105": {
+    "name": "FTAI AVIATION LTD",
+    "security_type": "SHS",
+    "ticker": "FTAI"
+  },
+  "G3922B107": {
+    "name": "GENPACT LIMITED",
+    "security_type": "SHS",
+    "ticker": "G"
+  },
+  "G54950103": {
+    "name": "LINDE PLC",
+    "security_type": "SHS",
+    "ticker": "LIN"
+  },
+  "G7997R103": {
+    "name": "SEAGATE TECHNOLOGY HLDNGS PL",
+    "security_type": "ORD SHS",
+    "ticker": "STX"
+  },
+  "H1467J104": {
+    "name": "CHUBB LTD",
+    "security_type": "Common Stock",
+    "ticker": "CB"
+  },
+  "M20791105": {
+    "name": "CAMTEK LTD",
+    "security_type": "ORD",
+    "ticker": "CAMT"
+  },
+  "M5216V106": {
+    "name": "GLOBAL E ONLINE LTD",
+    "security_type": "SHS",
+    "ticker": "GLBE"
+  },
+  "M98068105": {
+    "name": "WIX COM LTD",
+    "security_type": "SHS",
+    "ticker": "WIX"
+  },
+  "N07059210": {
+    "name": "ASML HLDG NV",
+    "security_type": "N Y REGISTRY SHS",
+    "ticker": "ASML"
+  },
+  "N30577105": {
+    "name": "ERMENEGILDO ZEGNA N V",
+    "security_type": "ORD SHS",
+    "ticker": "ZGN"
+  },
+  "N5505D105": {
+    "name": "MAGNUM ICE CREAM CO NV",
+    "security_type": "ORD SHS",
+    "ticker": "MICC"
+  },
+  "V5633W109": {
+    "name": "MAKEMYTRIP LIMITED MAURITIUS",
+    "security_type": "SHS",
+    "ticker": null
+  }
+}

@@ -4,11 +4,14 @@
 pipeline:
   target_period: "2026-Q2"
   baseline_period: "2026-Q1"
+  min_funds: 7
+  allow_partial: false
   max_validation_retries: 3
   state_dir: "state"
   reports_dir: "reports"
   prompts_dir: "prompts"
   data_dir: "data"
+  db_path: "data/autopilot.db"
 
 sec:
   base_url: "https://data.sec.gov"

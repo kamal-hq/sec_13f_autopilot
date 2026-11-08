@@ -68,6 +68,29 @@ pip install -e .
 
 ## Usage
 
+### Phase 1: Detection, Replay, and Ingestion
+
+```bash
+# Detect 13F-HR and 13F-HR/A filings across configured funds (writes reports/<period>/detect.json)
+autopilot detect
+
+# Replay detection as of a historical cutoff date (ignores filings with filed_date > as-of)
+autopilot detect --as-of 2026-08-20
+autopilot detect --as-of 2026-09-05
+
+# Dry-run detection (no report files written)
+autopilot detect --as-of 2026-09-05 --dry-run
+
+# Ingest target period and previous period into data/autopilot.db and reconcile against cover pages
+autopilot ingest --period 2026-Q2
+
+# Run the pipeline in sequence through a specific stage (e.g., detect -> ingest)
+autopilot run --through ingest
+autopilot run --through ingest --as-of 2026-09-05
+```
+
+### Full Pipeline Options
+
 ```bash
 # Dry-run stage verification (offline, uses NullProvider by default)
 autopilot --dry-run

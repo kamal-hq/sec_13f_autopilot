@@ -1,0 +1,36 @@
+{
+  "cik": "0001423053",
+  "entityType": "other",
+  "sic": "6282",
+  "sicDescription": "INVESTMENT ADVICE",
+  "name": "CITADEL ADVISORS LLC",
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0001104659-26-104387",
+        "0001104659-26-097200",
+        "0001104659-26-062477"
+      ],
+      "form": [
+        "13F-HR/A",
+        "13F-HR",
+        "13F-HR"
+      ],
+      "filingDate": [
+        "2026-09-02",
+        "2026-08-14",
+        "2026-05-15"
+      ],
+      "reportDate": [
+        "2026-06-30",
+        "2026-06-30",
+        "2026-03-31"
+      ],
+      "primaryDocument": [
+        "primary_doc.xml",
+        "primary_doc.xml",
+        "primary_doc.xml"
+      ]
+    }
+  }
+}

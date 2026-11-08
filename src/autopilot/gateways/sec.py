@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import logging
+import re
 import time
+import xml.etree.ElementTree as ET
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
-
-import requests
 
 from autopilot.gateways.http import (
     HttpClient,
@@ -20,12 +22,13 @@ from autopilot.gateways.http import (
     HttpTimeoutError,
     RateLimiter,
 )
-from autopilot.models import SecFilingMetadata
+from autopilot.models import Filing
 from autopilot.settings import Settings
 
 logger = logging.getLogger(__name__)
 
 MAX_SEC_REQUESTS_PER_SECOND: float = 8.0
+COVER_NS: dict[str, str] = {"n": "http://www.sec.gov/edgar/thirteenffiler"}
 
 _PLACEHOLDER_USER_AGENTS = frozenset(
     {
@@ -35,6 +38,9 @@ _PLACEHOLDER_USER_AGENTS = frozenset(
         "sec_13f_analyzer research@example.com",
     }
 )
+
+_SUBMISSIONS_URL_RE = re.compile(r"/submissions/CIK(\d{10})\.json$")
+_ARCHIVE_URL_RE = re.compile(r"/Archives/edgar/data/(\d+)/(\d{18})/([^/?#]+)$")
 
 
 class SecError(HttpError):
@@ -76,6 +82,141 @@ def _report_date_to_period(report_date: str) -> str:
     return f"{year}-Q{quarter}"
 
 
+def _format_accession_with_dashes(acc_no_dashes: str) -> str:
+    """Convert an 18-digit hyphenless accession string into `XXXXXXXXXX-YY-ZZZZZZ`."""
+    clean = acc_no_dashes.strip()
+    if len(clean) == 18 and clean.isdigit():
+        return f"{clean[:10]}-{clean[10:12]}-{clean[12:]}"
+    return clean
+
+
+class _SimpleFixtureResponse:
+    """Lightweight `requests.Response`-compatible object returned by `FixtureSecSession`."""
+
+    def __init__(
+        self,
+        status_code: int,
+        text: str,
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        self.status_code = status_code
+        self.text = text
+        self.content = text.encode("utf-8")
+        self.headers = headers or {"Content-Type": "application/json"}
+
+
+class FixtureSecSession:
+    """Offline `requests.Session` replacement serving recorded SEC EDGAR fixtures."""
+
+    def __init__(
+        self,
+        fixtures_dir: Path | str = Path("tests/fixtures"),
+        *,
+        raw_xml_dirs: list[Path] | None = None,
+    ) -> None:
+        self.fixtures_dir = Path(fixtures_dir)
+        self.submissions_dir = (
+            self.fixtures_dir / "submissions"
+            if (self.fixtures_dir / "submissions").exists()
+            else self.fixtures_dir
+        )
+        cover_file = self.fixtures_dir / "cover_pages.json"
+        if not cover_file.exists():
+            cover_file = self.submissions_dir / "cover_pages.json"
+        self.cover_pages: dict[str, dict[str, Any]] = (
+            json.loads(cover_file.read_text(encoding="utf-8")) if cover_file.exists() else {}
+        )
+        self.raw_xml_dirs = list(
+            raw_xml_dirs
+            or [
+                Path("data/raw"),
+                self.fixtures_dir / "raw",
+            ]
+        )
+
+    def request(
+        self,
+        method: str,
+        url: str,
+        *,
+        headers: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
+        timeout: float | None = None,
+    ) -> _SimpleFixtureResponse:
+        """Serve recorded SEC submissions JSON, index.json, primary_doc.xml, or info table XML."""
+        _ = (method, headers, params, timeout)
+
+        sub_match = _SUBMISSIONS_URL_RE.search(url)
+        if sub_match:
+            cik = sub_match.group(1)
+            sub_path = self.submissions_dir / f"CIK{cik}.json"
+            if not sub_path.exists():
+                return _SimpleFixtureResponse(404, '{"error": "Not Found"}')
+            return _SimpleFixtureResponse(200, sub_path.read_text(encoding="utf-8"))
+
+        arch_match = _ARCHIVE_URL_RE.search(url)
+        if arch_match:
+            cik_int, acc_no_dashes, doc_name = arch_match.groups()
+            padded_cik = cik_int.zfill(10)
+            accession = _format_accession_with_dashes(acc_no_dashes)
+            meta = self.cover_pages.get(accession, {})
+            primary_doc = str(meta.get("primary_doc", "primary_doc.xml"))
+            infotable_doc = str(meta.get("infotable_doc", "form13fInfoTable.xml"))
+
+            if doc_name == "index.json":
+                index_payload = {
+                    "directory": {
+                        "item": [
+                            {"name": primary_doc},
+                            {"name": infotable_doc},
+                        ]
+                    }
+                }
+                return _SimpleFixtureResponse(200, json.dumps(index_payload))
+
+            if doc_name == primary_doc or "primary_doc" in doc_name.lower():
+                is_amd = "true" if meta.get("is_amendment") else "false"
+                amd_type = meta.get("amendment_type") or ""
+                entry_tot = meta.get("table_entry_total")
+                val_tot = meta.get("table_value_total")
+                amd_block = f"<isAmendment>{is_amd}</isAmendment>" + (
+                    f"<amendmentType>{amd_type}</amendmentType>" if amd_type else ""
+                )
+                entry_val = entry_tot if entry_tot is not None else 0
+                total_val = val_tot if val_tot is not None else 0
+                xml_body = (
+                    '<?xml version="1.0" encoding="UTF-8"?>'
+                    '<edgarSubmission xmlns="http://www.sec.gov/edgar/thirteenffiler">'
+                    f"<headerData><filerInfo><filer><credentials><cik>{padded_cik}</cik>"
+                    "</credentials></filer></filerInfo></headerData>"
+                    f"<formData><coverPage><amendmentInfo>{amd_block}</amendmentInfo></coverPage>"
+                    "<summaryPage>"
+                    f"<tableEntryTotal>{entry_val}</tableEntryTotal>"
+                    f"<tableValueTotal>{total_val}</tableValueTotal>"
+                    "</summaryPage></formData></edgarSubmission>"
+                )
+                return _SimpleFixtureResponse(
+                    200,
+                    xml_body,
+                    headers={"Content-Type": "application/xml"},
+                )
+
+            # Information table XML request
+            for raw_dir in self.raw_xml_dirs:
+                candidate = raw_dir / f"{padded_cik}_{accession}.xml"
+                if candidate.exists():
+                    return _SimpleFixtureResponse(
+                        200,
+                        candidate.read_text(encoding="utf-8"),
+                        headers={"Content-Type": "application/xml"},
+                    )
+
+        return _SimpleFixtureResponse(404, '{"error": "Fixture resource not found"}')
+
+    def close(self) -> None:
+        """No-op session close."""
+
+
 class SecGateway:
     """Gateway for SEC EDGAR submissions and Form 13F filings.
 
@@ -93,7 +234,7 @@ class SecGateway:
         settings: Settings,
         *,
         http_client: HttpClient | None = None,
-        session: requests.Session | None = None,
+        session: Any = None,
         sleep_fn: Callable[[float], None] = time.sleep,
         clock_fn: Callable[[], float] = time.monotonic,
     ) -> None:
@@ -138,6 +279,25 @@ class SecGateway:
                 sleep_fn=sleep_fn,
                 clock_fn=clock_fn,
             )
+        )
+
+    @classmethod
+    def from_fixtures(
+        cls,
+        settings: Settings | None = None,
+        *,
+        fixtures_dir: Path | str = Path("tests/fixtures"),
+        raw_xml_dirs: list[Path] | None = None,
+    ) -> SecGateway:
+        """Create an offline `SecGateway` backed by `FixtureSecSession`."""
+        base = settings or Settings(sec_user_agent="AutopilotReplay replay@local.test")
+        if not base.sec_user_agent or "@" not in base.sec_user_agent:
+            base.sec_user_agent = "AutopilotReplay replay@local.test"
+        fixture_session = FixtureSecSession(fixtures_dir, raw_xml_dirs=raw_xml_dirs)
+        return cls(
+            base,
+            session=fixture_session,
+            sleep_fn=lambda _: None,
         )
 
     @property
@@ -206,13 +366,93 @@ class SecGateway:
         url = f"{self._settings.sec_base_url}/submissions/CIK{padded_cik}.json"
         return self.get_json(url)
 
+    def inspect_filing_cover_page(
+        self,
+        cik: str,
+        accession_number: str,
+        *,
+        primary_document: str | None = None,
+    ) -> dict[str, Any]:
+        """Fetch `index.json` and `primary_doc.xml` via `SecGateway` for cover-page metadata."""
+        numeric_cik = str(int(cik.strip()))
+        acc_no_dashes = accession_number.strip().replace("-", "")
+        base_archive = f"{self._settings.sec_edgar_archives_url}/{numeric_cik}/{acc_no_dashes}"
+
+        index_data = self.get_json(f"{base_archive}/index.json")
+        items = index_data.get("directory", {}).get("item", []) or []
+        xml_files = [
+            str(item.get("name", ""))
+            for item in items
+            if str(item.get("name", "")).lower().endswith(".xml")
+        ]
+        raw_primary_from_index = next(
+            (f for f in xml_files if "primary_doc" in f.lower() and "/" not in f),
+            None,
+        )
+        if raw_primary_from_index:
+            resolved_primary = raw_primary_from_index
+        elif primary_document:
+            resolved_primary = primary_document.rsplit("/", 1)[-1]
+        else:
+            resolved_primary = "primary_doc.xml"
+        infotable_doc = next(
+            (f for f in xml_files if "primary_doc" not in f.lower()),
+            "",
+        )
+
+        info: dict[str, Any] = {
+            "primary_doc": resolved_primary,
+            "infotable_doc": infotable_doc,
+            "is_amendment": False,
+            "amendment_type": None,
+            "table_entry_total": None,
+            "table_value_total": None,
+        }
+
+        if resolved_primary:
+            cover_resp = self.get(f"{base_archive}/{resolved_primary.lstrip('/')}")
+            try:
+                root = ET.fromstring(cover_resp.text)
+                is_amd_str = (
+                    root.findtext(".//n:isAmendment", default="false", namespaces=COVER_NS)
+                    .strip()
+                    .lower()
+                )
+                amd_type_str = (
+                    root.findtext(".//n:amendmentType", default="", namespaces=COVER_NS)
+                    .strip()
+                    .upper()
+                )
+                entry_str = root.findtext(
+                    ".//n:tableEntryTotal", default="", namespaces=COVER_NS
+                ).strip()
+                val_str = root.findtext(
+                    ".//n:tableValueTotal", default="", namespaces=COVER_NS
+                ).strip()
+
+                info["is_amendment"] = is_amd_str == "true"
+                info["amendment_type"] = amd_type_str or None
+                info["table_entry_total"] = int(entry_str) if entry_str.isdigit() else None
+                info["table_value_total"] = int(val_str) if val_str.isdigit() else None
+            except ET.ParseError as exc:
+                logger.warning(
+                    "Could not parse cover page XML for %s / %s: %s",
+                    cik,
+                    accession_number,
+                    exc,
+                )
+        return info
+
     def get_latest_13f_metadata(
         self,
         cik: str,
         *,
         fund_name: str = "",
         forms: tuple[str, ...] = ("13F-HR", "13F-HR/A"),
-    ) -> list[SecFilingMetadata]:
+        as_of: str | None = None,
+        min_period: str | None = None,
+        inspect_cover_pages: bool = False,
+    ) -> list[Filing]:
         """Extract Form 13F filing metadata entries from a fund's submissions payload."""
         padded_cik = cik.strip().zfill(10)
         payload = self.get_submissions(padded_cik)
@@ -224,8 +464,12 @@ class SecGateway:
         filing_dates: list[str] = recent.get("filingDate", []) or []
         report_dates: list[str] = recent.get("reportDate", []) or []
         primary_docs: list[str] = recent.get("primaryDocument", []) or []
+        amendment_types: list[str | None] = recent.get("amendmentType", []) or []
+        table_values: list[int | None] = recent.get("tableValueTotal", []) or []
+        table_entries: list[int | None] = recent.get("tableEntryTotal", []) or []
+        infotable_docs: list[str] = recent.get("infotableDocument", []) or []
 
-        results: list[SecFilingMetadata] = []
+        results: list[Filing] = []
         row_count = min(
             len(accession_list),
             len(form_list),
@@ -236,18 +480,47 @@ class SecGateway:
             form_type = form_list[idx]
             if form_type not in forms:
                 continue
+            filed_date = filing_dates[idx]
+            if as_of is not None and filed_date > as_of:
+                continue
             report_date = report_dates[idx]
+            period = _report_date_to_period(report_date)
+            if min_period is not None and period < min_period:
+                continue
+
             primary_doc = primary_docs[idx] if idx < len(primary_docs) else "primary_doc.xml"
+            amd_type = amendment_types[idx] if idx < len(amendment_types) else None
+            val_tot = table_values[idx] if idx < len(table_values) else None
+            entry_tot = table_entries[idx] if idx < len(table_entries) else None
+            info_doc = infotable_docs[idx] if idx < len(infotable_docs) else ""
+
+            if inspect_cover_pages and (
+                val_tot is None or (form_type == "13F-HR/A" and amd_type is None)
+            ):
+                cover = self.inspect_filing_cover_page(
+                    padded_cik,
+                    accession_list[idx],
+                    primary_document=primary_doc,
+                )
+                amd_type = cover["amendment_type"]
+                val_tot = cover["table_value_total"]
+                entry_tot = cover["table_entry_total"]
+                info_doc = str(cover["infotable_doc"] or "")
+
             results.append(
-                SecFilingMetadata(
+                Filing(
                     cik=padded_cik,
                     fund_name=resolved_name,
-                    accession_number=accession_list[idx],
+                    accession=accession_list[idx],
                     form_type=form_type,
-                    filing_date=filing_dates[idx],
+                    filed_date=filed_date,
+                    period=period,
+                    amendment_type=amd_type,
                     report_date=report_date,
-                    period=_report_date_to_period(report_date),
                     primary_document=primary_doc,
+                    infotable_document=info_doc,
+                    table_entry_total=entry_tot,
+                    table_value_total=val_tot,
                 )
             )
         return results
@@ -267,6 +540,24 @@ class SecGateway:
         )
         response = self.get(url)
         return response.text
+
+    def fetch_information_table_xml(
+        self,
+        cik: str,
+        accession_number: str,
+        infotable_doc: str | None = None,
+    ) -> str:
+        """Download the 13F information table XML document via `SecGateway`."""
+        resolved_doc = infotable_doc
+        if not resolved_doc:
+            cover = self.inspect_filing_cover_page(cik, accession_number)
+            resolved_doc = str(cover.get("infotable_doc") or "")
+        if not resolved_doc:
+            raise SecNotFoundError(
+                f"No information table XML document found for {cik} / {accession_number}",
+                status_code=404,
+            )
+        return self.fetch_filing_document(cik, accession_number, resolved_doc)
 
     def close(self) -> None:
         """Close the underlying HTTP client."""

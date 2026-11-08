@@ -1,0 +1,1184 @@
+{
+  "AA": {
+    "cik": "0001675149",
+    "sector": "Materials",
+    "sic": "3334",
+    "sic_description": "Primary Production of  Aluminum"
+  },
+  "AADX": {
+    "cik": "0002118195",
+    "sector": "Industrials",
+    "sic": "3728",
+    "sic_description": "Aircraft Parts & Auxiliary Equipment, NEC"
+  },
+  "AAPL": {
+    "cik": "0000320193",
+    "sector": "Technology",
+    "sic": "3571",
+    "sic_description": "Electronic Computers"
+  },
+  "ABNB": {
+    "cik": "0001559720",
+    "sector": "Consumer Discretionary",
+    "sic": "7340",
+    "sic_description": "Services-To Dwellings & Other Buildings"
+  },
+  "ADI": {
+    "cik": "0000006281",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "AGX": {
+    "cik": "0000100591",
+    "sector": "Industrials",
+    "sic": "1700",
+    "sic_description": "Construction - Special Trade Contractors"
+  },
+  "ALLY": {
+    "cik": "0000040729",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "AMD": {
+    "cik": "0000002488",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "AMZN": {
+    "cik": "0001018724",
+    "sector": "Consumer Discretionary",
+    "sic": "5961",
+    "sic_description": "Retail-Catalog & Mail-Order Houses"
+  },
+  "ANET": {
+    "cik": "0001596532",
+    "sector": "Technology",
+    "sic": "3576",
+    "sic_description": "Computer Communications Equipment"
+  },
+  "APO": {
+    "cik": "0001858681",
+    "sector": "Financials",
+    "sic": "6282",
+    "sic_description": "Investment Advice"
+  },
+  "APP": {
+    "cik": "0001751008",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "ARXS": {
+    "cik": "0002093536",
+    "sector": "Industrials",
+    "sic": "3728",
+    "sic_description": "Aircraft Parts & Auxiliary Equipment, NEC"
+  },
+  "AS": {
+    "cik": "0001988894",
+    "sector": "Consumer Discretionary",
+    "sic": "2300",
+    "sic_description": "Apparel & Other Finishd Prods of  Fabrics & Similar Matl"
+  },
+  "ASML": {
+    "cik": "0000937966",
+    "sector": "Technology",
+    "sic": "3559",
+    "sic_description": "Special Industry Machinery, NEC"
+  },
+  "ATAT": {
+    "cik": "0001853717",
+    "sector": "Consumer Discretionary",
+    "sic": "7011",
+    "sic_description": "Hotels & Motels"
+  },
+  "AVGO": {
+    "cik": "0001730168",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "AXP": {
+    "cik": "0000004962",
+    "sector": "Financials",
+    "sic": "6199",
+    "sic_description": "Finance Services"
+  },
+  "AZN": {
+    "cik": "0000901832",
+    "sector": "Healthcare",
+    "sic": "2834",
+    "sic_description": "Pharmaceutical Preparations"
+  },
+  "BABA": {
+    "cik": "0001577552",
+    "sector": "Industrials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "BAC": {
+    "cik": "0000070858",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "BE": {
+    "cik": "0001664703",
+    "sector": "Industrials",
+    "sic": "3620",
+    "sic_description": "Electrical Industrial Apparatus"
+  },
+  "BEKE": {
+    "cik": "0001809587",
+    "sector": "Real Estate",
+    "sic": "6531",
+    "sic_description": "Real Estate Agents & Managers (For Others)"
+  },
+  "BKNG": {
+    "cik": "0001075531",
+    "sector": "Consumer Discretionary",
+    "sic": "4700",
+    "sic_description": "Transportation Services"
+  },
+  "BKSY": {
+    "cik": "0001753539",
+    "sector": "Technology",
+    "sic": "3663",
+    "sic_description": "Radio & Tv Broadcasting & Communications Equipment"
+  },
+  "BLK": {
+    "cik": "0002012383",
+    "sector": "Financials",
+    "sic": "6211",
+    "sic_description": "Security Brokers, Dealers & Flotation Companies"
+  },
+  "BNTX": {
+    "cik": "0001776985",
+    "sector": "Healthcare",
+    "sic": "2836",
+    "sic_description": "Biological Products, (No Diagnostic Substances)"
+  },
+  "BNY": {
+    "cik": "0001390777",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "BSX": {
+    "cik": "0000885725",
+    "sector": "Healthcare",
+    "sic": "3841",
+    "sic_description": "Surgical & Medical Instruments & Apparatus"
+  },
+  "BZ": {
+    "cik": "0001842827",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "C": {
+    "cik": "0000831001",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "CAI": {
+    "cik": "0002019410",
+    "sector": "Healthcare",
+    "sic": "8071",
+    "sic_description": "Services-Medical Laboratories"
+  },
+  "CAMT": {
+    "cik": "0001109138",
+    "sector": "Technology",
+    "sic": "3827",
+    "sic_description": "Optical Instruments & Lenses"
+  },
+  "CAT": {
+    "cik": "0000018230",
+    "sector": "Industrials",
+    "sic": "3531",
+    "sic_description": "Construction Machinery & Equip"
+  },
+  "CB": {
+    "cik": "0000896159",
+    "sector": "Financials",
+    "sic": "6331",
+    "sic_description": "Fire, Marine & Casualty Insurance"
+  },
+  "CBRS": {
+    "cik": "0002021728",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "CCJ": {
+    "cik": "0001009001",
+    "sector": "Materials",
+    "sic": "1090",
+    "sic_description": "Miscellaneous Metal Ores"
+  },
+  "CDNS": {
+    "cik": "0000813672",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "CFG": {
+    "cik": "0000759944",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "CIEN": {
+    "cik": "0000936395",
+    "sector": "Technology",
+    "sic": "3661",
+    "sic_description": "Telephone & Telegraph Apparatus"
+  },
+  "CLS": {
+    "cik": "0001030894",
+    "sector": "Technology",
+    "sic": "3672",
+    "sic_description": "Printed Circuit Boards"
+  },
+  "CMI": {
+    "cik": "0000026172",
+    "sector": "Industrials",
+    "sic": "3510",
+    "sic_description": "Engines & Turbines"
+  },
+  "COF": {
+    "cik": "0000927628",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "COHR": {
+    "cik": "0000820318",
+    "sector": "Technology",
+    "sic": "3827",
+    "sic_description": "Optical Instruments & Lenses"
+  },
+  "CRDO": {
+    "cik": "0001807794",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "CRM": {
+    "cik": "0001108524",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "CRS": {
+    "cik": "0000017843",
+    "sector": "Materials",
+    "sic": "3312",
+    "sic_description": "Steel Works, Blast Furnaces & Rolling Mills (Coke Ovens)"
+  },
+  "CSCO": {
+    "cik": "0000858877",
+    "sector": "Technology",
+    "sic": "3576",
+    "sic_description": "Computer Communications Equipment"
+  },
+  "CTSH": {
+    "cik": "0001058290",
+    "sector": "Technology",
+    "sic": "7371",
+    "sic_description": "Services-Computer Programming Services"
+  },
+  "CVX": {
+    "cik": "0000093410",
+    "sector": "Energy",
+    "sic": "2911",
+    "sic_description": "Petroleum Refining"
+  },
+  "DAL": {
+    "cik": "0000027904",
+    "sector": "Industrials",
+    "sic": "4512",
+    "sic_description": "Air Transportation, Scheduled"
+  },
+  "DASH": {
+    "cik": "0001792789",
+    "sector": "Industrials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "DE": {
+    "cik": "0000315189",
+    "sector": "Industrials",
+    "sic": "3523",
+    "sic_description": "Farm Machinery & Equipment"
+  },
+  "DHI": {
+    "cik": "0000882184",
+    "sector": "Consumer Discretionary",
+    "sic": "1531",
+    "sic_description": "Operative Builders"
+  },
+  "DHR": {
+    "cik": "0000313616",
+    "sector": "Technology",
+    "sic": "3823",
+    "sic_description": "Industrial Instruments For Measurement, Display, and Control"
+  },
+  "DNLI": {
+    "cik": "0001714899",
+    "sector": "Healthcare",
+    "sic": "2836",
+    "sic_description": "Biological Products, (No Diagnostic Substances)"
+  },
+  "DNN": {
+    "cik": "0001063259",
+    "sector": "Materials",
+    "sic": "1090",
+    "sic_description": "Miscellaneous Metal Ores"
+  },
+  "DPC": {
+    "cik": "0002107018",
+    "sector": "Materials",
+    "sic": "3360",
+    "sic_description": "Nonferrous Foundries (Castings)"
+  },
+  "DSGX": {
+    "cik": "0001050140",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "DVA": {
+    "cik": "0000927066",
+    "sector": "Healthcare",
+    "sic": "8090",
+    "sic_description": "Services-Misc Health & Allied Services, NEC"
+  },
+  "EGO": {
+    "cik": "0000918608",
+    "sector": "Materials",
+    "sic": "1040",
+    "sic_description": "Gold and Silver Ores"
+  },
+  "ERO": {
+    "cik": "0001853860",
+    "sector": "Materials",
+    "sic": "1000",
+    "sic_description": "Metal Mining"
+  },
+  "EWBC": {
+    "cik": "0001069157",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "FCX": {
+    "cik": "0000831259",
+    "sector": "Materials",
+    "sic": "1000",
+    "sic_description": "Metal Mining"
+  },
+  "FHN": {
+    "cik": "0000036966",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "FIGR": {
+    "cik": "0002064124",
+    "sector": "Financials",
+    "sic": "6163",
+    "sic_description": "Loan Brokers"
+  },
+  "FITB": {
+    "cik": "0000035527",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "FIX": {
+    "cik": "0001035983",
+    "sector": "Industrials",
+    "sic": "1731",
+    "sic_description": "Electrical Work"
+  },
+  "FLY": {
+    "cik": "0001860160",
+    "sector": "Industrials",
+    "sic": "3760",
+    "sic_description": "Guided Missiles & Space Vehicles & Parts"
+  },
+  "FLYW": {
+    "cik": "0001580560",
+    "sector": "Industrials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "FN": {
+    "cik": "0001408710",
+    "sector": "Technology",
+    "sic": "3661",
+    "sic_description": "Telephone & Telegraph Apparatus"
+  },
+  "FORM": {
+    "cik": "0001039399",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "FTAI": {
+    "cik": "0001590364",
+    "sector": "Industrials",
+    "sic": "7350",
+    "sic_description": "Services-Miscellaneous Equipment Rental & Leasing"
+  },
+  "G": {
+    "cik": "0001398659",
+    "sector": "Industrials",
+    "sic": "8742",
+    "sic_description": "Services-Management Consulting Services"
+  },
+  "GE": {
+    "cik": "0000040545",
+    "sector": "Industrials",
+    "sic": "3600",
+    "sic_description": "Electronic & Other Electrical Equipment (No Computer Equip)"
+  },
+  "GEHC": {
+    "cik": "0001932393",
+    "sector": "Healthcare",
+    "sic": "3844",
+    "sic_description": "X-Ray Apparatus & Tubes & Related Irradiation Apparatus"
+  },
+  "GEV": {
+    "cik": "0001996810",
+    "sector": "Industrials",
+    "sic": "3600",
+    "sic_description": "Electronic & Other Electrical Equipment (No Computer Equip)"
+  },
+  "GH": {
+    "cik": "0001576280",
+    "sector": "Healthcare",
+    "sic": "8071",
+    "sic_description": "Services-Medical Laboratories"
+  },
+  "GLBE": {
+    "cik": "0001835963",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "GLD": {
+    "cik": "0001222333",
+    "sector": "Financials",
+    "sic": "6221",
+    "sic_description": "Commodity Contracts Brokers & Dealers"
+  },
+  "GLW": {
+    "cik": "0000024741",
+    "sector": "Materials",
+    "sic": "3357",
+    "sic_description": "Drawing & Insulating of  Nonferrous Wire"
+  },
+  "GOOG": {
+    "cik": "0001652044",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "GOOGL": {
+    "cik": "0001652044",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "GS": {
+    "cik": "0000886982",
+    "sector": "Financials",
+    "sic": "6211",
+    "sic_description": "Security Brokers, Dealers & Flotation Companies"
+  },
+  "HBAN": {
+    "cik": "0000049196",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "HBM": {
+    "cik": "0001322422",
+    "sector": "Materials",
+    "sic": "1000",
+    "sic_description": "Metal Mining"
+  },
+  "HCA": {
+    "cik": "0000860730",
+    "sector": "Healthcare",
+    "sic": "8062",
+    "sic_description": "Services-General Medical & Surgical Hospitals, NEC"
+  },
+  "HD": {
+    "cik": "0000354950",
+    "sector": "Consumer Discretionary",
+    "sic": "5211",
+    "sic_description": "Retail-Lumber & Other Building Materials Dealers"
+  },
+  "HDB": {
+    "cik": "0001144967",
+    "sector": "Financials",
+    "sic": "6029",
+    "sic_description": "Commercial Banks, NEC"
+  },
+  "HNGE": {
+    "cik": "0001673743",
+    "sector": "Technology",
+    "sic": "7374",
+    "sic_description": "Services-Computer Processing & Data Preparation"
+  },
+  "HTFL": {
+    "cik": "0001464521",
+    "sector": "Healthcare",
+    "sic": "3841",
+    "sic_description": "Surgical & Medical Instruments & Apparatus"
+  },
+  "HTHT": {
+    "cik": "0001483994",
+    "sector": "Consumer Discretionary",
+    "sic": "7011",
+    "sic_description": "Hotels & Motels"
+  },
+  "IBN": {
+    "cik": "0001103838",
+    "sector": "Financials",
+    "sic": "6029",
+    "sic_description": "Commercial Banks, NEC"
+  },
+  "INTA": {
+    "cik": "0001565687",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "INTU": {
+    "cik": "0000896878",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "ISRG": {
+    "cik": "0001035267",
+    "sector": "Healthcare",
+    "sic": "3842",
+    "sic_description": "Orthopedic, Prosthetic & Surgical Appliances & Supplies"
+  },
+  "JEF": {
+    "cik": "0000096223",
+    "sector": "Financials",
+    "sic": "6211",
+    "sic_description": "Security Brokers, Dealers & Flotation Companies"
+  },
+  "JPM": {
+    "cik": "0000019617",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "KDP": {
+    "cik": "0001418135",
+    "sector": "Consumer Staples",
+    "sic": "2080",
+    "sic_description": "Beverages"
+  },
+  "KEY": {
+    "cik": "0000091576",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "KHC": {
+    "cik": "0001637459",
+    "sector": "Consumer Staples",
+    "sic": "2030",
+    "sic_description": "Canned, Frozen & Preservd Fruit, Veg & Food Specialties"
+  },
+  "KKR": {
+    "cik": "0001404912",
+    "sector": "Financials",
+    "sic": "6282",
+    "sic_description": "Investment Advice"
+  },
+  "KLAC": {
+    "cik": "0000319201",
+    "sector": "Technology",
+    "sic": "3827",
+    "sic_description": "Optical Instruments & Lenses"
+  },
+  "KO": {
+    "cik": "0000021344",
+    "sector": "Consumer Staples",
+    "sic": "2080",
+    "sic_description": "Beverages"
+  },
+  "KR": {
+    "cik": "0000056873",
+    "sector": "Consumer Staples",
+    "sic": "5411",
+    "sic_description": "Retail-Grocery Stores"
+  },
+  "LEN": {
+    "cik": "0000920760",
+    "sector": "Consumer Discretionary",
+    "sic": "1520",
+    "sic_description": "General Bldg Contractors - Residential Bldgs"
+  },
+  "LIN": {
+    "cik": "0001707925",
+    "sector": "Materials",
+    "sic": "2810",
+    "sic_description": "Industrial Inorganic Chemicals"
+  },
+  "LITE": {
+    "cik": "0001633978",
+    "sector": "Technology",
+    "sic": "3669",
+    "sic_description": "Communications Equipment, NEC"
+  },
+  "LLY": {
+    "cik": "0000059478",
+    "sector": "Healthcare",
+    "sic": "2834",
+    "sic_description": "Pharmaceutical Preparations"
+  },
+  "LLYVA": {
+    "cik": "0002078416",
+    "sector": "Consumer Discretionary",
+    "sic": "7900",
+    "sic_description": "Services-Amusement & Recreation Services"
+  },
+  "LLYVK": {
+    "cik": "0002078416",
+    "sector": "Consumer Discretionary",
+    "sic": "7900",
+    "sic_description": "Services-Amusement & Recreation Services"
+  },
+  "LPX": {
+    "cik": "0000060519",
+    "sector": "Materials",
+    "sic": "2400",
+    "sic_description": "Lumber & Wood Products (No Furniture)"
+  },
+  "LRCX": {
+    "cik": "0000707549",
+    "sector": "Technology",
+    "sic": "3559",
+    "sic_description": "Special Industry Machinery, NEC"
+  },
+  "M": {
+    "cik": "0000794367",
+    "sector": "Consumer Discretionary",
+    "sic": "5311",
+    "sic_description": "Retail-Department Stores"
+  },
+  "MA": {
+    "cik": "0001141391",
+    "sector": "Financials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "MCK": {
+    "cik": "0000927653",
+    "sector": "Industrials",
+    "sic": "5122",
+    "sic_description": "Wholesale-Drugs, Proprietaries & Druggists' Sundries"
+  },
+  "MCO": {
+    "cik": "0001059556",
+    "sector": "Financials",
+    "sic": "7320",
+    "sic_description": "Services-Consumer Credit Reporting, Collection Agencies"
+  },
+  "META": {
+    "cik": "0001326801",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "MRK": {
+    "cik": "0000310158",
+    "sector": "Healthcare",
+    "sic": "2834",
+    "sic_description": "Pharmaceutical Preparations"
+  },
+  "MRSH": {
+    "cik": "0000062709",
+    "sector": "Financials",
+    "sic": "6411",
+    "sic_description": "Insurance Agents, Brokers & Service"
+  },
+  "MRVL": {
+    "cik": "0001835632",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "MS": {
+    "cik": "0000895421",
+    "sector": "Financials",
+    "sic": "6211",
+    "sic_description": "Security Brokers, Dealers & Flotation Companies"
+  },
+  "MSCI": {
+    "cik": "0001408198",
+    "sector": "Industrials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "MSFT": {
+    "cik": "0000789019",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "MTB": {
+    "cik": "0000036270",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "MU": {
+    "cik": "0000723125",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "NEE": {
+    "cik": "0000753308",
+    "sector": "Utilities",
+    "sic": "4911",
+    "sic_description": "Electric Services"
+  },
+  "NFLX": {
+    "cik": "0001065280",
+    "sector": "Communication Services",
+    "sic": "7841",
+    "sic_description": "Services-Video Tape Rental"
+  },
+  "NKE": {
+    "cik": "0000320187",
+    "sector": "Consumer Discretionary",
+    "sic": "3021",
+    "sic_description": "Rubber & Plastics Footwear"
+  },
+  "NOK": {
+    "cik": "0000924613",
+    "sector": "Technology",
+    "sic": "3663",
+    "sic_description": "Radio & Tv Broadcasting & Communications Equipment"
+  },
+  "NOW": {
+    "cik": "0001373715",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "NTES": {
+    "cik": "0001110646",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "NTRA": {
+    "cik": "0001604821",
+    "sector": "Healthcare",
+    "sic": "8071",
+    "sic_description": "Services-Medical Laboratories"
+  },
+  "NTRS": {
+    "cik": "0000073124",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "NUE": {
+    "cik": "0000073309",
+    "sector": "Materials",
+    "sic": "3312",
+    "sic_description": "Steel Works, Blast Furnaces & Rolling Mills (Coke Ovens)"
+  },
+  "NVDA": {
+    "cik": "0001045810",
+    "sector": "Technology",
+    "sic": "3674",
+    "sic_description": "Semiconductors & Related Devices"
+  },
+  "NVR": {
+    "cik": "0000906163",
+    "sector": "Consumer Discretionary",
+    "sic": "1531",
+    "sic_description": "Operative Builders"
+  },
+  "NXE": {
+    "cik": "0001698535",
+    "sector": "Materials",
+    "sic": "1090",
+    "sic_description": "Miscellaneous Metal Ores"
+  },
+  "NYT": {
+    "cik": "0000071691",
+    "sector": "Communication Services",
+    "sic": "2711",
+    "sic_description": "Newspapers: Publishing or  Publishing & Printing"
+  },
+  "ONC": {
+    "cik": "0001651308",
+    "sector": "Healthcare",
+    "sic": "2834",
+    "sic_description": "Pharmaceutical Preparations"
+  },
+  "OXY": {
+    "cik": "0000797468",
+    "sector": "Energy",
+    "sic": "1311",
+    "sic_description": "Crude Petroleum & Natural Gas"
+  },
+  "PANW": {
+    "cik": "0001327567",
+    "sector": "Technology",
+    "sic": "3577",
+    "sic_description": "Computer Peripheral Equipment, NEC"
+  },
+  "PAYO": {
+    "cik": "0001845815",
+    "sector": "Industrials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "PDD": {
+    "cik": "0001737806",
+    "sector": "Industrials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "PEP": {
+    "cik": "0000077476",
+    "sector": "Consumer Staples",
+    "sic": "2080",
+    "sic_description": "Beverages"
+  },
+  "PGR": {
+    "cik": "0000080661",
+    "sector": "Financials",
+    "sic": "6331",
+    "sic_description": "Fire, Marine & Casualty Insurance"
+  },
+  "PNC": {
+    "cik": "0000713676",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "PNFP": {
+    "cik": "0002082866",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "PONY": {
+    "cik": "0001969302",
+    "sector": "Technology",
+    "sic": "7373",
+    "sic_description": "Services-Computer Integrated Systems Design"
+  },
+  "QCOM": {
+    "cik": "0000804328",
+    "sector": "Technology",
+    "sic": "3663",
+    "sic_description": "Radio & Tv Broadcasting & Communications Equipment"
+  },
+  "RBLX": {
+    "cik": "0001315098",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "RF": {
+    "cik": "0001281761",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "SCCO": {
+    "cik": "0001001838",
+    "sector": "Materials",
+    "sic": "1000",
+    "sic_description": "Metal Mining"
+  },
+  "SE": {
+    "cik": "0001703399",
+    "sector": "Industrials",
+    "sic": "7380",
+    "sic_description": "Services-Miscellaneous Business Services"
+  },
+  "SES": {
+    "cik": "0001819142",
+    "sector": "Industrials",
+    "sic": "3690",
+    "sic_description": "Miscellaneous Electrical Machinery, Equipment & Supplies"
+  },
+  "SIRI": {
+    "cik": "0000908937",
+    "sector": "Communication Services",
+    "sic": "4832",
+    "sic_description": "Radio Broadcasting Stations"
+  },
+  "SNDK": {
+    "cik": "0002023554",
+    "sector": "Technology",
+    "sic": "3572",
+    "sic_description": "Computer Storage Devices"
+  },
+  "SNOW": {
+    "cik": "0001640147",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "SNPS": {
+    "cik": "0000883241",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "SPCX": {
+    "cik": "0001181412",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "SPGI": {
+    "cik": "0000064040",
+    "sector": "Financials",
+    "sic": "7320",
+    "sic_description": "Services-Consumer Credit Reporting, Collection Agencies"
+  },
+  "STRL": {
+    "cik": "0000874238",
+    "sector": "Industrials",
+    "sic": "1600",
+    "sic_description": "Heavy Construction Other Than Bldg Const - Contractors"
+  },
+  "STX": {
+    "cik": "0001137789",
+    "sector": "Technology",
+    "sic": "3572",
+    "sic_description": "Computer Storage Devices"
+  },
+  "STZ": {
+    "cik": "0000016918",
+    "sector": "Consumer Staples",
+    "sic": "2080",
+    "sic_description": "Beverages"
+  },
+  "TCOM": {
+    "cik": "0001269238",
+    "sector": "Industrials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "TDG": {
+    "cik": "0001260221",
+    "sector": "Industrials",
+    "sic": "3728",
+    "sic_description": "Aircraft Parts & Auxiliary Equipment, NEC"
+  },
+  "TECK": {
+    "cik": "0000886986",
+    "sector": "Materials",
+    "sic": "1400",
+    "sic_description": "Mining & Quarrying of  Nonmetallic Minerals (No Fuels)"
+  },
+  "TEM": {
+    "cik": "0001717115",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "TER": {
+    "cik": "0000097210",
+    "sector": "Technology",
+    "sic": "3825",
+    "sic_description": "Instruments For Meas & Testing of  Electricity & Elec Signals"
+  },
+  "TFC": {
+    "cik": "0000092230",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "TGB": {
+    "cik": "0000878518",
+    "sector": "Materials",
+    "sic": "1040",
+    "sic_description": "Gold and Silver Ores"
+  },
+  "TJX": {
+    "cik": "0000109198",
+    "sector": "Consumer Discretionary",
+    "sic": "5651",
+    "sic_description": "Retail-Family Clothing Stores"
+  },
+  "TME": {
+    "cik": "0001744676",
+    "sector": "Communication Services",
+    "sic": "4832",
+    "sic_description": "Radio Broadcasting Stations"
+  },
+  "TMO": {
+    "cik": "0000097745",
+    "sector": "Technology",
+    "sic": "3829",
+    "sic_description": "Measuring & Controlling Devices, NEC"
+  },
+  "TPG": {
+    "cik": "0001880661",
+    "sector": "Financials",
+    "sic": "6282",
+    "sic_description": "Investment Advice"
+  },
+  "U": {
+    "cik": "0001810806",
+    "sector": "Technology",
+    "sic": "7372",
+    "sic_description": "Services-Prepackaged Software"
+  },
+  "UEC": {
+    "cik": "0001334933",
+    "sector": "Materials",
+    "sic": "1090",
+    "sic_description": "Miscellaneous Metal Ores"
+  },
+  "UL": {
+    "cik": "0000217410",
+    "sector": "Consumer Staples",
+    "sic": "2840",
+    "sic_description": "Soap, Detergents, Cleang Preparations, Perfumes, Cosmetics"
+  },
+  "UNH": {
+    "cik": "0000731766",
+    "sector": "Healthcare",
+    "sic": "6324",
+    "sic_description": "Hospital & Medical Service Plans"
+  },
+  "USB": {
+    "cik": "0000036104",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "UUUU": {
+    "cik": "0001385849",
+    "sector": "Materials",
+    "sic": "1400",
+    "sic_description": "Mining & Quarrying of  Nonmetallic Minerals (No Fuels)"
+  },
+  "V": {
+    "cik": "0001403161",
+    "sector": "Financials",
+    "sic": "7389",
+    "sic_description": "Services-Business Services, NEC"
+  },
+  "VNET": {
+    "cik": "0001508475",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "VRSN": {
+    "cik": "0001014473",
+    "sector": "Technology",
+    "sic": "7371",
+    "sic_description": "Services-Computer Programming Services"
+  },
+  "VRT": {
+    "cik": "0001674101",
+    "sector": "Technology",
+    "sic": "3679",
+    "sic_description": "Electronic Components, NEC"
+  },
+  "WAL": {
+    "cik": "0001212545",
+    "sector": "Financials",
+    "sic": "6022",
+    "sic_description": "State Commercial Banks"
+  },
+  "WDAY": {
+    "cik": "0001327811",
+    "sector": "Technology",
+    "sic": "7374",
+    "sic_description": "Services-Computer Processing & Data Preparation"
+  },
+  "WDC": {
+    "cik": "0000106040",
+    "sector": "Technology",
+    "sic": "3572",
+    "sic_description": "Computer Storage Devices"
+  },
+  "WFC": {
+    "cik": "0000072971",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "WIX": {
+    "cik": "0001576789",
+    "sector": "Technology",
+    "sic": "7370",
+    "sic_description": "Services-Computer Programming, Data Processing, Etc."
+  },
+  "WMT": {
+    "cik": "0000104169",
+    "sector": "Consumer Staples",
+    "sic": "5331",
+    "sic_description": "Retail-Variety Stores"
+  },
+  "XPEV": {
+    "cik": "0001810997",
+    "sector": "Consumer Discretionary",
+    "sic": "3711",
+    "sic_description": "Motor Vehicles & Passenger Car Bodies"
+  },
+  "YSS": {
+    "cik": "0002086587",
+    "sector": "Industrials",
+    "sic": "3760",
+    "sic_description": "Guided Missiles & Space Vehicles & Parts"
+  },
+  "YUMC": {
+    "cik": "0001673358",
+    "sector": "Consumer Discretionary",
+    "sic": "5812",
+    "sic_description": "Retail-Eating  Places"
+  },
+  "ZGN": {
+    "cik": "0001877787",
+    "sector": "Consumer Discretionary",
+    "sic": "2300",
+    "sic_description": "Apparel & Other Finishd Prods of  Fabrics & Similar Matl"
+  },
+  "ZION": {
+    "cik": "0000109380",
+    "sector": "Financials",
+    "sic": "6021",
+    "sic_description": "National Commercial Banks"
+  },
+  "ZTO": {
+    "cik": "0001677250",
+    "sector": "Industrials",
+    "sic": "4210",
+    "sic_description": "Trucking & Courier Services (No Air)"
+  }
+}

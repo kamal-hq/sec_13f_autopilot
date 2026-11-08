@@ -52,11 +52,12 @@ def _utc_now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
-def build_default_stages() -> list[Stage]:
+def build_default_stages(settings: Settings | None = None) -> list[Stage]:
     """Return the canonical ordered sequence of 13F autopilot pipeline stages."""
+    resolved_settings = settings or Settings()
     return [
-        DetectStage(),
-        IngestStage(),
+        DetectStage(settings=resolved_settings),
+        IngestStage(settings=resolved_settings),
         FactsStage(),
         NarrateStage(),
         ValidateStage(),
@@ -78,7 +79,9 @@ class Pipeline:
         stop_on_failure: bool = True,
     ) -> None:
         self._settings = settings or Settings()
-        self.stages: list[Stage] = list(stages) if stages is not None else build_default_stages()
+        self.stages: list[Stage] = (
+            list(stages) if stages is not None else build_default_stages(self._settings)
+        )
         self._clock_fn = clock_fn
         self._timestamp_fn = timestamp_fn
         self.stop_on_failure = stop_on_failure
@@ -94,12 +97,33 @@ class Pipeline:
             return outcome
         raise TypeError(f"Unsupported stage return type: {type(outcome).__name__}")
 
+    def _select_stages(self, through_stage: str | None) -> list[Stage]:
+        """Slice `self.stages` up through `through_stage` (inclusive) if specified."""
+        if through_stage is None:
+            return list(self.stages)
+        target = through_stage.strip().lower()
+        selected: list[Stage] = []
+        found = False
+        for stage in self.stages:
+            stage_name = getattr(stage, "name", stage.__class__.__name__.lower())
+            selected.append(stage)
+            if stage_name == target:
+                found = True
+                break
+        if not found:
+            valid = [getattr(s, "name", s.__class__.__name__.lower()) for s in self.stages]
+            raise ValueError(
+                f"Unknown --through stage {through_stage!r}; valid stages: {', '.join(valid)}"
+            )
+        return selected
+
     def run(
         self,
         context: PipelineContext | None = None,
         *,
         run_id: str | None = None,
         persist_path: Path | str | None = None,
+        through_stage: str | None = None,
     ) -> RunLog:
         """Execute stages in order and return a populated `RunLog` with per-stage timing."""
         ctx = (
@@ -110,6 +134,7 @@ class Pipeline:
                 baseline_period=self._settings.baseline_period,
             )
         )
+        active_stages = self._select_stages(through_stage)
         resolved_run_id = run_id or uuid.uuid4().hex[:12]
         pipeline_start_perf = self._clock_fn()
         run_log = RunLog(
@@ -120,13 +145,14 @@ class Pipeline:
         )
 
         logger.info(
-            "Pipeline run started: run_id=%s period=%s stage_count=%d",
+            "Pipeline run started: run_id=%s period=%s stage_count=%d through=%s",
             run_log.run_id,
             run_log.target_period,
-            len(self.stages),
+            len(active_stages),
+            through_stage or "all",
         )
 
-        for stage in self.stages:
+        for stage in active_stages:
             stage_name = getattr(stage, "name", stage.__class__.__name__.lower())
             stage_start_iso = self._timestamp_fn()
             stage_start_perf = self._clock_fn()
@@ -229,7 +255,7 @@ class Pipeline:
         if run_log.status == StageStatus.RUNNING:
             run_log.status = StageStatus.SUCCEEDED
 
-        if persist_path is not None:
+        if persist_path is not None and not ctx.dry_run:
             out_path = Path(persist_path)
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(

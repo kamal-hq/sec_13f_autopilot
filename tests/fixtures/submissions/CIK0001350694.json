@@ -1,0 +1,31 @@
+{
+  "cik": "0001350694",
+  "entityType": "other",
+  "sic": "6282",
+  "sicDescription": "INVESTMENT ADVICE",
+  "name": "BRIDGEWATER ASSOCIATES, LP",
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0001350694-26-000003",
+        "0001350694-26-000002"
+      ],
+      "form": [
+        "13F-HR",
+        "13F-HR"
+      ],
+      "filingDate": [
+        "2026-08-13",
+        "2026-05-14"
+      ],
+      "reportDate": [
+        "2026-06-30",
+        "2026-03-31"
+      ],
+      "primaryDocument": [
+        "primary_doc.xml",
+        "primary_doc.xml"
+      ]
+    }
+  }
+}

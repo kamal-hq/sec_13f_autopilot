@@ -116,8 +116,8 @@ def test_pipeline_halts_on_review_gate_and_failure() -> None:
     assert detect_failed is not None and "RuntimeError: detect boom" in (detect_failed.error or "")
 
 
-def test_default_stage_stubs_define_contracts() -> None:
-    """All 7 default stage stubs have contract docstrings and raise NotImplementedError."""
+def test_default_stage_contracts_and_remaining_stubs() -> None:
+    """All 7 stages define input/output contracts; Phases 2-5 stages raise NotImplementedError."""
     stages = build_default_stages()
     assert [s.name for s in stages] == [
         "detect",
@@ -129,9 +129,11 @@ def test_default_stage_stubs_define_contracts() -> None:
         "publish",
     ]
     ctx = PipelineContext(target_period="2026-Q2")
+    stub_names = {"facts", "narrate", "validate", "review", "publish"}
     for stage in stages:
         module_doc = __import__(stage.__class__.__module__, fromlist=["*"]).__doc__ or ""
         assert "Input Contract" in module_doc
         assert "Output Contract" in module_doc
-        with pytest.raises(NotImplementedError):
-            stage.run(ctx)
+        if stage.name in stub_names:
+            with pytest.raises(NotImplementedError):
+                stage.run(ctx)

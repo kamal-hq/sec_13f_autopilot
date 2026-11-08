@@ -61,4 +61,7 @@ ignore = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-q --strict-markers"
+markers = [
+    "live: live SEC EDGAR smoke test requiring network and SEC_USER_AGENT (deselected by default)",
+]
+addopts = "-q --strict-markers -m 'not live'"

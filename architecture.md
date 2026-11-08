@@ -27,24 +27,25 @@ sec_13f_autopilot/
 ├── state/                    # Ingestion watermarks & RunLog JSON (.gitkeep)
 ├── src/autopilot/
 │   ├── settings.py           # Env-only secrets, masked __repr__, SecretRedactionFilter
-│   ├── models.py             # Dataclasses: RunLog, StageLogEntry, FactsBundle, LLMResult...
-│   ├── policies.py           # Rate-limit constants, RetryPolicy, number extraction
-│   ├── pipeline.py           # Stage ABC, ordered Pipeline runner, RunLog timing
-│   ├── cli.py                # CLI entrypoint (`autopilot`)
+│   ├── models.py             # Dataclasses: Filing, Period, DetectResult, IngestResult, RunLog...
+│   ├── state.py              # StateStore for state/processed_filings.json (atomic os.replace writes)
+│   ├── policies.py           # PeriodCompletenessPolicy, rate-limit constants, RetryPolicy
+│   ├── pipeline.py           # Stage ABC, ordered Pipeline runner (supports --through), RunLog
+│   ├── cli.py                # CLI entrypoint (`autopilot detect`, `ingest`, `run --through`)
 │   ├── gateways/
 │   │   ├── http.py           # Shared requests.Session, RateLimiter, exponential backoff
-│   │   ├── sec.py            # SecGateway (<=8 req/s, User-Agent from Settings, typed errors)
+│   │   ├── sec.py            # SecGateway (<=8 req/s, User-Agent from Settings, cover-page inspection)
 │   │   └── llm.py            # LLMProvider ABC, Gemini/Manual/Null providers, BudgetGuard
 │   └── stages/
 │       ├── base.py           # Stage ABC, StageResult, StageError, StageSkip
-│       ├── detect.py         # DetectStage contract stub
-│       ├── ingest.py         # IngestStage contract stub
+│       ├── detect.py         # DetectStage (SEC submissions, replay --as-of, completeness & amendments)
+│       ├── ingest.py         # IngestStage (2-period load into data/autopilot.db & cover-page reconciliation)
 │       ├── facts.py          # FactsStage contract stub
 │       ├── narrate.py        # NarrateStage contract stub
 │       ├── validate.py       # ValidateStage contract stub
 │       ├── review.py         # ReviewStage contract stub
 │       └── publish.py        # PublishStage contract stub
-└── tests/                    # 100% offline unit tests with mocked HTTP/SDK
+└── tests/                    # 100% offline unit tests with recorded fixtures & mocked HTTP/SDK
 ```
 
 ---
@@ -67,6 +68,31 @@ sec_13f_autopilot/
 - **`ManualProvider`**: Writes `reports/<period>/prompt.md` and reads `reports/<period>/response.md`, raising `NeedsManualInput` if the response file is absent or empty.
 - **`NullProvider`**: Produces a deterministic, offline markdown research note draft.
 - **`BudgetGuard`**: Enforces `max_calls_per_run` (default `5`), `max_output_tokens`, `timeout_seconds`, and the `AUTOPILOT_LLM_DISABLED=1` kill switch.
+
+---
+
+## Phase 1: State, Detection, Replay & Ingestion
+
+### 1. `state.py` (`StateStore`)
+- Manages `state/processed_filings.json` with `schema_version` and an `accession -> {period, filed_date, processed_at, supersedes}` map.
+- Uses atomic writes (`tempfile.NamedTemporaryFile` in the same directory + `os.fsync` + `os.replace`) so interrupted runs never leave corrupt state.
+- **Strict Stage Invariant**: `DetectStage` and `IngestStage` read `StateStore` but **never** write to `state/processed_filings.json` (state updates occur exclusively in Phase 5 `PublishStage`).
+
+### 2. `stages/detect.py` (`DetectStage`) & `PeriodCompletenessPolicy`
+- Polls SEC EDGAR submissions via `SecGateway` (`get_latest_13f_metadata(..., inspect_cover_pages=True)`), filtering `13F-HR` and `13F-HR/A` filings and respecting `--as-of YYYY-MM-DD` replay cutoffs.
+- `PeriodCompletenessPolicy` evaluates each period into `PeriodStatus`:
+  - `PENDING`: Zero configured funds have filed.
+  - `PARTIAL`: Fewer than all configured funds have filed (actionable only when `allow_partial=True` and `len(filed) >= min_funds`).
+  - `COMPLETE`: All configured funds have filed and at least one accession is unprocessed.
+  - `PROCESSED`: All active accessions are already recorded in `StateStore` (idempotent no-op).
+  - `RESTATED`: Period was previously `PROCESSED`, and a new `13F-HR/A` (`RESTATEMENT`) supersedes a previously processed accession, generating a changelog entry and triggering re-ingestion.
+  - `NEEDS_REVIEW`: A `13F-HR/A` (`NEW HOLDINGS`) partial amendment is present; auto-processing is blocked for manual inspection.
+- Persists `reports/<period>/detect.json` (unless `--dry-run` is set).
+
+### 3. `stages/ingest.py` (`IngestStage`)
+- Loads both `target_period` (e.g., `2026-Q2`) and `previous_period` (e.g., `2026-Q1`) into a fresh SQLite star-schema database at `data/autopilot.db` using `sec_13f_analyzer` (`EdgarParser`, `CUSIPMapper`, `SplitDetector`, `DatabaseLoader`) with explicit paths under gitignored `data/`—never calling the library's global `configure()`.
+- Reconciles each fund's aggregated SQLite holdings value (`SUM(value_thousands)` in `Fact_Holdings`) and raw information-table row count against the SEC cover-page `tableValueTotal` and `tableEntryTotal`.
+- Records confirmed vs. unconfirmed stock splits and `13F-HR/A` restatements applied, persisting `reports/<period>/ingest.json`.
 
 ---
 

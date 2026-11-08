@@ -2,7 +2,8 @@
 
 Security invariants:
 1. Secrets (GEMINI_API_KEY, SEC_USER_AGENT, OPENFIGI_API_KEY) come ONLY from
-   environment variables via Settings. YAML config files cannot supply secrets.
+   environment variables via Settings. YAML config files cannot supply secrets,
+   and `.env` files are never opened or read directly.
 2. Settings.__repr__ and Settings.__str__ always mask secret values.
 3. Only GeminiProvider reads the Gemini API key.
 4. SecretRedactionFilter scrubs literal secrets and credential patterns from all logs.
@@ -18,7 +19,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from dotenv import load_dotenv
 
 REDACTED_MASK = "***REDACTED***"
 
@@ -152,14 +152,17 @@ class Settings:
     _gemini_api_key: str = field(default="", repr=False)
     openfigi_api_key: str = field(default="", repr=False)
 
-    # Pipeline settings
+    # Pipeline & completeness settings
     target_period: str = "2026-Q2"
     baseline_period: str = "2026-Q1"
+    min_funds: int = 7
+    allow_partial: bool = False
     max_validation_retries: int = 3
     state_dir: Path = field(default_factory=lambda: Path("state"))
     reports_dir: Path = field(default_factory=lambda: Path("reports"))
     prompts_dir: Path = field(default_factory=lambda: Path("prompts"))
     data_dir: Path = field(default_factory=lambda: Path("data"))
+    db_path: Path = field(default_factory=lambda: Path("data/autopilot.db"))
 
     # SEC Gateway settings
     sec_base_url: str = "https://data.sec.gov"
@@ -191,11 +194,14 @@ class Settings:
         openfigi_api_key: str | None = None,
         target_period: str = "2026-Q2",
         baseline_period: str = "2026-Q1",
+        min_funds: int | None = None,
+        allow_partial: bool = False,
         max_validation_retries: int = 3,
         state_dir: Path | str = Path("state"),
         reports_dir: Path | str = Path("reports"),
         prompts_dir: Path | str = Path("prompts"),
         data_dir: Path | str = Path("data"),
+        db_path: Path | str | None = None,
         sec_base_url: str = "https://data.sec.gov",
         sec_edgar_archives_url: str = "https://www.sec.gov/Archives/edgar/data",
         sec_max_requests_per_second: float = 8.0,
@@ -223,13 +229,17 @@ class Settings:
             os.environ.get("OPENFIGI_API_KEY", "") if openfigi_api_key is None else openfigi_api_key
         ).strip()
 
+        self.funds = dict(DEFAULT_FUNDS) if funds is None else dict(funds)
         self.target_period = target_period
         self.baseline_period = baseline_period
+        self.min_funds = len(self.funds) if min_funds is None else int(min_funds)
+        self.allow_partial = bool(allow_partial)
         self.max_validation_retries = int(max_validation_retries)
         self.state_dir = Path(state_dir)
         self.reports_dir = Path(reports_dir)
         self.prompts_dir = Path(prompts_dir)
         self.data_dir = Path(data_dir)
+        self.db_path = Path(db_path) if db_path is not None else self.data_dir / "autopilot.db"
 
         self.sec_base_url = sec_base_url.rstrip("/")
         self.sec_edgar_archives_url = sec_edgar_archives_url.rstrip("/")
@@ -252,7 +262,6 @@ class Settings:
             if llm_disabled is None
             else bool(llm_disabled)
         )
-        self.funds = dict(DEFAULT_FUNDS) if funds is None else dict(funds)
 
     @property
     def has_gemini_key(self) -> bool:
@@ -283,6 +292,8 @@ class Settings:
             f"openfigi_api_key={openfigi_mask!r}, "
             f"target_period={self.target_period!r}, "
             f"baseline_period={self.baseline_period!r}, "
+            f"min_funds={self.min_funds!r}, "
+            f"allow_partial={self.allow_partial!r}, "
             f"llm_provider={self.llm_provider!r}, "
             f"llm_model={self.llm_model!r}, "
             f"llm_max_calls_per_run={self.llm_max_calls_per_run!r}, "
@@ -301,12 +312,13 @@ class Settings:
         cls,
         config_path: Path | str | None = None,
         *,
-        load_dotenv_file: bool = True,
+        load_dotenv_file: bool = False,
     ) -> Settings:
-        """Load non-secret settings from YAML (if present) and secrets from environment."""
-        if load_dotenv_file:
-            load_dotenv(override=False)
+        """Load non-secret settings from YAML (if present) and secrets from environment.
 
+        Never opens or reads `.env` files (`load_dotenv_file` is ignored/False by design).
+        """
+        _ = load_dotenv_file
         resolved_path = Path(config_path or os.environ.get("AUTOPILOT_CONFIG_PATH", "config.yaml"))
         raw_cfg: dict[str, Any] = {}
         if resolved_path.exists():
@@ -323,6 +335,7 @@ class Settings:
         sec_cfg = raw_cfg.get("sec", {}) or {}
         llm_cfg = raw_cfg.get("llm", {}) or {}
         funds_cfg = raw_cfg.get("funds")
+        resolved_funds = dict(funds_cfg) if isinstance(funds_cfg, dict) else dict(DEFAULT_FUNDS)
 
         provider_override = os.environ.get("AUTOPILOT_LLM_PROVIDER")
         provider = (
@@ -331,17 +344,28 @@ class Settings:
             else str(llm_cfg.get("provider", "null"))
         )
 
+        data_dir = Path(pipeline_cfg.get("data_dir", "data"))
+        raw_db_path = pipeline_cfg.get("db_path")
+        resolved_db_path = Path(raw_db_path) if raw_db_path else (data_dir / "autopilot.db")
+        raw_min_funds = pipeline_cfg.get("min_funds")
+        resolved_min_funds = (
+            int(raw_min_funds) if raw_min_funds is not None else len(resolved_funds)
+        )
+
         return cls(
             sec_user_agent=os.environ.get("SEC_USER_AGENT", ""),
             gemini_api_key=os.environ.get("GEMINI_API_KEY", ""),
             openfigi_api_key=os.environ.get("OPENFIGI_API_KEY", ""),
             target_period=str(pipeline_cfg.get("target_period", "2026-Q2")),
             baseline_period=str(pipeline_cfg.get("baseline_period", "2026-Q1")),
+            min_funds=resolved_min_funds,
+            allow_partial=bool(pipeline_cfg.get("allow_partial", False)),
             max_validation_retries=int(pipeline_cfg.get("max_validation_retries", 3)),
             state_dir=Path(pipeline_cfg.get("state_dir", "state")),
             reports_dir=Path(pipeline_cfg.get("reports_dir", "reports")),
             prompts_dir=Path(pipeline_cfg.get("prompts_dir", "prompts")),
-            data_dir=Path(pipeline_cfg.get("data_dir", "data")),
+            data_dir=data_dir,
+            db_path=resolved_db_path,
             sec_base_url=str(sec_cfg.get("base_url", "https://data.sec.gov")),
             sec_edgar_archives_url=str(
                 sec_cfg.get("edgar_archives_url", "https://www.sec.gov/Archives/edgar/data")
@@ -359,7 +383,7 @@ class Settings:
             llm_max_retries=int(llm_cfg.get("max_retries", 3)),
             llm_backoff_base_seconds=float(llm_cfg.get("backoff_base_seconds", 1.0)),
             llm_disabled=_parse_bool_env(os.environ.get("AUTOPILOT_LLM_DISABLED")),
-            funds=dict(funds_cfg) if isinstance(funds_cfg, dict) else dict(DEFAULT_FUNDS),
+            funds=resolved_funds,
         )
 
     @classmethod

@@ -1,0 +1,31 @@
+{
+  "cik": "0001021944",
+  "entityType": "other",
+  "sic": "6726",
+  "sicDescription": "INVESTMENT OFFICES, NEC",
+  "name": "TEMASEK HOLDINGS (PRIVATE) LIMITED",
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0001021944-26-000013",
+        "0001021944-26-000011"
+      ],
+      "form": [
+        "13F-HR",
+        "13F-HR"
+      ],
+      "filingDate": [
+        "2026-08-14",
+        "2026-05-14"
+      ],
+      "reportDate": [
+        "2026-06-30",
+        "2026-03-31"
+      ],
+      "primaryDocument": [
+        "primary_doc.xml",
+        "primary_doc.xml"
+      ]
+    }
+  }
+}
