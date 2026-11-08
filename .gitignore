@@ -1,0 +1,42 @@
+# Environment & secrets (NEVER commit real secrets)
+.env
+.env.*
+!.env.example
+
+# Python bytecode & caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Packaging & build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Runtime state, databases, and generated reports
+state/*
+!state/.gitkeep
+reports/*
+!reports/.gitkeep
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

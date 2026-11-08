@@ -1,0 +1,38 @@
+# Non-secret runtime configuration for sec_13f_autopilot.
+# All secrets (SEC_USER_AGENT, GEMINI_API_KEY, OPENFIGI_API_KEY) MUST come from environment variables.
+
+pipeline:
+  target_period: "2026-Q2"
+  baseline_period: "2026-Q1"
+  max_validation_retries: 3
+  state_dir: "state"
+  reports_dir: "reports"
+  prompts_dir: "prompts"
+  data_dir: "data"
+
+sec:
+  base_url: "https://data.sec.gov"
+  edgar_archives_url: "https://www.sec.gov/Archives/edgar/data"
+  max_requests_per_second: 8.0
+  timeout_seconds: 15.0
+  max_retries: 3
+  backoff_base_seconds: 0.5
+  backoff_max_seconds: 30.0
+
+llm:
+  provider: "null"          # Options: "null" | "manual" | "gemini" | "auto"
+  model: "gemini-2.5-flash"
+  max_calls_per_run: 5
+  max_output_tokens: 2048
+  timeout_seconds: 30.0
+  max_retries: 3
+  backoff_base_seconds: 1.0
+
+funds:
+  "Berkshire Hathaway": "0001067983"
+  "Renaissance Technologies": "0001037389"
+  "Citadel Advisors": "0001423053"
+  "Two Sigma Investments": "0001179392"
+  "Bridgewater Associates": "0001350694"
+  "CalPERS": "0000919079"
+  "Temasek Holdings": "0001021944"
