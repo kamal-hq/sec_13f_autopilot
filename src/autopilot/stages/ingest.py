@@ -294,7 +294,8 @@ class IngestStage(Stage):
 
             for p_name in (previous_period, resolved_period):
                 active_cnt = conn.execute(
-                    "SELECT COUNT(*) AS cnt FROM Fact_Holdings WHERE period = ? AND value_usd > 0",
+                    "SELECT COUNT(*) AS cnt FROM Fact_Holdings "
+                    "WHERE period = ? AND COALESCE(qoq_change_flag, '') != 'EXITED'",
                     (p_name,),
                 ).fetchone()["cnt"]
                 exited_cnt = conn.execute(
@@ -310,7 +311,9 @@ class IngestStage(Stage):
                 agg_row = conn.execute(
                     """
                     SELECT
-                        COUNT(CASE WHEN h.value_usd > 0 THEN 1 END) AS agg_rows,
+                        COUNT(
+                            CASE WHEN COALESCE(h.qoq_change_flag, '') != 'EXITED' THEN 1 END
+                        ) AS agg_rows,
                         COALESCE(SUM(h.value_usd), 0) AS db_sum
                     FROM Fact_Holdings h
                     JOIN Dim_Fund f ON h.fund_id = f.fund_id
