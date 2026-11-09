@@ -52,7 +52,7 @@ from autopilot.models import (
     PipelineContext,
     StageStatus,
 )
-from autopilot.policies import compute_previous_period
+from autopilot.policies import compute_lookback_periods, compute_previous_period
 from autopilot.settings import Settings
 from autopilot.stages.base import Stage, StageError, StageResult
 from autopilot.stages.detect import DetectStage, _resolve_sec_gateway
@@ -80,19 +80,20 @@ class IngestStage(Stage):
     def _resolve_period_filings(
         self,
         target_period: str,
-        previous_period: str,
+        lookback_periods: list[str],
         *,
         as_of: str | None = None,
         existing_detection: object | None = None,
-    ) -> tuple[list[Filing], list[Filing]]:
-        """Resolve active filings for `previous_period` and `target_period`."""
+    ) -> tuple[list[str], list[Filing], list[Filing]]:
+        """Resolve active filings for available `lookback_periods` and `target_period`."""
         detect_res = existing_detection
+        earliest_period = lookback_periods[0] if lookback_periods else target_period
         if detect_res is None:
             detector = DetectStage(
                 settings=self._settings,
                 sec_gateway=self._sec_gateway,
                 state_store=self._state_store,
-                min_period=previous_period,
+                min_period=earliest_period,
             )
             detect_res = detector.detect(
                 target_period=target_period,
@@ -101,25 +102,34 @@ class IngestStage(Stage):
                 write_reports=False,
             )
 
-        target_obj = getattr(detect_res, "periods", {}).get(target_period)
-        prev_obj = getattr(detect_res, "periods", {}).get(previous_period)
-
+        periods_dict = getattr(detect_res, "periods", {})
+        target_obj = periods_dict.get(target_period)
         if target_obj is not None and target_obj.status == PeriodStatus.NEEDS_REVIEW:
             raise StageError(
                 f"Cannot auto-ingest period {target_period} with status NEEDS_REVIEW: "
                 f"{target_obj.reason}"
             )
-        if prev_obj is not None and prev_obj.status == PeriodStatus.NEEDS_REVIEW:
-            raise StageError(
-                f"Cannot auto-ingest baseline period {previous_period} with status NEEDS_REVIEW: "
-                f"{prev_obj.reason}"
-            )
 
-        prev_filings = list(prev_obj.filings) if prev_obj is not None else []
+        loaded_periods: list[str] = []
+        prior_filings: list[Filing] = []
+        for lb_period in lookback_periods:
+            lb_obj = periods_dict.get(lb_period)
+            if lb_obj is None:
+                continue
+            if lb_obj.status == PeriodStatus.NEEDS_REVIEW:
+                raise StageError(
+                    f"Cannot auto-ingest baseline period {lb_period} with status NEEDS_REVIEW: "
+                    f"{lb_obj.reason}"
+                )
+            if lb_obj.filings:
+                loaded_periods.append(lb_period)
+                prior_filings.extend(lb_obj.filings)
+
         target_filings = list(target_obj.filings) if target_obj is not None else []
         if not target_filings:
             raise StageError(f"No filings found to ingest for period {target_period}.")
-        return prev_filings, target_filings
+        loaded_periods.append(target_period)
+        return loaded_periods, prior_filings, target_filings
 
     def ingest(
         self,
@@ -130,12 +140,16 @@ class IngestStage(Stage):
         existing_detection: object | None = None,
         write_report: bool = True,
     ) -> IngestResult:
-        """Load `target_period` and its previous period into a fresh `data/autopilot.db`."""
+        """Load `target_period` and lookback periods into `data/autopilot.db`."""
         resolved_period = target_period or self._settings.target_period
         previous_period = compute_previous_period(resolved_period)
-        prev_filings, curr_filings = self._resolve_period_filings(
+        lookback_list = compute_lookback_periods(
             resolved_period,
-            previous_period,
+            self._settings.lookback_periods,
+        )
+        loaded_periods, prev_filings, curr_filings = self._resolve_period_filings(
+            resolved_period,
+            lookback_list,
             as_of=as_of,
             existing_detection=existing_detection,
         )
@@ -144,13 +158,14 @@ class IngestStage(Stage):
         db_path = self._settings.db_path
         if dry_run:
             logger.info(
-                "Dry-run: skipping DB load and ingest.json write for %s (with %s)",
+                "Dry-run: skipping DB load and ingest.json write for %s (periods=%s)",
                 resolved_period,
-                previous_period,
+                loaded_periods,
             )
             return IngestResult(
                 period=resolved_period,
                 previous_period=previous_period,
+                loaded_periods=loaded_periods,
                 db_path=str(db_path),
                 ingested_accessions=[f.accession for f in active_filings],
             )
@@ -292,7 +307,7 @@ class IngestStage(Stage):
                 cnt = conn.execute(f"SELECT COUNT(*) AS cnt FROM {tbl}").fetchone()["cnt"]
                 row_counts[tbl] = int(cnt)
 
-            for p_name in (previous_period, resolved_period):
+            for p_name in loaded_periods:
                 active_cnt = conn.execute(
                     "SELECT COUNT(*) AS cnt FROM Fact_Holdings "
                     "WHERE period = ? AND COALESCE(qoq_change_flag, '') != 'EXITED'",
@@ -353,6 +368,7 @@ class IngestStage(Stage):
         result = IngestResult(
             period=resolved_period,
             previous_period=previous_period,
+            loaded_periods=loaded_periods,
             db_path=str(db_path),
             ingested_accessions=[f.accession for f in active_filings],
             holdings_row_count=row_counts.get("Fact_Holdings", 0),

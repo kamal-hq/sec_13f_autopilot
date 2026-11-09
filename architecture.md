@@ -90,9 +90,34 @@ sec_13f_autopilot/
 - Persists `reports/<period>/detect.json` (unless `--dry-run` is set).
 
 ### 3. `stages/ingest.py` (`IngestStage`)
-- Loads both `target_period` (e.g., `2026-Q2`) and `previous_period` (e.g., `2026-Q1`) into a fresh SQLite star-schema database at `data/autopilot.db` using `sec_13f_analyzer` (`EdgarParser`, `CUSIPMapper`, `SplitDetector`, `DatabaseLoader`) with explicit paths under gitignored `data/`—never calling the library's global `configure()`.
-- Reconciles each fund's aggregated SQLite holdings value (`SUM(value_thousands)` in `Fact_Holdings`) and raw information-table row count against the SEC cover-page `tableValueTotal` and `tableEntryTotal`.
+- Loads both `target_period` (e.g., `2026-Q2`) and up to `lookback_periods` prior periods into a fresh SQLite star-schema database at `data/autopilot.db` using `sec_13f_analyzer` (`EdgarParser`, `CUSIPMapper`, `SplitDetector`, `DatabaseLoader`) with explicit paths under gitignored `data/`—never calling the library's global `configure()`.
+- Reconciles each fund's aggregated SQLite holdings value (`SUM(value_usd)` in `Fact_Holdings`) and raw information-table row count against the SEC cover-page `tableValueTotal`.
 - Records confirmed vs. unconfirmed stock splits and `13F-HR/A` restatements applied, persisting `reports/<period>/ingest.json`.
+
+---
+
+## Phase 2: Quantitative Facts Extraction & Diff Generation (`FactsStage`)
+
+### 1. Pure Deterministic Facts (`stages/facts.py`)
+- **Zero Network Calls**: Pure deterministic computation calling `sec_13f_analyzer` with explicit `db_path`.
+- **Output Artifacts**:
+  - `reports/<period>/facts.json`: Timestamp-free, sorted-key JSON document containing every semantic `FactItem`, allowable numbers list, and raw metrics. Byte-identical across repeated runs.
+  - `reports/<period>/diff.md`: Short, human-readable markdown diff of portfolio metrics, sector shifts, signal transitions, and position movers between quarters.
+  - `reports/<period>/run.json`: Execution run metadata containing execution timestamp (`generated_at`) and fact counts by kind, preserving timestamp-free byte reproducibility in `facts.json`.
+- **Semantic Fact Structure (`FactItem`)**:
+  - `id`: Unique, semantic, stable identifier (e.g., `signal.AMD.funds_buying`, `discretionary.GOOGL_GOOG.dollars_added`, `fund.CALPERS.aum_equity`, `market.signals_total`).
+  - `kind`: Category (`metadata`, `coverage`, `market`, `signal`, `discretionary`, `new_to_sample`, `sector`, `fund`, `quality`, `limit`, `diff`).
+  - `value`: Raw int or float with fixed precision.
+  - `display`: Deterministic list of human renderings (e.g., `"$18.67B"`, `"$18,665,002,497"`).
+  - `period`: Associated reporting quarter (`YYYY-QN`).
+  - `source`: Provenance dictionary detailing the library function and exact parameters.
+- **Lookback & Diff Handling**:
+  - `lookback_periods` (default `2`): Ingestion retains target quarter plus prior lookback quarters.
+  - When the prior comparison quarter is missing from the database, emits a semantic `diff.unavailable` fact explaining the reason, preventing narrative hallucination.
+- **Input Sanitization**:
+  - Every external fund name and company issuer is sanitized via `sanitize_external_name` (stripping HTML/XML markup, Unicode control codes, prompt injection patterns, collapsing whitespace, max 60 chars).
+- **Mandatory Disclaimers & Limits**:
+  - Encodes mandatory limitation facts: `limit.long_only`, `limit.filing_lag_45d`, `limit.no_forward_return_test`, `limit.hedge_only_may_be_hedging`, and `limit.small_discretionary_sample`.
 
 ---
 

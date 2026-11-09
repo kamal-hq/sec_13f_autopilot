@@ -277,6 +277,7 @@ class IngestResult:
 
     period: str
     previous_period: str = ""
+    loaded_periods: list[str] = field(default_factory=list)
     db_path: str = "data/autopilot.db"
     ingested_accessions: list[str] = field(default_factory=list)
     holdings_row_count: int = 0
@@ -294,6 +295,7 @@ class IngestResult:
         return {
             "period": self.period,
             "previous_period": self.previous_period,
+            "loaded_periods": list(self.loaded_periods),
             "db_path": self.db_path,
             "ingested_accessions": list(self.ingested_accessions),
             "holdings_row_count": self.holdings_row_count,
@@ -309,6 +311,29 @@ class IngestResult:
 
 
 @dataclass(frozen=True, slots=True)
+class FactItem:
+    """A single deterministic, provenance-tagged fact in `reports/<period>/facts.json`."""
+
+    id: str
+    kind: str
+    value: int | float
+    display: tuple[str, ...]
+    period: str
+    source: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize fact item with stable sorted keys."""
+        return {
+            "display": list(self.display),
+            "id": self.id,
+            "kind": self.kind,
+            "period": self.period,
+            "source": dict(sorted(self.source.items())),
+            "value": self.value,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class FundSummary:
     """Summary metrics for a single institutional fund in a reporting period."""
 
@@ -319,6 +344,11 @@ class FundSummary:
     accession_number: str
     total_value_usd: int
     position_count: int
+    equity_value_usd: int = 0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize fund summary into a dictionary."""
+        return asdict(self)
 
 
 @dataclass(frozen=True, slots=True)
@@ -333,6 +363,16 @@ class ConvergenceSignal:
     buyer_funds: tuple[str, ...] = ()
     total_added_value_usd: int = 0
     aggregate_value_usd: int = 0
+    hedge_fund_buyers: int = 0
+    discretionary_buyers: int = 0
+    buyer_mix: str = ""
+    fund_type_breakdown: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize convergence signal into a dictionary."""
+        data = asdict(self)
+        data["buyer_funds"] = list(self.buyer_funds)
+        return data
 
 
 @dataclass(slots=True)
@@ -342,10 +382,60 @@ class FactsBundle:
     period: str
     baseline_period: str
     generated_at: str
+    facts: list[FactItem] = field(default_factory=list)
     funds: list[FundSummary] = field(default_factory=list)
     convergence_signals: list[ConvergenceSignal] = field(default_factory=list)
     allowed_numbers: set[str] = field(default_factory=set)
     raw_metrics: dict[str, Any] = field(default_factory=dict)
+    diff_markdown: str = ""
+    report_path: str | None = None
+    diff_path: str | None = None
+    run_path: str | None = None
+
+    @property
+    def previous_period(self) -> str:
+        """Alias for baseline_period."""
+        return self.baseline_period
+
+    @property
+    def signal_count(self) -> int:
+        """Total broad convergence signals."""
+        return len(self.convergence_signals)
+
+    @property
+    def discretionary_signal_count(self) -> int:
+        """Total discretionary convergence signals."""
+        fact = self.get_fact("market.signals_discretionary")
+        return int(fact.value) if fact is not None else 0
+
+    @property
+    def total_aum_equity_usd(self) -> int:
+        """Total equity-only AUM in USD."""
+        fact = self.get_fact("market.aum_equity")
+        return int(fact.value) if fact is not None else 0
+
+    def get_fact(self, fact_id: str) -> FactItem | None:
+        """Look up a `FactItem` by its semantic `id`."""
+        for item in self.facts:
+            if item.id == fact_id:
+                return item
+        return None
+
+    def facts_by_kind(self) -> dict[str, int]:
+        """Return count of facts grouped by `kind` (sorted by kind name)."""
+        counts: dict[str, int] = {}
+        for item in self.facts:
+            counts[item.kind] = counts.get(item.kind, 0) + 1
+        return dict(sorted(counts.items()))
+
+    def to_facts_json_dict(self) -> dict[str, Any]:
+        """Return the deterministic, timestamp-free dictionary for `reports/<period>/facts.json`."""
+        payload = dict(self.raw_metrics)
+        payload["period"] = self.period
+        payload["baseline_period"] = self.baseline_period
+        payload["facts"] = [f.to_dict() for f in self.facts]
+        payload["allowed_numbers"] = sorted(self.allowed_numbers)
+        return payload
 
 
 @dataclass(frozen=True, slots=True)

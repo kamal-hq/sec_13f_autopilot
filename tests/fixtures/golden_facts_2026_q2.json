@@ -1,0 +1,3028 @@
+{
+  "allowed_numbers": [
+    "0",
+    "0001423053",
+    "000200",
+    "1",
+    "10",
+    "10.0",
+    "10.00",
+    "100",
+    "100.0",
+    "100.00",
+    "12",
+    "13",
+    "13.0",
+    "13.00",
+    "13000000",
+    "15.0",
+    "15.00",
+    "15000000",
+    "151.0",
+    "151.00",
+    "151000000",
+    "16.0",
+    "16.00",
+    "16000000",
+    "17.86",
+    "17.9",
+    "179.0",
+    "179.00",
+    "179000000",
+    "184.0",
+    "184.00",
+    "184000000",
+    "2",
+    "2.0",
+    "2.00",
+    "2.88",
+    "2.9",
+    "20.0",
+    "20.00",
+    "20000000",
+    "2025",
+    "2026",
+    "21.0",
+    "21.00",
+    "21000000",
+    "22.0",
+    "22.00",
+    "22000000",
+    "237.0",
+    "237.00",
+    "237000000",
+    "26",
+    "270.0",
+    "270.00",
+    "270000000",
+    "278.0",
+    "278.00",
+    "278000000",
+    "28.0",
+    "28.00",
+    "28000000",
+    "3",
+    "33.0",
+    "33.00",
+    "33000000",
+    "35.0",
+    "35.00",
+    "35000000",
+    "37.0",
+    "37.00",
+    "37000000",
+    "38.0",
+    "38.00",
+    "38000000",
+    "4",
+    "43.0",
+    "43.00",
+    "43000000",
+    "45",
+    "5",
+    "5.0",
+    "5.00",
+    "50.8",
+    "50.84",
+    "5000000",
+    "51.09",
+    "51.1",
+    "52.0",
+    "52.00",
+    "52000000",
+    "53.0",
+    "53.00",
+    "53.3",
+    "53.33",
+    "53000000",
+    "53333333",
+    "56.95",
+    "57.0",
+    "58.0",
+    "58.00",
+    "58000000",
+    "59.0",
+    "59.00",
+    "59000000",
+    "6",
+    "6.0",
+    "6.00",
+    "60.0",
+    "60.00",
+    "6000000",
+    "60000000",
+    "67.0",
+    "67.00",
+    "67000000",
+    "8.0",
+    "8.00",
+    "8000000",
+    "86.0",
+    "86.00",
+    "86000000",
+    "91.0",
+    "91.00",
+    "91000000",
+    "94.0",
+    "94.00",
+    "94000000"
+  ],
+  "baseline_period": "2026-Q1",
+  "broad_signals": [
+    {
+      "buyer_mix": "Hedge-fund-only",
+      "company_name": "NVIDIA CORP",
+      "cusip": "67066G104",
+      "discretionary_buyers": 0,
+      "dollars_added": 53333333,
+      "fund_type_breakdown": "Hedge Fund: 4",
+      "funds": [
+        "Bridgewater Associates",
+        "Citadel Advisors",
+        "Renaissance Technologies",
+        "Two Sigma Investments"
+      ],
+      "funds_buying": 4,
+      "hedge_fund_buyers": 4,
+      "sector": "Technology",
+      "ticker": "NVDA"
+    },
+    {
+      "buyer_mix": "Includes discretionary",
+      "company_name": "ADVANCED MICRO DEVICES INC",
+      "cusip": "007903107",
+      "discretionary_buyers": 2,
+      "dollars_added": 20000000,
+      "fund_type_breakdown": "Hedge Fund: 2, Conglomerate: 1, Sovereign Wealth Fund: 1",
+      "funds": [
+        "Berkshire Hathaway",
+        "Citadel Advisors",
+        "Renaissance Technologies",
+        "Temasek Holdings"
+      ],
+      "funds_buying": 4,
+      "hedge_fund_buyers": 2,
+      "sector": "Technology",
+      "ticker": "AMD"
+    }
+  ],
+  "coverage": {
+    "all_reconciled": true,
+    "amendments_applied": [
+      {
+        "accession": "0001423053-26-000202",
+        "amendment_type": "RESTATEMENT",
+        "cik": "0001423053",
+        "filed_date": "2026-09-02",
+        "fund_name": "Citadel Advisors",
+        "period": "2026-Q2",
+        "supersedes": [
+          "0001423053-26-000200"
+        ]
+      }
+    ],
+    "funds_filed": 6,
+    "reconciliations": [
+      {
+        "accession": "0001067983-26-000101",
+        "aggregated_rows": 2,
+        "amendment_type": null,
+        "cik": "0001067983",
+        "cover_page_total_usd": 22000000,
+        "db_total_value_usd": 22000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Berkshire Hathaway",
+        "pct_diff": 0.0,
+        "period": "2026-Q1",
+        "raw_rows": 2,
+        "reconciled": true
+      },
+      {
+        "accession": "0001350694-26-000102",
+        "aggregated_rows": 2,
+        "amendment_type": null,
+        "cik": "0001350694",
+        "cover_page_total_usd": 37000000,
+        "db_total_value_usd": 37000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Bridgewater Associates",
+        "pct_diff": 0.0,
+        "period": "2026-Q1",
+        "raw_rows": 2,
+        "reconciled": true
+      },
+      {
+        "accession": "0001423053-26-000103",
+        "aggregated_rows": 4,
+        "amendment_type": null,
+        "cik": "0001423053",
+        "cover_page_total_usd": 43000000,
+        "db_total_value_usd": 43000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Citadel Advisors",
+        "pct_diff": 0.0,
+        "period": "2026-Q1",
+        "raw_rows": 4,
+        "reconciled": true
+      },
+      {
+        "accession": "0001037389-26-000104",
+        "aggregated_rows": 2,
+        "amendment_type": null,
+        "cik": "0001037389",
+        "cover_page_total_usd": 37000000,
+        "db_total_value_usd": 37000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Renaissance Technologies",
+        "pct_diff": 0.0,
+        "period": "2026-Q1",
+        "raw_rows": 2,
+        "reconciled": true
+      },
+      {
+        "accession": "0001021944-26-000105",
+        "aggregated_rows": 1,
+        "amendment_type": null,
+        "cik": "0001021944",
+        "cover_page_total_usd": 8000000,
+        "db_total_value_usd": 8000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Temasek Holdings",
+        "pct_diff": 0.0,
+        "period": "2026-Q1",
+        "raw_rows": 1,
+        "reconciled": true
+      },
+      {
+        "accession": "0001179392-26-000106",
+        "aggregated_rows": 2,
+        "amendment_type": null,
+        "cik": "0001179392",
+        "cover_page_total_usd": 37000000,
+        "db_total_value_usd": 37000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Two Sigma Investments",
+        "pct_diff": 0.0,
+        "period": "2026-Q1",
+        "raw_rows": 2,
+        "reconciled": true
+      },
+      {
+        "accession": "0001067983-26-000201",
+        "aggregated_rows": 2,
+        "amendment_type": null,
+        "cik": "0001067983",
+        "cover_page_total_usd": 35000000,
+        "db_total_value_usd": 35000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Berkshire Hathaway",
+        "pct_diff": 0.0,
+        "period": "2026-Q2",
+        "raw_rows": 2,
+        "reconciled": true
+      },
+      {
+        "accession": "0001350694-26-000202",
+        "aggregated_rows": 2,
+        "amendment_type": null,
+        "cik": "0001350694",
+        "cover_page_total_usd": 52000000,
+        "db_total_value_usd": 52000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Bridgewater Associates",
+        "pct_diff": 0.0,
+        "period": "2026-Q2",
+        "raw_rows": 2,
+        "reconciled": true
+      },
+      {
+        "accession": "0001423053-26-000203",
+        "aggregated_rows": 5,
+        "amendment_type": "RESTATEMENT",
+        "cik": "0001423053",
+        "cover_page_total_usd": 67000000,
+        "db_total_value_usd": 67000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR/A",
+        "fund_name": "Citadel Advisors",
+        "pct_diff": 0.0,
+        "period": "2026-Q2",
+        "raw_rows": 5,
+        "reconciled": true
+      },
+      {
+        "accession": "0001037389-26-000204",
+        "aggregated_rows": 4,
+        "amendment_type": null,
+        "cik": "0001037389",
+        "cover_page_total_usd": 58000000,
+        "db_total_value_usd": 58000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Renaissance Technologies",
+        "pct_diff": 0.0,
+        "period": "2026-Q2",
+        "raw_rows": 4,
+        "reconciled": true
+      },
+      {
+        "accession": "0001021944-26-000205",
+        "aggregated_rows": 2,
+        "amendment_type": null,
+        "cik": "0001021944",
+        "cover_page_total_usd": 13000000,
+        "db_total_value_usd": 13000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Temasek Holdings",
+        "pct_diff": 0.0,
+        "period": "2026-Q2",
+        "raw_rows": 2,
+        "reconciled": true
+      },
+      {
+        "accession": "0001179392-26-000206",
+        "aggregated_rows": 3,
+        "amendment_type": null,
+        "cik": "0001179392",
+        "cover_page_total_usd": 53000000,
+        "db_total_value_usd": 53000000,
+        "diff_usd": 0,
+        "form_type": "13F-HR",
+        "fund_name": "Two Sigma Investments",
+        "pct_diff": 0.0,
+        "period": "2026-Q2",
+        "raw_rows": 3,
+        "reconciled": true
+      }
+    ],
+    "reconciliations_passed": 12,
+    "reconciliations_total": 12
+  },
+  "data_quality": {
+    "confirmed_splits": [
+      {
+        "applied": true,
+        "company_name": "KLA CORP",
+        "confirmation_status": "CONFIRMED",
+        "cusip": "482480100",
+        "detection_source": "OVERRIDE",
+        "split_date": "2026-06-11",
+        "split_factor": 10.0,
+        "split_type": "10-for-1",
+        "ticker": "KLAC"
+      }
+    ],
+    "restatements_applied": [
+      {
+        "accession": "0001423053-26-000202",
+        "amendment_type": "RESTATEMENT",
+        "cik": "0001423053",
+        "filed_date": "2026-09-02",
+        "fund_name": "Citadel Advisors",
+        "period": "2026-Q2",
+        "supersedes": [
+          "0001423053-26-000200"
+        ]
+      }
+    ],
+    "unconfirmed_splits": [
+      {
+        "applied": false,
+        "company_name": "CURANEX PHARMACEUTICALS INC",
+        "confirmation_status": "UNCONFIRMED",
+        "cusip": "23126K106",
+        "detection_source": "AUTO",
+        "split_date": null,
+        "split_factor": 2.0,
+        "split_type": "2-for-1",
+        "ticker": "CURX"
+      }
+    ]
+  },
+  "diff": {
+    "available": true,
+    "previous_period": "2026-Q1",
+    "prior_lookback_period": "2025-Q4",
+    "signals_dropped": [
+      "MSFT"
+    ],
+    "signals_dropped_count": 1,
+    "signals_new": [
+      "AMD"
+    ],
+    "signals_new_count": 1,
+    "signals_persisted": [
+      "NVDA"
+    ],
+    "signals_persisted_count": 1,
+    "top_position_movers": [
+      {
+        "company_name": "NVIDIA CORP",
+        "current_value_usd": 160000000,
+        "cusip": "67066G104",
+        "prior_value_usd": 100000000,
+        "rank": 1,
+        "sector": "Technology",
+        "ticker": "NVDA",
+        "value_change_usd": 60000000
+      },
+      {
+        "company_name": "ADVANCED MICRO DEVICES INC",
+        "current_value_usd": 23000000,
+        "cusip": "007903107",
+        "prior_value_usd": 3000000,
+        "rank": 2,
+        "sector": "Technology",
+        "ticker": "AMD",
+        "value_change_usd": 20000000
+      },
+      {
+        "company_name": "CROWDSTRIKE HOLDINGS INC",
+        "current_value_usd": 6000000,
+        "cusip": "22788C105",
+        "prior_value_usd": 0,
+        "rank": 3,
+        "sector": "Technology",
+        "ticker": "CRWD",
+        "value_change_usd": 6000000
+      },
+      {
+        "company_name": "AMERICAN EXPRESS CO",
+        "current_value_usd": 33000000,
+        "cusip": "025816109",
+        "prior_value_usd": 28000000,
+        "rank": 4,
+        "sector": "Financials",
+        "ticker": "AXP",
+        "value_change_usd": 5000000
+      }
+    ],
+    "unavailable_reason": null
+  },
+  "discretionary_signals": [
+    {
+      "company_name": "ADVANCED MICRO DEVICES INC",
+      "cusip": "007903107",
+      "dollars_added": 13000000,
+      "fund_dollars_added": {
+        "Berkshire Hathaway": 8000000,
+        "Temasek Holdings": 5000000
+      },
+      "fund_type_breakdown": "Conglomerate: 1, Sovereign Wealth Fund: 1",
+      "funds": [
+        "Berkshire Hathaway",
+        "Temasek Holdings"
+      ],
+      "funds_buying": 2,
+      "sector": "Technology",
+      "ticker": "AMD"
+    }
+  ],
+  "facts": [
+    {
+      "display": [
+        "1",
+        "PASS"
+      ],
+      "id": "coverage.all_reconciled",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "periods": [
+            "2025-Q4",
+            "2026-Q1",
+            "2026-Q2"
+          ]
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "coverage.amendments_applied",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.IngestStage.amendments_applied",
+        "params": {
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001067983-26-000201",
+        "Berkshire Hathaway",
+        "$35,000,000"
+      ],
+      "id": "coverage.fund.BERKSHIRE_HATHAWAY.reconciled",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001067983-26-000201",
+          "cik": "0001067983",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001067983-26-000101",
+        "Berkshire Hathaway",
+        "$22,000,000"
+      ],
+      "id": "coverage.fund.BERKSHIRE_HATHAWAY.reconciled_prev",
+      "kind": "coverage",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001067983-26-000101",
+          "cik": "0001067983",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001350694-26-000202",
+        "Bridgewater Associates",
+        "$52,000,000"
+      ],
+      "id": "coverage.fund.BRIDGEWATER_ASSOCIATES.reconciled",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001350694-26-000202",
+          "cik": "0001350694",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001350694-26-000102",
+        "Bridgewater Associates",
+        "$37,000,000"
+      ],
+      "id": "coverage.fund.BRIDGEWATER_ASSOCIATES.reconciled_prev",
+      "kind": "coverage",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001350694-26-000102",
+          "cik": "0001350694",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001423053-26-000203",
+        "Citadel Advisors",
+        "$67,000,000"
+      ],
+      "id": "coverage.fund.CITADEL_ADVISORS.reconciled",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001423053-26-000203",
+          "cik": "0001423053",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001423053-26-000103",
+        "Citadel Advisors",
+        "$43,000,000"
+      ],
+      "id": "coverage.fund.CITADEL_ADVISORS.reconciled_prev",
+      "kind": "coverage",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001423053-26-000103",
+          "cik": "0001423053",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001037389-26-000204",
+        "Renaissance Technologies",
+        "$58,000,000"
+      ],
+      "id": "coverage.fund.RENAISSANCE_TECHNOLOGIES.reconciled",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001037389-26-000204",
+          "cik": "0001037389",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001037389-26-000104",
+        "Renaissance Technologies",
+        "$37,000,000"
+      ],
+      "id": "coverage.fund.RENAISSANCE_TECHNOLOGIES.reconciled_prev",
+      "kind": "coverage",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001037389-26-000104",
+          "cik": "0001037389",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001021944-26-000205",
+        "Temasek Holdings",
+        "$13,000,000"
+      ],
+      "id": "coverage.fund.TEMASEK_HOLDINGS.reconciled",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001021944-26-000205",
+          "cik": "0001021944",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001021944-26-000105",
+        "Temasek Holdings",
+        "$8,000,000"
+      ],
+      "id": "coverage.fund.TEMASEK_HOLDINGS.reconciled_prev",
+      "kind": "coverage",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001021944-26-000105",
+          "cik": "0001021944",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001179392-26-000206",
+        "Two Sigma Investments",
+        "$53,000,000"
+      ],
+      "id": "coverage.fund.TWO_SIGMA_INVESTMENTS.reconciled",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001179392-26-000206",
+          "cik": "0001179392",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "PASS",
+        "0001179392-26-000106",
+        "Two Sigma Investments",
+        "$37,000,000"
+      ],
+      "id": "coverage.fund.TWO_SIGMA_INVESTMENTS.reconciled_prev",
+      "kind": "coverage",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "accession": "0001179392-26-000106",
+          "cik": "0001179392",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "6"
+      ],
+      "id": "coverage.funds_filed",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "period": "2026-Q2"
+        }
+      },
+      "value": 6
+    },
+    {
+      "display": [
+        "12",
+        "12/12 PASS"
+      ],
+      "id": "coverage.reconciliations_passed",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "periods": [
+            "2025-Q4",
+            "2026-Q1",
+            "2026-Q2"
+          ]
+        }
+      },
+      "value": 12
+    },
+    {
+      "display": [
+        "12"
+      ],
+      "id": "coverage.reconciliations_total",
+      "kind": "coverage",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.COVER_PAGE_TOTALS.reconcile",
+        "params": {
+          "periods": [
+            "2025-Q4",
+            "2026-Q1",
+            "2026-Q2"
+          ]
+        }
+      },
+      "value": 12
+    },
+    {
+      "display": [
+        "$20,000,000",
+        "$20.00M",
+        "$20.0M",
+        "20,000,000",
+        "20000000",
+        "AMD",
+        "ADVANCED MICRO DEVICES INC",
+        "rank 2"
+      ],
+      "id": "diff.mover.AMD.value_change",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "007903107",
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 20000000
+    },
+    {
+      "display": [
+        "$5,000,000",
+        "$5.00M",
+        "$5.0M",
+        "5,000,000",
+        "5000000",
+        "AXP",
+        "AMERICAN EXPRESS CO",
+        "rank 4"
+      ],
+      "id": "diff.mover.AXP.value_change",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "025816109",
+          "period": "2026-Q2",
+          "ticker": "AXP"
+        }
+      },
+      "value": 5000000
+    },
+    {
+      "display": [
+        "$6,000,000",
+        "$6.00M",
+        "$6.0M",
+        "6,000,000",
+        "6000000",
+        "CRWD",
+        "CROWDSTRIKE HOLDINGS INC",
+        "rank 3"
+      ],
+      "id": "diff.mover.CRWD.value_change",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "22788C105",
+          "period": "2026-Q2",
+          "ticker": "CRWD"
+        }
+      },
+      "value": 6000000
+    },
+    {
+      "display": [
+        "$60,000,000",
+        "$60.00M",
+        "$60.0M",
+        "60,000,000",
+        "60000000",
+        "NVDA",
+        "NVIDIA CORP",
+        "rank 1"
+      ],
+      "id": "diff.mover.NVDA.value_change",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "67066G104",
+          "period": "2026-Q2",
+          "ticker": "NVDA"
+        }
+      },
+      "value": 60000000
+    },
+    {
+      "display": [
+        "1",
+        "MSFT"
+      ],
+      "id": "diff.signals_dropped",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "AMD"
+      ],
+      "id": "diff.signals_new",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "NVDA"
+      ],
+      "id": "diff.signals_persisted",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "$8,000,000",
+        "$8.00M",
+        "$8.0M",
+        "8,000,000",
+        "8000000",
+        "Berkshire Hathaway",
+        "ADVANCED MICRO DEVICES INC",
+        "AMD"
+      ],
+      "id": "discretionary.AMD.BERKSHIRE_HATHAWAY.dollars_added",
+      "kind": "discretionary",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "fund_name": "Berkshire Hathaway",
+          "min_funds": 0,
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 8000000
+    },
+    {
+      "display": [
+        "$5,000,000",
+        "$5.00M",
+        "$5.0M",
+        "5,000,000",
+        "5000000",
+        "Temasek Holdings",
+        "ADVANCED MICRO DEVICES INC",
+        "AMD"
+      ],
+      "id": "discretionary.AMD.TEMASEK_HOLDINGS.dollars_added",
+      "kind": "discretionary",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "fund_name": "Temasek Holdings",
+          "min_funds": 0,
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 5000000
+    },
+    {
+      "display": [
+        "$13,000,000",
+        "$13.00M",
+        "$13.0M",
+        "13,000,000",
+        "13000000",
+        "ADVANCED MICRO DEVICES INC",
+        "Technology",
+        "Berkshire Hathaway, Temasek Holdings"
+      ],
+      "id": "discretionary.AMD.dollars_added",
+      "kind": "discretionary",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "fund_types": [
+            "Conglomerate",
+            "Public Pension Fund",
+            "Sovereign Wealth Fund"
+          ],
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 13000000
+    },
+    {
+      "display": [
+        "2",
+        "2 funds",
+        "ADVANCED MICRO DEVICES INC",
+        "Technology",
+        "Berkshire Hathaway, Temasek Holdings",
+        "Conglomerate: 1, Sovereign Wealth Fund: 1"
+      ],
+      "id": "discretionary.AMD.funds_buying",
+      "kind": "discretionary",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "fund_types": [
+            "Conglomerate",
+            "Public Pension Fund",
+            "Sovereign Wealth Fund"
+          ],
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "fund.BERKSHIRE_HATHAWAY.active_positions",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Berkshire Hathaway",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "$35,000,000",
+        "$35.00M",
+        "$35.0M",
+        "35,000,000",
+        "35000000",
+        "Berkshire Hathaway",
+        "Conglomerate"
+      ],
+      "id": "fund.BERKSHIRE_HATHAWAY.aum_equity",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Berkshire Hathaway",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 35000000
+    },
+    {
+      "display": [
+        "$13,000,000",
+        "$13.00M",
+        "$13.0M",
+        "13,000,000",
+        "13000000"
+      ],
+      "id": "fund.BERKSHIRE_HATHAWAY.aum_equity_change",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "fund": "Berkshire Hathaway",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 13000000
+    },
+    {
+      "display": [
+        "$22,000,000",
+        "$22.00M",
+        "$22.0M",
+        "22,000,000",
+        "22000000"
+      ],
+      "id": "fund.BERKSHIRE_HATHAWAY.aum_equity_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Berkshire Hathaway",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 22000000
+    },
+    {
+      "display": [
+        "$35,000,000",
+        "$35.00M",
+        "$35.0M",
+        "35,000,000",
+        "35000000",
+        "Berkshire Hathaway",
+        "Conglomerate"
+      ],
+      "id": "fund.BERKSHIRE_HATHAWAY.aum_with_options",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Berkshire Hathaway",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 35000000
+    },
+    {
+      "display": [
+        "$22,000,000",
+        "$22.00M",
+        "$22.0M",
+        "22,000,000",
+        "22000000"
+      ],
+      "id": "fund.BERKSHIRE_HATHAWAY.aum_with_options_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Berkshire Hathaway",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 22000000
+    },
+    {
+      "display": [
+        "100.00%",
+        "100.0%",
+        "100.00",
+        "100.0"
+      ],
+      "id": "fund.BERKSHIRE_HATHAWAY.top10_concentration_pct",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Berkshire Hathaway",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 100.0
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "fund.BRIDGEWATER_ASSOCIATES.active_positions",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Bridgewater Associates",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "$52,000,000",
+        "$52.00M",
+        "$52.0M",
+        "52,000,000",
+        "52000000",
+        "Bridgewater Associates",
+        "Hedge Fund"
+      ],
+      "id": "fund.BRIDGEWATER_ASSOCIATES.aum_equity",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Bridgewater Associates",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 52000000
+    },
+    {
+      "display": [
+        "$15,000,000",
+        "$15.00M",
+        "$15.0M",
+        "15,000,000",
+        "15000000"
+      ],
+      "id": "fund.BRIDGEWATER_ASSOCIATES.aum_equity_change",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "fund": "Bridgewater Associates",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 15000000
+    },
+    {
+      "display": [
+        "$37,000,000",
+        "$37.00M",
+        "$37.0M",
+        "37,000,000",
+        "37000000"
+      ],
+      "id": "fund.BRIDGEWATER_ASSOCIATES.aum_equity_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Bridgewater Associates",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 37000000
+    },
+    {
+      "display": [
+        "$52,000,000",
+        "$52.00M",
+        "$52.0M",
+        "52,000,000",
+        "52000000",
+        "Bridgewater Associates",
+        "Hedge Fund"
+      ],
+      "id": "fund.BRIDGEWATER_ASSOCIATES.aum_with_options",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Bridgewater Associates",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 52000000
+    },
+    {
+      "display": [
+        "$37,000,000",
+        "$37.00M",
+        "$37.0M",
+        "37,000,000",
+        "37000000"
+      ],
+      "id": "fund.BRIDGEWATER_ASSOCIATES.aum_with_options_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Bridgewater Associates",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 37000000
+    },
+    {
+      "display": [
+        "100.00%",
+        "100.0%",
+        "100.00",
+        "100.0"
+      ],
+      "id": "fund.BRIDGEWATER_ASSOCIATES.top10_concentration_pct",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Bridgewater Associates",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 100.0
+    },
+    {
+      "display": [
+        "5"
+      ],
+      "id": "fund.CITADEL_ADVISORS.active_positions",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Citadel Advisors",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 5
+    },
+    {
+      "display": [
+        "$59,000,000",
+        "$59.00M",
+        "$59.0M",
+        "59,000,000",
+        "59000000",
+        "Citadel Advisors",
+        "Hedge Fund"
+      ],
+      "id": "fund.CITADEL_ADVISORS.aum_equity",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Citadel Advisors",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 59000000
+    },
+    {
+      "display": [
+        "$21,000,000",
+        "$21.00M",
+        "$21.0M",
+        "21,000,000",
+        "21000000"
+      ],
+      "id": "fund.CITADEL_ADVISORS.aum_equity_change",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "fund": "Citadel Advisors",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 21000000
+    },
+    {
+      "display": [
+        "$38,000,000",
+        "$38.00M",
+        "$38.0M",
+        "38,000,000",
+        "38000000"
+      ],
+      "id": "fund.CITADEL_ADVISORS.aum_equity_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Citadel Advisors",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 38000000
+    },
+    {
+      "display": [
+        "$67,000,000",
+        "$67.00M",
+        "$67.0M",
+        "67,000,000",
+        "67000000",
+        "Citadel Advisors",
+        "Hedge Fund"
+      ],
+      "id": "fund.CITADEL_ADVISORS.aum_with_options",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Citadel Advisors",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 67000000
+    },
+    {
+      "display": [
+        "$43,000,000",
+        "$43.00M",
+        "$43.0M",
+        "43,000,000",
+        "43000000"
+      ],
+      "id": "fund.CITADEL_ADVISORS.aum_with_options_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Citadel Advisors",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 43000000
+    },
+    {
+      "display": [
+        "100.00%",
+        "100.0%",
+        "100.00",
+        "100.0"
+      ],
+      "id": "fund.CITADEL_ADVISORS.top10_concentration_pct",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Citadel Advisors",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 100.0
+    },
+    {
+      "display": [
+        "4"
+      ],
+      "id": "fund.RENAISSANCE_TECHNOLOGIES.active_positions",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Renaissance Technologies",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 4
+    },
+    {
+      "display": [
+        "$58,000,000",
+        "$58.00M",
+        "$58.0M",
+        "58,000,000",
+        "58000000",
+        "Renaissance Technologies",
+        "Hedge Fund"
+      ],
+      "id": "fund.RENAISSANCE_TECHNOLOGIES.aum_equity",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Renaissance Technologies",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 58000000
+    },
+    {
+      "display": [
+        "$21,000,000",
+        "$21.00M",
+        "$21.0M",
+        "21,000,000",
+        "21000000"
+      ],
+      "id": "fund.RENAISSANCE_TECHNOLOGIES.aum_equity_change",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "fund": "Renaissance Technologies",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 21000000
+    },
+    {
+      "display": [
+        "$37,000,000",
+        "$37.00M",
+        "$37.0M",
+        "37,000,000",
+        "37000000"
+      ],
+      "id": "fund.RENAISSANCE_TECHNOLOGIES.aum_equity_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Renaissance Technologies",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 37000000
+    },
+    {
+      "display": [
+        "$58,000,000",
+        "$58.00M",
+        "$58.0M",
+        "58,000,000",
+        "58000000",
+        "Renaissance Technologies",
+        "Hedge Fund"
+      ],
+      "id": "fund.RENAISSANCE_TECHNOLOGIES.aum_with_options",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Renaissance Technologies",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 58000000
+    },
+    {
+      "display": [
+        "$37,000,000",
+        "$37.00M",
+        "$37.0M",
+        "37,000,000",
+        "37000000"
+      ],
+      "id": "fund.RENAISSANCE_TECHNOLOGIES.aum_with_options_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Renaissance Technologies",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 37000000
+    },
+    {
+      "display": [
+        "100.00%",
+        "100.0%",
+        "100.00",
+        "100.0"
+      ],
+      "id": "fund.RENAISSANCE_TECHNOLOGIES.top10_concentration_pct",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Renaissance Technologies",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 100.0
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "fund.TEMASEK_HOLDINGS.active_positions",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Temasek Holdings",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "$13,000,000",
+        "$13.00M",
+        "$13.0M",
+        "13,000,000",
+        "13000000",
+        "Temasek Holdings",
+        "Sovereign Wealth Fund"
+      ],
+      "id": "fund.TEMASEK_HOLDINGS.aum_equity",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Temasek Holdings",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 13000000
+    },
+    {
+      "display": [
+        "$5,000,000",
+        "$5.00M",
+        "$5.0M",
+        "5,000,000",
+        "5000000"
+      ],
+      "id": "fund.TEMASEK_HOLDINGS.aum_equity_change",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "fund": "Temasek Holdings",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 5000000
+    },
+    {
+      "display": [
+        "$8,000,000",
+        "$8.00M",
+        "$8.0M",
+        "8,000,000",
+        "8000000"
+      ],
+      "id": "fund.TEMASEK_HOLDINGS.aum_equity_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Temasek Holdings",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 8000000
+    },
+    {
+      "display": [
+        "$13,000,000",
+        "$13.00M",
+        "$13.0M",
+        "13,000,000",
+        "13000000",
+        "Temasek Holdings",
+        "Sovereign Wealth Fund"
+      ],
+      "id": "fund.TEMASEK_HOLDINGS.aum_with_options",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Temasek Holdings",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 13000000
+    },
+    {
+      "display": [
+        "$8,000,000",
+        "$8.00M",
+        "$8.0M",
+        "8,000,000",
+        "8000000"
+      ],
+      "id": "fund.TEMASEK_HOLDINGS.aum_with_options_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Temasek Holdings",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 8000000
+    },
+    {
+      "display": [
+        "100.00%",
+        "100.0%",
+        "100.00",
+        "100.0"
+      ],
+      "id": "fund.TEMASEK_HOLDINGS.top10_concentration_pct",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Temasek Holdings",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 100.0
+    },
+    {
+      "display": [
+        "3"
+      ],
+      "id": "fund.TWO_SIGMA_INVESTMENTS.active_positions",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Two Sigma Investments",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 3
+    },
+    {
+      "display": [
+        "$53,000,000",
+        "$53.00M",
+        "$53.0M",
+        "53,000,000",
+        "53000000",
+        "Two Sigma Investments",
+        "Hedge Fund"
+      ],
+      "id": "fund.TWO_SIGMA_INVESTMENTS.aum_equity",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Two Sigma Investments",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 53000000
+    },
+    {
+      "display": [
+        "$16,000,000",
+        "$16.00M",
+        "$16.0M",
+        "16,000,000",
+        "16000000"
+      ],
+      "id": "fund.TWO_SIGMA_INVESTMENTS.aum_equity_change",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "fund": "Two Sigma Investments",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 16000000
+    },
+    {
+      "display": [
+        "$37,000,000",
+        "$37.00M",
+        "$37.0M",
+        "37,000,000",
+        "37000000"
+      ],
+      "id": "fund.TWO_SIGMA_INVESTMENTS.aum_equity_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Two Sigma Investments",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 37000000
+    },
+    {
+      "display": [
+        "$53,000,000",
+        "$53.00M",
+        "$53.0M",
+        "53,000,000",
+        "53000000",
+        "Two Sigma Investments",
+        "Hedge Fund"
+      ],
+      "id": "fund.TWO_SIGMA_INVESTMENTS.aum_with_options",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Two Sigma Investments",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 53000000
+    },
+    {
+      "display": [
+        "$37,000,000",
+        "$37.00M",
+        "$37.0M",
+        "37,000,000",
+        "37000000"
+      ],
+      "id": "fund.TWO_SIGMA_INVESTMENTS.aum_with_options_prev",
+      "kind": "fund",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_aum",
+        "params": {
+          "fund": "Two Sigma Investments",
+          "period": "2026-Q1"
+        }
+      },
+      "value": 37000000
+    },
+    {
+      "display": [
+        "100.00%",
+        "100.0%",
+        "100.00",
+        "100.0"
+      ],
+      "id": "fund.TWO_SIGMA_INVESTMENTS.top10_concentration_pct",
+      "kind": "fund",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_fund_summary",
+        "params": {
+          "fund": "Two Sigma Investments",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 100.0
+    },
+    {
+      "display": [
+        "45",
+        "Institutional Form 13F reports are filed up to 45 calendar days after quarter-end, so reported holdings reflect historical quarter-close snapshots."
+      ],
+      "id": "limit.filing_lag_45d",
+      "kind": "limit",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.methodology_limitations",
+        "params": {
+          "id": "limit.filing_lag_45d"
+        }
+      },
+      "value": 45
+    },
+    {
+      "display": [
+        "1",
+        "Hedge-fund-only convergence signals may reflect market-making inventory, statistical arbitrage, or options delta-hedging rather than long conviction."
+      ],
+      "id": "limit.hedge_only_may_be_hedging",
+      "kind": "limit",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.methodology_limitations",
+        "params": {
+          "id": "limit.hedge_only_may_be_hedging"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1",
+        "Form 13F filings report long US exchange-traded equity and option positions only; short positions, total-return swaps, fixed income, and non-US holdings are excluded."
+      ],
+      "id": "limit.long_only",
+      "kind": "limit",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.methodology_limitations",
+        "params": {
+          "id": "limit.long_only"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "0",
+        "Descriptive institutional holdings analysis only; no forward-return backtest or predictive alpha statistical test is performed."
+      ],
+      "id": "limit.no_forward_return_test",
+      "kind": "limit",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.methodology_limitations",
+        "params": {
+          "id": "limit.no_forward_return_test"
+        }
+      },
+      "value": 0
+    },
+    {
+      "display": [
+        "2",
+        "The discretionary subset contains 2 institutions (Berkshire Hathaway, CalPERS, Temasek Holdings), so a 2-fund discretionary convergence threshold represents a small sample."
+      ],
+      "id": "limit.small_discretionary_sample",
+      "kind": "limit",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.methodology_limitations",
+        "params": {
+          "id": "limit.small_discretionary_sample"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "$270,000,000",
+        "$270.00M",
+        "$270.0M",
+        "270,000,000",
+        "270000000"
+      ],
+      "id": "market.aum_equity",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "period": "2026-Q2"
+        }
+      },
+      "value": 270000000
+    },
+    {
+      "display": [
+        "$91,000,000",
+        "$91.00M",
+        "$91.0M",
+        "91,000,000",
+        "91000000"
+      ],
+      "id": "market.aum_equity_change",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 91000000
+    },
+    {
+      "display": [
+        "50.84%",
+        "50.8%",
+        "50.84",
+        "50.8"
+      ],
+      "id": "market.aum_equity_change_pct",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 50.84
+    },
+    {
+      "display": [
+        "$179,000,000",
+        "$179.00M",
+        "$179.0M",
+        "179,000,000",
+        "179000000"
+      ],
+      "id": "market.aum_equity_prev",
+      "kind": "market",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "period": "2026-Q1"
+        }
+      },
+      "value": 179000000
+    },
+    {
+      "display": [
+        "$278,000,000",
+        "$278.00M",
+        "$278.0M",
+        "278,000,000",
+        "278000000"
+      ],
+      "id": "market.aum_with_options",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "period": "2026-Q2"
+        }
+      },
+      "value": 278000000
+    },
+    {
+      "display": [
+        "$94,000,000",
+        "$94.00M",
+        "$94.0M",
+        "94,000,000",
+        "94000000"
+      ],
+      "id": "market.aum_with_options_change",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 94000000
+    },
+    {
+      "display": [
+        "51.09%",
+        "51.1%",
+        "51.09",
+        "51.1"
+      ],
+      "id": "market.aum_with_options_change_pct",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 51.09
+    },
+    {
+      "display": [
+        "$184,000,000",
+        "$184.00M",
+        "$184.0M",
+        "184,000,000",
+        "184000000"
+      ],
+      "id": "market.aum_with_options_prev",
+      "kind": "market",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "period": "2026-Q1"
+        }
+      },
+      "value": 184000000
+    },
+    {
+      "display": [
+        "$8,000,000",
+        "$8.00M",
+        "$8.0M",
+        "8,000,000",
+        "8000000"
+      ],
+      "id": "market.options_aum",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "period": "2026-Q2"
+        }
+      },
+      "value": 8000000
+    },
+    {
+      "display": [
+        "2.88%",
+        "2.9%",
+        "2.88",
+        "2.9"
+      ],
+      "id": "market.options_pct_of_total",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_aum_by_period",
+        "params": {
+          "period": "2026-Q2"
+        }
+      },
+      "value": 2.88
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "market.signals_discretionary",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "fund_types": [
+            "Conglomerate",
+            "Public Pension Fund",
+            "Sovereign Wealth Fund"
+          ],
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "0"
+      ],
+      "id": "market.signals_etf",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_etf_convergence_signals",
+        "params": {
+          "min_funds": 3,
+          "period": "2026-Q2"
+        }
+      },
+      "value": 0
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "market.signals_hedge_only",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "market.signals_new_to_sample",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_new_to_sample_signals",
+        "params": {
+          "min_funds": 3,
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "market.signals_total",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "market.signals_with_discretionary",
+      "kind": "market",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "3",
+        "2025-Q4, 2026-Q1, 2026-Q2"
+      ],
+      "id": "metadata.loaded_periods_count",
+      "kind": "metadata",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.Fact_Holdings.distinct_periods",
+        "params": {
+          "loaded_periods": [
+            "2025-Q4",
+            "2026-Q1",
+            "2026-Q2"
+          ]
+        }
+      },
+      "value": 3
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "metadata.lookback_periods",
+      "kind": "metadata",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.config",
+        "params": {
+          "lookback_periods": 2
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "$6,000,000",
+        "$6.00M",
+        "$6.0M",
+        "6,000,000",
+        "6000000",
+        "CROWDSTRIKE HOLDINGS INC",
+        "Technology",
+        "Citadel Advisors, Renaissance Technologies, Two Sigma Investments"
+      ],
+      "id": "new_to_sample.CRWD.dollars_added",
+      "kind": "new_to_sample",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_new_to_sample_signals",
+        "params": {
+          "min_funds": 3,
+          "period": "2026-Q2",
+          "ticker": "CRWD"
+        }
+      },
+      "value": 6000000
+    },
+    {
+      "display": [
+        "3",
+        "3 funds",
+        "CROWDSTRIKE HOLDINGS INC",
+        "Technology",
+        "Citadel Advisors, Renaissance Technologies, Two Sigma Investments",
+        "Hedge Fund: 3"
+      ],
+      "id": "new_to_sample.CRWD.funds_buying",
+      "kind": "new_to_sample",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_new_to_sample_signals",
+        "params": {
+          "min_funds": 3,
+          "period": "2026-Q2",
+          "ticker": "CRWD"
+        }
+      },
+      "value": 3
+    },
+    {
+      "display": [
+        "1",
+        "0001423053-26-000202",
+        "RESTATEMENT",
+        "2026-09-02",
+        "supersedes 0001423053-26-000200",
+        "Citadel Advisors"
+      ],
+      "id": "quality.restatement.CITADEL_ADVISORS",
+      "kind": "quality",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.IngestStage.amendments_applied",
+        "params": {
+          "accession": "0001423053-26-000202",
+          "cik": "0001423053",
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "quality.restatements_applied_count",
+      "kind": "quality",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.IngestStage.amendments_applied",
+        "params": {
+          "period": "2026-Q2"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "2-for-1",
+        "2.0",
+        "2",
+        "UNCONFIRMED",
+        "skipped",
+        "CURANEX PHARMACEUTICALS INC"
+      ],
+      "id": "quality.split.CURX.unconfirmed",
+      "kind": "quality",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.detect_splits",
+        "params": {
+          "cusip": "23126K106",
+          "ticker": "CURX"
+        }
+      },
+      "value": 2.0
+    },
+    {
+      "display": [
+        "10-for-1",
+        "10.0",
+        "10",
+        "CONFIRMED",
+        "2026-06-11",
+        "KLA CORP"
+      ],
+      "id": "quality.split.KLAC.confirmed",
+      "kind": "quality",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.detect_splits",
+        "params": {
+          "cusip": "482480100",
+          "ticker": "KLAC"
+        }
+      },
+      "value": 10.0
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "quality.splits_confirmed_count",
+      "kind": "quality",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.detect_splits",
+        "params": {
+          "status": "CONFIRMED"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "1"
+      ],
+      "id": "quality.splits_unconfirmed_count",
+      "kind": "quality",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.detect_splits",
+        "params": {
+          "status": "UNCONFIRMED"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "sector.Financials.fund_count",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "period": "2026-Q2",
+          "sector": "Financials"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "$5,000,000",
+        "$5.00M",
+        "$5.0M",
+        "5,000,000",
+        "5000000",
+        "Financials"
+      ],
+      "id": "sector.Financials.value_change",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2",
+          "sector": "Financials"
+        }
+      },
+      "value": 5000000
+    },
+    {
+      "display": [
+        "17.86%",
+        "17.9%",
+        "17.86",
+        "17.9",
+        "Financials"
+      ],
+      "id": "sector.Financials.value_change_pct",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2",
+          "sector": "Financials"
+        }
+      },
+      "value": 17.86
+    },
+    {
+      "display": [
+        "$28,000,000",
+        "$28.00M",
+        "$28.0M",
+        "28,000,000",
+        "28000000",
+        "Financials"
+      ],
+      "id": "sector.Financials.value_prev_usd",
+      "kind": "sector",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "period": "2026-Q1",
+          "sector": "Financials"
+        }
+      },
+      "value": 28000000
+    },
+    {
+      "display": [
+        "$33,000,000",
+        "$33.00M",
+        "$33.0M",
+        "33,000,000",
+        "33000000",
+        "Financials"
+      ],
+      "id": "sector.Financials.value_usd",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "period": "2026-Q2",
+          "sector": "Financials"
+        }
+      },
+      "value": 33000000
+    },
+    {
+      "display": [
+        "6"
+      ],
+      "id": "sector.Technology.fund_count",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "period": "2026-Q2",
+          "sector": "Technology"
+        }
+      },
+      "value": 6
+    },
+    {
+      "display": [
+        "$86,000,000",
+        "$86.00M",
+        "$86.0M",
+        "86,000,000",
+        "86000000",
+        "Technology"
+      ],
+      "id": "sector.Technology.value_change",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2",
+          "sector": "Technology"
+        }
+      },
+      "value": 86000000
+    },
+    {
+      "display": [
+        "56.95%",
+        "57.0%",
+        "56.95",
+        "57.0",
+        "Technology"
+      ],
+      "id": "sector.Technology.value_change_pct",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "period": "2026-Q2",
+          "sector": "Technology"
+        }
+      },
+      "value": 56.95
+    },
+    {
+      "display": [
+        "$151,000,000",
+        "$151.00M",
+        "$151.0M",
+        "151,000,000",
+        "151000000",
+        "Technology"
+      ],
+      "id": "sector.Technology.value_prev_usd",
+      "kind": "sector",
+      "period": "2026-Q1",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "period": "2026-Q1",
+          "sector": "Technology"
+        }
+      },
+      "value": 151000000
+    },
+    {
+      "display": [
+        "$237,000,000",
+        "$237.00M",
+        "$237.0M",
+        "237,000,000",
+        "237000000",
+        "Technology"
+      ],
+      "id": "sector.Technology.value_usd",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "period": "2026-Q2",
+          "sector": "Technology"
+        }
+      },
+      "value": 237000000
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "signal.AMD.discretionary_buyers",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "$20,000,000",
+        "$20.00M",
+        "$20.0M",
+        "20,000,000",
+        "20000000",
+        "ADVANCED MICRO DEVICES INC",
+        "Technology",
+        "Berkshire Hathaway, Citadel Advisors, Renaissance Technologies, Temasek Holdings"
+      ],
+      "id": "signal.AMD.dollars_added",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 20000000
+    },
+    {
+      "display": [
+        "4",
+        "4 funds",
+        "ADVANCED MICRO DEVICES INC",
+        "Technology",
+        "Berkshire Hathaway, Citadel Advisors, Renaissance Technologies, Temasek Holdings",
+        "Hedge Fund: 2, Conglomerate: 1, Sovereign Wealth Fund: 1"
+      ],
+      "id": "signal.AMD.funds_buying",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 4
+    },
+    {
+      "display": [
+        "2"
+      ],
+      "id": "signal.AMD.hedge_fund_buyers",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
+      "value": 2
+    },
+    {
+      "display": [
+        "0"
+      ],
+      "id": "signal.NVDA.discretionary_buyers",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "NVDA"
+        }
+      },
+      "value": 0
+    },
+    {
+      "display": [
+        "$53,333,333",
+        "$53.33M",
+        "$53.3M",
+        "53,333,333",
+        "53333333",
+        "NVIDIA CORP",
+        "Technology",
+        "Bridgewater Associates, Citadel Advisors, Renaissance Technologies, Two Sigma Investments"
+      ],
+      "id": "signal.NVDA.dollars_added",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "NVDA"
+        }
+      },
+      "value": 53333333
+    },
+    {
+      "display": [
+        "4",
+        "4 funds",
+        "NVIDIA CORP",
+        "Technology",
+        "Bridgewater Associates, Citadel Advisors, Renaissance Technologies, Two Sigma Investments",
+        "Hedge Fund: 4"
+      ],
+      "id": "signal.NVDA.funds_buying",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "NVDA"
+        }
+      },
+      "value": 4
+    },
+    {
+      "display": [
+        "4"
+      ],
+      "id": "signal.NVDA.hedge_fund_buyers",
+      "kind": "signal",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_convergence_signals",
+        "params": {
+          "min_funds": 4,
+          "period": "2026-Q2",
+          "ticker": "NVDA"
+        }
+      },
+      "value": 4
+    }
+  ],
+  "fund_aum": [
+    {
+      "accession": "0001423053-26-000203",
+      "active_positions": 5,
+      "aum_equity_change_usd": 21000000,
+      "aum_equity_only_prev_usd": 38000000,
+      "aum_equity_only_usd": 59000000,
+      "aum_with_options_prev_usd": 43000000,
+      "aum_with_options_usd": 67000000,
+      "cik": "0001423053",
+      "filed_date": "",
+      "fund_name": "Citadel Advisors",
+      "fund_type": "Hedge Fund",
+      "reconciled": true,
+      "top_10_concentration_pct": 100.0
+    },
+    {
+      "accession": "0001037389-26-000204",
+      "active_positions": 4,
+      "aum_equity_change_usd": 21000000,
+      "aum_equity_only_prev_usd": 37000000,
+      "aum_equity_only_usd": 58000000,
+      "aum_with_options_prev_usd": 37000000,
+      "aum_with_options_usd": 58000000,
+      "cik": "0001037389",
+      "filed_date": "",
+      "fund_name": "Renaissance Technologies",
+      "fund_type": "Hedge Fund",
+      "reconciled": true,
+      "top_10_concentration_pct": 100.0
+    },
+    {
+      "accession": "0001179392-26-000206",
+      "active_positions": 3,
+      "aum_equity_change_usd": 16000000,
+      "aum_equity_only_prev_usd": 37000000,
+      "aum_equity_only_usd": 53000000,
+      "aum_with_options_prev_usd": 37000000,
+      "aum_with_options_usd": 53000000,
+      "cik": "0001179392",
+      "filed_date": "",
+      "fund_name": "Two Sigma Investments",
+      "fund_type": "Hedge Fund",
+      "reconciled": true,
+      "top_10_concentration_pct": 100.0
+    },
+    {
+      "accession": "0001350694-26-000202",
+      "active_positions": 2,
+      "aum_equity_change_usd": 15000000,
+      "aum_equity_only_prev_usd": 37000000,
+      "aum_equity_only_usd": 52000000,
+      "aum_with_options_prev_usd": 37000000,
+      "aum_with_options_usd": 52000000,
+      "cik": "0001350694",
+      "filed_date": "",
+      "fund_name": "Bridgewater Associates",
+      "fund_type": "Hedge Fund",
+      "reconciled": true,
+      "top_10_concentration_pct": 100.0
+    },
+    {
+      "accession": "0001067983-26-000201",
+      "active_positions": 2,
+      "aum_equity_change_usd": 13000000,
+      "aum_equity_only_prev_usd": 22000000,
+      "aum_equity_only_usd": 35000000,
+      "aum_with_options_prev_usd": 22000000,
+      "aum_with_options_usd": 35000000,
+      "cik": "0001067983",
+      "filed_date": "",
+      "fund_name": "Berkshire Hathaway",
+      "fund_type": "Conglomerate",
+      "reconciled": true,
+      "top_10_concentration_pct": 100.0
+    },
+    {
+      "accession": "0001021944-26-000205",
+      "active_positions": 2,
+      "aum_equity_change_usd": 5000000,
+      "aum_equity_only_prev_usd": 8000000,
+      "aum_equity_only_usd": 13000000,
+      "aum_with_options_prev_usd": 8000000,
+      "aum_with_options_usd": 13000000,
+      "cik": "0001021944",
+      "filed_date": "",
+      "fund_name": "Temasek Holdings",
+      "fund_type": "Sovereign Wealth Fund",
+      "reconciled": true,
+      "top_10_concentration_pct": 100.0
+    }
+  ],
+  "headline_counts": {
+    "aum_equity_only_usd": 270000000,
+    "aum_with_options_usd": 278000000,
+    "options_aum_usd": 8000000,
+    "options_pct_of_total": 2.88,
+    "signals_discretionary": 1,
+    "signals_etf": 0,
+    "signals_hedge_only": 1,
+    "signals_new_to_sample": 1,
+    "signals_total": 2,
+    "signals_with_discretionary": 1
+  },
+  "limitations": [
+    {
+      "description": "Form 13F filings report long US exchange-traded equity and option positions only; short positions, total-return swaps, fixed income, and non-US holdings are excluded.",
+      "id": "limit.long_only",
+      "value": 1
+    },
+    {
+      "description": "Institutional Form 13F reports are filed up to 45 calendar days after quarter-end, so reported holdings reflect historical quarter-close snapshots.",
+      "id": "limit.filing_lag_45d",
+      "value": 45
+    },
+    {
+      "description": "Descriptive institutional holdings analysis only; no forward-return backtest or predictive alpha statistical test is performed.",
+      "id": "limit.no_forward_return_test",
+      "value": 0
+    },
+    {
+      "description": "Hedge-fund-only convergence signals may reflect market-making inventory, statistical arbitrage, or options delta-hedging rather than long conviction.",
+      "id": "limit.hedge_only_may_be_hedging",
+      "value": 1
+    },
+    {
+      "description": "The discretionary subset contains 2 institutions (Berkshire Hathaway, CalPERS, Temasek Holdings), so a 2-fund discretionary convergence threshold represents a small sample.",
+      "id": "limit.small_discretionary_sample",
+      "value": 2
+    }
+  ],
+  "metadata": {
+    "baseline_period": "2026-Q1",
+    "loaded_periods": [
+      "2025-Q4",
+      "2026-Q1",
+      "2026-Q2"
+    ],
+    "lookback_periods": 2,
+    "period": "2026-Q2",
+    "prior_lookback_period": "2025-Q4"
+  },
+  "new_to_sample": [
+    {
+      "company_name": "CROWDSTRIKE HOLDINGS INC",
+      "cusip": "22788C105",
+      "dollars_added": 6000000,
+      "fund_type_breakdown": "Hedge Fund: 3",
+      "funds": [
+        "Citadel Advisors",
+        "Renaissance Technologies",
+        "Two Sigma Investments"
+      ],
+      "funds_buying": 3,
+      "sector": "Technology",
+      "ticker": "CRWD"
+    }
+  ],
+  "period": "2026-Q2",
+  "sectors": [
+    {
+      "fund_count": 6,
+      "sector": "Technology",
+      "value_change_pct": 56.95,
+      "value_change_usd": 86000000,
+      "value_prev_usd": 151000000,
+      "value_usd": 237000000
+    },
+    {
+      "fund_count": 2,
+      "sector": "Financials",
+      "value_change_pct": 17.86,
+      "value_change_usd": 5000000,
+      "value_prev_usd": 28000000,
+      "value_usd": 33000000
+    }
+  ]
+}

@@ -4,6 +4,7 @@
 pipeline:
   target_period: "2026-Q2"
   baseline_period: "2026-Q1"
+  lookback_periods: 2
   min_funds: 7
   allow_partial: false
   max_validation_retries: 3

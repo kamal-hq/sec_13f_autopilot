@@ -3,6 +3,7 @@
 Supported commands:
 - `autopilot detect [--as-of YYYY-MM-DD] [--period YYYY-QN] [--dry-run]`
 - `autopilot ingest --period 2026-Q2 [--as-of YYYY-MM-DD] [--dry-run]`
+- `autopilot facts --period 2026-Q2 [--dry-run]`
 - `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
 """
 
@@ -18,6 +19,7 @@ from autopilot.models import PipelineContext, StageStatus
 from autopilot.pipeline import Pipeline, build_default_stages
 from autopilot.settings import Settings, configure_logging
 from autopilot.stages.detect import DetectStage
+from autopilot.stages.facts import FactsStage
 from autopilot.stages.ingest import IngestStage
 
 logger = logging.getLogger(__name__)
@@ -46,7 +48,7 @@ def _add_common_flags(parser: argparse.ArgumentParser) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Construct the CLI argument parser with `detect`, `ingest`, and `run` subcommands."""
+    """Construct the CLI argument parser with `detect`, `ingest`, `facts`, and `run` subcommands."""
     parser = argparse.ArgumentParser(
         prog="autopilot",
         description="Human-approved, one-click quarterly SEC 13F update pipeline.",
@@ -84,7 +86,7 @@ def build_parser() -> argparse.ArgumentParser:
     # 2. `autopilot ingest --period 2026-Q2 [--as-of YYYY-MM-DD] [--dry-run]`
     ingest_parser = subparsers.add_parser(
         "ingest",
-        help="Ingest target period and previous period into a fresh SQLite DB (data/autopilot.db).",
+        help="Ingest target period and lookback periods into fresh DB (data/autopilot.db).",
     )
     _add_common_flags(ingest_parser)
     ingest_parser.add_argument(
@@ -94,7 +96,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Reporting period to ingest (e.g., 2026-Q2).",
     )
 
-    # 3. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
+    # 3. `autopilot facts --period 2026-Q2 [--dry-run]`
+    facts_parser = subparsers.add_parser(
+        "facts",
+        help="Compute deterministic FactsBundle (facts.json, diff.md, run.json) from SQLite DB.",
+    )
+    _add_common_flags(facts_parser)
+    facts_parser.add_argument(
+        "--period",
+        type=str,
+        required=True,
+        help="Reporting period to compute facts for (e.g., 2026-Q2).",
+    )
+
+    # 4. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
     run_parser = subparsers.add_parser(
         "run",
         help="Run pipeline stages in order (optionally stopping after --through <stage>).",
@@ -104,7 +119,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--through",
         type=str,
         default=None,
-        help="Stop pipeline after executing this stage (e.g., detect, ingest).",
+        help="Stop pipeline after executing this stage (e.g., detect, ingest, facts).",
     )
     run_parser.add_argument(
         "--period",
@@ -172,10 +187,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             write_report=not dry_run,
         )
         logger.info(
-            "Ingest [%s + %s] db=%s rows=%d all_reconciled=%s confirmed_splits=%d "
+            "Ingest [%s] db=%s rows=%d all_reconciled=%s confirmed_splits=%d "
             "unconfirmed_splits=%d amendments=%d",
-            ingest_res.previous_period,
-            ingest_res.period,
+            " + ".join(ingest_res.loaded_periods),
             ingest_res.db_path,
             ingest_res.holdings_row_count,
             ingest_res.all_reconciled,
@@ -184,6 +198,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             len(ingest_res.amendments_applied),
         )
         return 0 if ingest_res.all_reconciled else 1
+
+    if cmd == "facts":
+        facts_stage = FactsStage(settings=settings)
+        facts_bundle = facts_stage.build_facts(
+            target_period=settings.target_period,
+            dry_run=dry_run,
+            write_reports=not dry_run,
+        )
+        logger.info(
+            "Facts [%s] prev=%s fact_count=%d signals=%d discretionary=%d "
+            "aum_equity_usd=%.0f report=%s diff=%s",
+            facts_bundle.period,
+            facts_bundle.previous_period,
+            len(facts_bundle.facts),
+            facts_bundle.signal_count,
+            facts_bundle.discretionary_signal_count,
+            facts_bundle.total_aum_equity_usd,
+            facts_bundle.report_path,
+            facts_bundle.diff_path,
+        )
+        return 0
 
     # Default or `autopilot run`
     through_stage = getattr(args, "through", None)

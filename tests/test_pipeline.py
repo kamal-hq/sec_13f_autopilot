@@ -117,7 +117,7 @@ def test_pipeline_halts_on_review_gate_and_failure() -> None:
 
 
 def test_default_stage_contracts_and_remaining_stubs() -> None:
-    """All 7 stages define input/output contracts; Phases 2-5 stages raise NotImplementedError."""
+    """All 7 stages define input/output contracts; Phases 3-5 stages raise NotImplementedError."""
     stages = build_default_stages()
     assert [s.name for s in stages] == [
         "detect",
@@ -129,7 +129,7 @@ def test_default_stage_contracts_and_remaining_stubs() -> None:
         "publish",
     ]
     ctx = PipelineContext(target_period="2026-Q2")
-    stub_names = {"facts", "narrate", "validate", "review", "publish"}
+    stub_names = {"narrate", "validate", "review", "publish"}
     for stage in stages:
         module_doc = __import__(stage.__class__.__module__, fromlist=["*"]).__doc__ or ""
         assert "Input Contract" in module_doc

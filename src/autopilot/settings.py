@@ -155,6 +155,7 @@ class Settings:
     # Pipeline & completeness settings
     target_period: str = "2026-Q2"
     baseline_period: str = "2026-Q1"
+    lookback_periods: int = 2
     min_funds: int = 7
     allow_partial: bool = False
     max_validation_retries: int = 3
@@ -194,6 +195,7 @@ class Settings:
         openfigi_api_key: str | None = None,
         target_period: str = "2026-Q2",
         baseline_period: str = "2026-Q1",
+        lookback_periods: int = 2,
         min_funds: int | None = None,
         allow_partial: bool = False,
         max_validation_retries: int = 3,
@@ -232,6 +234,7 @@ class Settings:
         self.funds = dict(DEFAULT_FUNDS) if funds is None else dict(funds)
         self.target_period = target_period
         self.baseline_period = baseline_period
+        self.lookback_periods = max(1, int(lookback_periods))
         self.min_funds = len(self.funds) if min_funds is None else int(min_funds)
         self.allow_partial = bool(allow_partial)
         self.max_validation_retries = int(max_validation_retries)
@@ -292,6 +295,7 @@ class Settings:
             f"openfigi_api_key={openfigi_mask!r}, "
             f"target_period={self.target_period!r}, "
             f"baseline_period={self.baseline_period!r}, "
+            f"lookback_periods={self.lookback_periods!r}, "
             f"min_funds={self.min_funds!r}, "
             f"allow_partial={self.allow_partial!r}, "
             f"llm_provider={self.llm_provider!r}, "
@@ -358,6 +362,7 @@ class Settings:
             openfigi_api_key=os.environ.get("OPENFIGI_API_KEY", ""),
             target_period=str(pipeline_cfg.get("target_period", "2026-Q2")),
             baseline_period=str(pipeline_cfg.get("baseline_period", "2026-Q1")),
+            lookback_periods=int(pipeline_cfg.get("lookback_periods", 2)),
             min_funds=resolved_min_funds,
             allow_partial=bool(pipeline_cfg.get("allow_partial", False)),
             max_validation_retries=int(pipeline_cfg.get("max_validation_retries", 3)),
