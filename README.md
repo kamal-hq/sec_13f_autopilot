@@ -68,7 +68,7 @@ pip install -e .
 
 ## Usage
 
-### Phase 1, 2 & 3a: Detection, Ingestion, Facts, and Template Narration
+### Phase 1, 2, 3a & 3b: Detection, Ingestion, Facts, Narration, and Validation
 
 ```bash
 # Detect 13F-HR and 13F-HR/A filings across configured funds (writes reports/<period>/detect.json)
@@ -87,13 +87,35 @@ autopilot ingest --period 2026-Q2
 # Extract deterministic facts, diff markdown, and allowed numbers bundle (reports/<period>/facts.json)
 autopilot facts --period 2026-Q2
 
-# Generate deterministic research note draft with NullProvider (reports/<period>/draft.md)
+# Generate deterministic research note draft with NullProvider (reports/<period>/draft.md & draft_clean.md)
 autopilot narrate --period 2026-Q2 --llm none
 
-# Run the pipeline in sequence through a specific stage (e.g., detect -> ingest -> facts -> narrate)
+# Audit draft markdown against facts bundle using deterministic rules R1-R8 (reports/<period>/validation_report.json/.md)
+autopilot validate --period 2026-Q2
+
+# Validate a custom draft path
+autopilot validate --period 2026-Q2 --draft reports/2026-Q2/draft.md
+
+# Run the pipeline in sequence through a specific stage (e.g., detect -> ingest -> facts -> narrate -> validate)
+autopilot run --through validate --llm none
 autopilot run --through narrate --llm none
 autopilot run --through facts --as-of 2026-09-05
 ```
+
+### Deterministic Validator Rules (R1–R8)
+
+`ValidateStage` (`src/autopilot/stages/validate.py`) executes 100% offline without LLM invocations, auditing the draft against `facts.json`:
+- **R1 Number Grounding**: Every figure (currency, percent, count, multiplier) must cite an existing `[fact_id]` and match: equal to a listed display format, or rounded to 2 significant figures within 2%. Units must agree ($M is not $B).
+- **R2 Citation Integrity**: Every cited `[fact_id]` exists in `facts.json`; no orphan tags.
+- **R3 Entities**: Tracked institutional funds and ticker symbols in prose must exist in facts for the target period.
+- **R4 Entity Binding**: Cited breakdown facts must bind to the entity named in their clause/bullet.
+- **R5 Banned Advice**: Predictions and financial advice (`will outperform`, `expected to`, `should buy/invest`, `accumulate`, `alpha`, `guaranteed`) are forbidden outside Limitations. Inside Limitations, they are permitted only in negated form.
+- **R6 Causal Claims**: Verbs of cause (`because`, `due to`, `driven by`, `as a result of`) linking market movements to external events are forbidden outside Limitations.
+- **R7 Required Content**: All 9 canonical section headings, 6 required `limit.*` facts, and valid period metadata must be present.
+- **R8 Stale Superseded Data**: Superseded pre-amendment values (e.g., Citadel's pre-amendment 2026-Q2 total) are rejected.
+
+The adversarial suite (`tests/adversarial/cases.yaml`) validates that 10 bad mutations are rejected by their specific rule (R1–R8) and 5 good mutations are accepted cleanly (`bad rejected 10/10, good accepted 5/5`).
+
 
 ---
 

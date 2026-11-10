@@ -322,10 +322,11 @@ class FactItem:
     display: tuple[str, ...]
     period: str
     source: dict[str, Any]
+    superseded: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize fact item with stable sorted keys."""
-        return {
+        data: dict[str, Any] = {
             "display": list(self.display),
             "id": self.id,
             "kind": self.kind,
@@ -333,6 +334,9 @@ class FactItem:
             "source": dict(sorted(self.source.items())),
             "value": self.value,
         }
+        if self.superseded:
+            data["superseded"] = True
+        return data
 
 
 @dataclass(frozen=True, slots=True)
@@ -452,6 +456,7 @@ class FactsBundle:
                 display=tuple(f.get("display") or ()),
                 period=f["period"],
                 source=f.get("source") or {},
+                superseded=bool(f.get("superseded", False)),
             )
             for f in data.get("facts", [])
         ]

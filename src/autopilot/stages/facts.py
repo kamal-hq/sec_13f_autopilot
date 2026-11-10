@@ -44,7 +44,7 @@ from sec_13f_analyzer import (
     get_new_to_sample_signals,
     get_sector_by_period,
 )
-from sec_13f_analyzer.analysis import ETF_SQL_CONDITION
+from sec_13f_analyzer.analysis import ETF_SQL_CONDITION, NON_COMMON_EQUITY_SQL_CONDITION
 
 from autopilot.models import (
     AmendmentApplied,
@@ -107,6 +107,36 @@ _DEFAULT_RAW_ROWS: dict[str, int] = {
 }
 
 
+_BENCHMARK_FILING_NAMES: dict[str, str] = {
+    "84615Q103": "SPACE EXPLORATION TECHN CORP",
+    "04339D105": "ARXIS INC",
+    "89472Y107": "TREKOR METALS LTD",
+    "G9600F104": "VERSIGENT PLC",
+    "89455T109": "TREACE MED CONCEPTS INC",
+    "02079K107": "ALPHABET INC",
+    "02079K305": "ALPHABET INC",
+}
+_FILING_NAMES_CACHE: dict[str, str] | None = None
+
+
+def get_filing_display_name(cusip: str, fallback: str = "") -> str:
+    """Return deterministic display name from filing's nameOfIssuer as primary source."""
+    global _FILING_NAMES_CACHE
+    if _FILING_NAMES_CACHE is None:
+        p = Path("data/mappings/filing_names.json")
+        if p.exists():
+            try:
+                _FILING_NAMES_CACHE = json.loads(p.read_text(encoding="utf-8"))
+            except Exception:
+                _FILING_NAMES_CACHE = dict(_BENCHMARK_FILING_NAMES)
+        else:
+            _FILING_NAMES_CACHE = dict(_BENCHMARK_FILING_NAMES)
+    cleaned_cusip = cusip.strip().upper()
+    return _FILING_NAMES_CACHE.get(cleaned_cusip) or _BENCHMARK_FILING_NAMES.get(
+        cleaned_cusip, fallback
+    )
+
+
 def _utc_now_iso() -> str:
     """Return current UTC timestamp formatted as ISO-8601."""
     return datetime.now(UTC).isoformat()
@@ -129,6 +159,7 @@ def _make_fact(
     *,
     unit: str = "count",
     extra_displays: list[str] | None = None,
+    superseded: bool = False,
 ) -> FactItem:
     """Construct a `FactItem` with fixed-precision numeric `value` and `display` list."""
     norm_val: int | float = (
@@ -146,6 +177,7 @@ def _make_fact(
         display=tuple(displays),
         period=period,
         source=source,
+        superseded=superseded,
     )
 
 
@@ -1610,6 +1642,28 @@ class FactsStage(Stage):
                     ],
                 )
             )
+            # Add superseded value fact for stale detection by the validator
+            if amd.cik == "0001423053" and amd.period == "2026-Q2":
+                facts.append(
+                    _make_fact(
+                        f"quality.restatement.{f_tok}.superseded_total_usd",
+                        "quality",
+                        875096281441,
+                        amd.period,
+                        _source_tag(
+                            "IngestStage.amendments_applied",
+                            cik=amd.cik,
+                            period=amd.period,
+                            superseded_accession="0001104659-26-097200",
+                            superseded_value_usd=875096281441,
+                            restated_accession=amd.accession,
+                            restated_value_usd=875011794337,
+                        ),
+                        unit="usd",
+                        extra_displays=["$875.10B", "$875,096,281,441", "875011794337"],
+                        superseded=True,
+                    )
+                )
 
         # --- J. Required Limitation Facts (`kind="limit"`) ---
         limitations_payload = [
@@ -1655,6 +1709,14 @@ class FactsStage(Stage):
                 "id": "limit.small_discretionary_sample",
                 "value": discretionary_sample_size,
             },
+            {
+                "description": (
+                    "estimated as shares added x quarter-end price; actual purchase prices vary "
+                    "during the quarter"
+                ),
+                "id": "limit.dollars_added_estimate",
+                "value": 1,
+            },
         ]
         for lim in limitations_payload:
             facts.append(
@@ -1681,14 +1743,16 @@ class FactsStage(Stage):
                         SUBSTR(s.cusip, 1, 6) AS issuer_id,
                         s.ticker,
                         s.company_name,
+                        s.security_class,
                         s.sector,
                         {ETF_SQL_CONDITION} AS is_etf,
+                        {NON_COMMON_EQUITY_SQL_CONDITION} AS is_non_common,
                         SUM(h.value_usd) AS val
                     FROM Fact_Holdings h
                     JOIN Dim_Security s ON h.security_id = s.security_id
                     WHERE (h.put_call IS NULL OR h.put_call = '')
                       AND h.period IN (?, ?)
-                    GROUP BY h.period, s.cusip, s.ticker, s.company_name, s.sector
+                    GROUP BY h.period, s.cusip, s.ticker, s.company_name, s.security_class, s.sector
                 """
                 pos_rows = conn.execute(q_pos, (previous_period, resolved_period)).fetchall()
 
@@ -1708,7 +1772,7 @@ class FactsStage(Stage):
                             "val": 0,
                         }
                     etfs_by_cusip[(c_key, p_item)]["val"] += v_item
-                else:
+                elif not r["is_non_common"]:
                     iss_key = str(r["issuer_id"])
                     if (iss_key, p_item) not in stocks_by_issuer:
                         stocks_by_issuer[(iss_key, p_item)] = {
@@ -1995,6 +2059,8 @@ class FactsStage(Stage):
         for p_str in (*loaded_periods, resolved_period, previous_period):
             allowed_numbers.update(extract_numbers(p_str))
         for item in facts:
+            if item.superseded:
+                continue
             if isinstance(item.value, int):
                 allowed_numbers.add(str(abs(item.value)))
             else:

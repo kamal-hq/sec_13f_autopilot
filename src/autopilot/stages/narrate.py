@@ -99,7 +99,11 @@ def _extract_company_and_sector(
     return comp, sec
 
 
-def render_template_note(facts: FactsBundle, template_path: Path | None = None) -> str:
+def render_template_note(
+    facts: FactsBundle,
+    template_path: Path | None = None,
+    provider: str = "none",
+) -> str:
     """Deterministically render `draft.md` from `FactsBundle` with every figure cited."""
     period = facts.period
     prev_period = facts.baseline_period
@@ -193,7 +197,7 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
         ),
         (
             f"- **Options Derivative AUM**: `{_fmt_usd(opt_aum_val)} [{opt_aum_id}]` "
-            f"(`{_fmt_pct(opt_pct_val)} [{opt_pct_id}]` of gross portfolio assets)"
+            f"({opt_pct_val:.2f}% [{opt_pct_id}] of gross portfolio assets)"
         ),
         (
             "- **Broad Convergence Signals (4+ funds buying)**: "
@@ -216,13 +220,11 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
     funds_filed = facts.get_fact("coverage.funds_filed")
     recon_pass = facts.get_fact("coverage.reconciliations_passed")
     recon_tot = facts.get_fact("coverage.reconciliations_total")
-    all_recon = facts.get_fact("coverage.all_reconciled")
     amend_fact = facts.get_fact("coverage.amendments_applied")
 
     f_filed_num = _fmt_num(funds_filed.value if funds_filed else 0)
     r_pass_num = _fmt_num(recon_pass.value if recon_pass else 0)
     r_tot_num = _fmt_num(recon_tot.value if recon_tot else 0)
-    all_rec_num = _fmt_num(all_recon.value if all_recon else 1)
     amend_num = _fmt_num(amend_fact.value if amend_fact else 0)
 
     cov_lines = [
@@ -231,7 +233,7 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
             "- **Cover-Page Value Reconciliation**: "
             f"`{r_pass_num} [coverage.reconciliations_passed]` "
             f"of `{r_tot_num} [coverage.reconciliations_total]` filings passed "
-            f"(all reconciled status: `{all_rec_num} [coverage.all_reconciled]`)"
+            f"(all reconciled [coverage.all_reconciled])"
         ),
         f"- **Form 13F-HR/A Restatements Applied**: `{amend_num} [coverage.amendments_applied]`",
     ]
@@ -273,7 +275,7 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
             broad_lines.append(
                 f"- **`{tok.replace('_', '/')}`** ({comp_name} — {sector_name}): "
                 f"`{_fmt_num(funds_val)} [signal.{tok}.funds_buying]` funds buying, "
-                f"`{_fmt_usd(dollars_val)} [signal.{tok}.dollars_added]` added "
+                f"`{_fmt_usd(dollars_val)} [signal.{tok}.dollars_added]` estimated dollars added "
                 f"(Hedge Fund: `{_fmt_num(hf_val)} [signal.{tok}.hedge_fund_buyers]`, "
                 f"Discretionary: `{_fmt_num(disc_val)} [signal.{tok}.discretionary_buyers]`)"
             )
@@ -332,8 +334,8 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
                 f"- **`{tok.replace('_', '/')}`** ({comp_name} — {sector_name}): "
                 f"`{_fmt_num(funds_val)} [discretionary.{tok}.funds_buying]` "
                 "discretionary funds buying, "
-                f"`{_fmt_usd(dollars_val)} [discretionary.{tok}.dollars_added]` added"
-                f"{fund_breakdown_str}"
+                f"`{_fmt_usd(dollars_val)} [discretionary.{tok}.dollars_added]` "
+                f"estimated dollars added{fund_breakdown_str}"
             )
     else:
         disc_lines.append(
@@ -373,7 +375,8 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
             new_sample_lines.append(
                 f"- **`{tok.replace('_', '/')}`** ({comp_name} — {sector_name}): "
                 f"`{_fmt_num(funds_val)} [new_to_sample.{tok}.funds_buying]` funds initiating, "
-                f"`{_fmt_usd(dollars_val)} [new_to_sample.{tok}.dollars_added]` added"
+                f"`{_fmt_usd(dollars_val)} [new_to_sample.{tok}.dollars_added]` "
+                "estimated dollars added"
             )
     else:
         new_sample_lines.append(f"- No new-to-sample convergence signals initiated in {period}.")
@@ -392,8 +395,7 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
             )
         )
         diff_lines.append(
-            "- **Prior-Quarter Signal Comparison**: Unavailable "
-            f"(`{_fmt_num(int(diff_unavail.value))} [diff.unavailable]`): {reason_str}"
+            f"- **Prior-Quarter Signal Comparison**: Unavailable [diff.unavailable]: {reason_str}"
         )
     else:
         sig_persisted = facts.get_fact("diff.signals_persisted")
@@ -465,18 +467,18 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
 
     if op_movers:
         diff_lines.append("\n### Operating Company Position Movers")
-        for tok, val_change, is_etf, tkr, comp in op_movers[:5]:
+        for tok, val_change, _is_etf, tkr, comp in op_movers[:5]:
             diff_lines.append(
                 f"- **`{tkr}`** ({comp}): `{_fmt_usd(val_change)} [diff.mover.{tok}.value_change]` "
-                f"(is_etf: `{_fmt_num(is_etf)} [diff.mover.{tok}.is_etf]`)"
+                f"[diff.mover.{tok}.is_etf]"
             )
 
     if etf_movers:
         diff_lines.append("\n### ETF Position Movers")
-        for tok, val_change, is_etf, tkr, comp in etf_movers[:5]:
+        for tok, val_change, _is_etf, tkr, comp in etf_movers[:5]:
             diff_lines.append(
                 f"- **`{tkr}`** ({comp}): `{_fmt_usd(val_change)} [diff.mover.{tok}.value_change]` "
-                f"(is_etf: `{_fmt_num(is_etf)} [diff.mover.{tok}.is_etf]`)"
+                f"[diff.mover.{tok}.is_etf]"
             )
 
     # 7. Sector View
@@ -536,7 +538,7 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
             if note_fact:
                 sector_lines.append(
                     "  - *Sector Context*: mostly ETFs and trusts without an operating-company "
-                    f"SIC code (`{_fmt_num(int(note_fact.value))} [sector.Unknown.note]`)"
+                    "SIC code [sector.Unknown.note]"
                 )
 
     # 8. Data Quality
@@ -547,7 +549,11 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
     ]
     for f in confirmed_splits:
         tok = f.id[len("quality.split.") : -len(".confirmed")]
-        comp_split = f.display[5] if len(f.display) >= 6 else tok
+        comp_split = (
+            f.display[4]
+            if len(f.display) >= 5 and f.display[4]
+            else (f.display[5] if len(f.display) >= 6 else tok)
+        )
         dq_lines.append(
             f"- **Confirmed Stock Split**: `{tok}` ({comp_split}) applied "
             f"`{_fmt_num(float(f.value))} [{f.id}]`-for-1 multiplier"
@@ -561,7 +567,11 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
     ]
     for f in unconfirmed_splits:
         tok = f.id[len("quality.split.") : -len(".unconfirmed")]
-        comp_split = f.display[5] if len(f.display) >= 6 else tok
+        comp_split = (
+            f.display[4]
+            if len(f.display) >= 5 and f.display[4]
+            else (f.display[5] if len(f.display) >= 6 else tok)
+        )
         dq_lines.append(
             f"- **Unconfirmed Split Candidate**: `{tok}` ({comp_split}) flagged "
             f"`{_fmt_num(float(f.value))} [{f.id}]`-for-1 candidate"
@@ -571,15 +581,22 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
     restatements = [
         f
         for f in facts.facts
-        if f.id.startswith("quality.restatement.") and f.id.endswith(".applied")
+        if f.id.startswith("quality.restatement.") and not f.id.endswith(".superseded_total_usd")
     ]
     for f in restatements:
-        tok = f.id[len("quality.restatement.") : -len(".applied")]
+        tok = f.id[len("quality.restatement.") :]
         fund_label = tok.replace("_", " ").title()
-        dq_lines.append(
-            f"- **Restatement Applied**: {fund_label} restated filing "
-            f"(`{_fmt_num(int(f.value))} [{f.id}]` applied)"
-        )
+        restated_fact = facts.get_fact(f"fund.{tok}.aum_with_options")
+        if restated_fact:
+            dq_lines.append(
+                f"- **Restatement Applied**: {fund_label} restated filing; total 13F AUM "
+                f"restated to `{_fmt_usd(int(restated_fact.value))} [{restated_fact.id}]`"
+            )
+        else:
+            dq_lines.append(
+                f"- **Restatement Applied**: {fund_label} restated filing "
+                f"(`{_fmt_num(int(f.value))} [{f.id}]` applied)"
+            )
 
     if not dq_lines:
         dq_lines.append(
@@ -590,51 +607,49 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
             "position restatements."
         )
 
-    # 9. Limitations (Must cite all 5 required limitation facts)
-    lim_long = facts.get_fact("limit.long_only")
-    lim_lag = facts.get_fact("limit.filing_lag_45d")
-    lim_fwd = facts.get_fact("limit.no_forward_return_test")
-    lim_hedge = facts.get_fact("limit.hedge_only_may_be_hedging")
-    lim_disc = facts.get_fact("limit.small_discretionary_sample")
-
-    lim_long_val = int(lim_long.value) if lim_long else 1
-    lim_lag_val = int(lim_lag.value) if lim_lag else 1
-    lim_fwd_val = int(lim_fwd.value) if lim_fwd else 1
-    lim_hedge_val = int(lim_hedge.value) if lim_hedge else 1
-    lim_disc_val = int(lim_disc.value) if lim_disc else 1
-
+    # 9. Limitations (Must cite all required limitation facts)
     lim_lines = [
         (
             "- **Long-Only Scope**: Form 13F filings reflect exclusively long US equity positions "
             "and exclude short positions, cash holdings, foreign exchange, commodities, "
-            "and unlisted securities "
-            f"(`{_fmt_num(lim_long_val)} [limit.long_only]`)."
+            "and unlisted securities [limit.long_only]."
         ),
         (
             "- **45-Day Reporting Lag**: Filings report quarter-end positions and are submitted "
             "up to 45 calendar days after period close, meaning observed positions may have been "
-            f"modified prior to publication (`{_fmt_num(lim_lag_val)} [limit.filing_lag_45d]`)."
+            "modified prior to publication [limit.filing_lag_45d]."
         ),
         (
             "- **No Forward Return Test**: Smart Money Convergence identifies historical co-buying "
             "patterns across institutional allocators; it does not constitute a forward return "
-            "backtest or guarantee of future outperformance "
-            f"(`{_fmt_num(lim_fwd_val)} [limit.no_forward_return_test]`)."
+            "backtest or guarantee of future outperformance [limit.no_forward_return_test]."
         ),
         (
             "- **Hedge-Only Signals May Reflect Hedging**: Signals driven exclusively by "
-            "quantitative or multi-strategy hedge funds may represent arbitrage legs, statistical "
-            "arbitrage baskets, or delta hedges against short positions rather than unhedged "
-            "directional conviction "
-            f"(`{_fmt_num(lim_hedge_val)} [limit.hedge_only_may_be_hedging]`)."
+            "hedge funds may represent arbitrage legs, statistical arbitrage baskets, or "
+            "delta hedges against short positions rather than unhedged directional conviction "
+            "[limit.hedge_only_may_be_hedging]."
         ),
         (
             "- **Small Discretionary Sample**: The discretionary cohort comprises 3 institutional "
             "allocators (Berkshire Hathaway, CalPERS, Temasek Holdings); consensus across 2 funds "
             "represents a small sample size that warrants qualitative verification "
-            f"(`{_fmt_num(lim_disc_val)} [limit.small_discretionary_sample]`)."
+            "[limit.small_discretionary_sample]."
+        ),
+        (
+            "- **Estimated Dollars Added**: Dollars added figures are estimated as shares added "
+            "multiplied by quarter-end closing price; actual purchase prices vary across the "
+            "quarter [limit.dollars_added_estimate]."
         ),
     ]
+
+    if provider in ("null", "none", None):
+        footer_text = "*Generated deterministically from filings data; not investment advice.*"
+    else:
+        footer_text = (
+            "*Drafted with AI; every figure validated against filings data; "
+            "reviewed by a human; not investment advice.*"
+        )
 
     # Assemble document
     sections: dict[str, str] = {
@@ -648,6 +663,7 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
         "sector_view": "\n".join(sector_lines),
         "data_quality": "\n".join(dq_lines),
         "limitations": "\n".join(lim_lines),
+        "footer": footer_text,
     }
 
     if template_path and template_path.exists():
@@ -670,12 +686,21 @@ def render_template_note(facts: FactsBundle, template_path: Path | None = None) 
             f"## Sector View\n\n{sections['sector_view']}\n\n"
             f"## Data Quality\n\n{sections['data_quality']}\n\n"
             f"## Limitations\n\n{sections['limitations']}\n\n"
-            f"---\n{MANDATORY_DISCLAIMER}\n"
+            f"---\n{footer_text}\n"
         )
 
     # Normalize newlines
     lines = [line.rstrip() for line in rendered.splitlines()]
     return "\n".join(lines).strip() + "\n"
+
+
+def render_clean(draft: str) -> str:
+    """Strip bracketed fact citation tags to produce clean Markdown for human reading."""
+    import re
+
+    cleaned = re.sub(r"\s*\[([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)+)\](?!\()", "", draft)
+    cleaned = re.sub(r" +([.,;:)\]])", r"\1", cleaned)
+    return cleaned
 
 
 class NarrateStage(Stage):
@@ -709,10 +734,7 @@ class NarrateStage(Stage):
                     f"neither context.facts nor {facts_path} was found."
                 )
 
-        template_path = self.settings.prompts_dir / "note_template.md"
-        deterministic_draft = render_template_note(facts, template_path=template_path)
-
-        # Resolve LLM provider
+        # Resolve LLM provider first so template footer matches provider mode
         provider = self._provider
         if provider is None:
             provider = select_llm_provider(
@@ -720,6 +742,14 @@ class NarrateStage(Stage):
                 period=period,
                 wrap_with_budget_guard=True,
             )
+
+        provider_name = provider.provider_name if hasattr(provider, "provider_name") else "none"
+        template_path = self.settings.prompts_dir / "note_template.md"
+        deterministic_draft = render_template_note(
+            facts,
+            template_path=template_path,
+            provider=provider_name,
+        )
 
         # Generate draft
         if isinstance(provider, NullProvider) or (
@@ -748,6 +778,16 @@ class NarrateStage(Stage):
             llm_res.provider,
         )
 
+        # Write reports/<period>/draft_clean.md for human reading
+        clean_markdown = render_clean(draft_markdown)
+        clean_path = self.settings.reports_dir / period / "draft_clean.md"
+        clean_path.write_text(clean_markdown, encoding="utf-8")
+        logger.info(
+            "Wrote clean draft to %s (%d words)",
+            clean_path,
+            len(clean_markdown.split()),
+        )
+
         narrative_draft = NarrativeDraft(
             period=period,
             markdown=draft_markdown,
@@ -760,5 +800,9 @@ class NarrateStage(Stage):
         return StageResult(
             status=StageStatus.SUCCEEDED,
             message=f"Generated research note draft ({len(draft_markdown.split())} words)",
-            metadata={"draft_path": str(draft_path), "provider": llm_res.provider},
+            metadata={
+                "clean_path": str(clean_path),
+                "draft_path": str(draft_path),
+                "provider": llm_res.provider,
+            },
         )

@@ -37,4 +37,4 @@
 {{ limitations }}
 
 ---
-*Not investment advice; AI-drafted, figures checked against filings data.*
+{{ footer }}

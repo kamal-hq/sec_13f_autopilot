@@ -15,14 +15,15 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from autopilot.models import PipelineContext, StageStatus
+from autopilot.models import NarrativeDraft, PipelineContext, StageStatus
 from autopilot.pipeline import Pipeline, build_default_stages
 from autopilot.settings import Settings, configure_logging
-from autopilot.stages.base import StageResult
+from autopilot.stages.base import StageError, StageResult
 from autopilot.stages.detect import DetectStage
 from autopilot.stages.facts import FactsStage
 from autopilot.stages.ingest import IngestStage
 from autopilot.stages.narrate import NarrateStage
+from autopilot.stages.validate import ValidateStage
 
 logger = logging.getLogger(__name__)
 
@@ -135,7 +136,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override LLM provider selection (null/none, manual, gemini, auto).",
     )
 
-    # 5. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
+    # 5. `autopilot validate --period 2026-Q2 [--draft path] [--dry-run]`
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="Validate research note (draft.md) against facts.json using rules R1-R8.",
+    )
+    _add_common_flags(validate_parser)
+    validate_parser.add_argument(
+        "--period",
+        type=str,
+        default=None,
+        help="Reporting period to validate (e.g., 2026-Q2).",
+    )
+    validate_parser.add_argument(
+        "--draft",
+        type=str,
+        default=None,
+        help="Path to draft markdown file (default: reports/<period>/draft.md).",
+    )
+
+    # 6. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
     run_parser = subparsers.add_parser(
         "run",
         help="Run pipeline stages in order (optionally stopping after --through <stage>).",
@@ -259,6 +279,31 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         res = narrator.run(ctx)
         return 0 if (isinstance(res, StageResult) and res.status == StageStatus.SUCCEEDED) else 1
+
+    if cmd == "validate":
+        validator = ValidateStage(settings=settings)
+        ctx = PipelineContext(
+            target_period=settings.target_period,
+            baseline_period=settings.baseline_period,
+            as_of=as_of,
+            dry_run=dry_run,
+        )
+        draft_arg = getattr(args, "draft", None)
+        if draft_arg:
+            draft_p = Path(draft_arg)
+            if draft_p.exists():
+                ctx.draft = NarrativeDraft(
+                    period=settings.target_period,
+                    markdown=draft_p.read_text(encoding="utf-8"),
+                )
+        try:
+            res = validator.run(ctx)
+            return (
+                0 if (isinstance(res, StageResult) and res.status == StageStatus.SUCCEEDED) else 1
+            )
+        except StageError as exc:
+            logger.error("Validation error: %s", exc)
+            return 1
 
     # Default or `autopilot run`
     through_stage = getattr(args, "through", None)

@@ -75,10 +75,8 @@ def test_narrate_golden_file_draft_and_byte_identity(tmp_path: Path) -> None:
         assert idx > last_idx, f"Section out of order: {section}"
         last_idx = idx
 
-    # 3. Mandatory disclaimer footer
-    assert (
-        "*Not investment advice; AI-drafted, figures checked against filings data.*" in first_text
-    )
+    # 3. Mandatory disclaimer footer for mode=none (null provider)
+    assert "*Generated deterministically from filings data; not investment advice.*" in first_text
 
     # 4. Compare against committed golden file
     if not GOLDEN_DRAFT_FIXTURE_PATH.exists():

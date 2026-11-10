@@ -60,7 +60,7 @@ def build_default_stages(settings: Settings | None = None) -> list[Stage]:
         IngestStage(settings=resolved_settings),
         FactsStage(settings=resolved_settings),
         NarrateStage(settings=resolved_settings),
-        ValidateStage(),
+        ValidateStage(settings=resolved_settings),
         ReviewStage(),
         PublishStage(),
     ]

@@ -141,6 +141,30 @@ sec_13f_autopilot/
 
 ---
 
+## Phase 3b: Deterministic Validator & Quality Fixes (`ValidateStage`)
+
+### 1. Deterministic Audit Rules (`stages/validate.py`)
+`ValidateStage` consumes `reports/<period>/draft.md` and `reports/<period>/facts.json` without network access or LLM calls, generating `reports/<period>/validation_report.json` and `.md`:
+- **R1 Number Grounding**: Every numeric token (currency, percentage, integer count, split multiplier) must be followed by `[fact_id]` and match the fact value: exactly matching a listed `display` format, or rounded to 2 significant figures within 2% relative tolerance. Units must agree ($M vs $B).
+- **R2 Citation Integrity**: Every cited `[fact_id]` must exist in `facts.json`; no orphan or hallucinated citations.
+- **R3 Entity Validation**: Tracked institutional funds and ticker symbols in the prose must exist in `facts.json`.
+- **R4 Entity Binding**: Cited fund breakdown facts (e.g., `discretionary.GOOGL_GOOG.BERKSHIRE_HATHAWAY.dollars_added`) and position mover facts must bind to the entity named in their clause/bullet.
+- **R5 Banned Advice Language**: Predictions, speculative assertions, and financial advice (`will outperform`, `expected to`, `should buy`, `should invest`, `should accumulate`, `accumulate`, `alpha`, `guaranteed`, `undervalued`) are prohibited outside Limitations. Inside Limitations, they are permitted only when negated.
+- **R6 Causal Claims**: Verbs of cause (`because`, `due to`, `driven by`, `as a result of`) linking market movements to external events are forbidden outside Limitations.
+- **R7 Required Content**: All 9 canonical section headings, 6 required `limit.*` facts (`limit.long_only`, `limit.filing_lag_45d`, `limit.no_forward_return_test`, `limit.hedge_only_may_be_hedging`, `limit.small_discretionary_sample`, `limit.dollars_added_estimate`), and valid reporting period metadata must be present.
+- **R8 Stale Data (Superseded Facts)**: Detects and rejects superseded pre-amendment values (e.g., Citadel's pre-amendment total of $875,096,281,441 vs restated $875,011,794,337) using facts flagged with `superseded: true`.
+
+### 2. Adversarial Suite (`tests/adversarial/cases.yaml`)
+- Evaluates 10 bad mutations (each systematically rejected by rules R1–R8) and 5 good mutations (rephrasing, alternative display, 2-sig-fig rounding, negative claims in limitations, section reordering) accepted cleanly with status `PASS`.
+- Rigorously asserts `bad rejected 10/10, good accepted 5/5`.
+
+### 3. Display Name Determinism & Common Stock Merging
+- Primary display names for securities derive deterministically from the filing `nameOfIssuer` (via `data/mappings/filing_names.json`), while OpenFIGI is used strictly for ticker mapping.
+- Operating company position movers merge common stock classes (e.g., `GOOGL/GOOG` equals $24,450,077,992) and exclude non-common equity depositary shares ($476,936,007) and options.
+- Clean draft rendering: `render_clean(draft)` generates `reports/<period>/draft_clean.md` stripping citation tags for institutional reading.
+
+---
+
 ## Stage Contracts & `RunLog`
 
 `Pipeline.run(context)` executes stages in strict sequence and populates a `RunLog`:

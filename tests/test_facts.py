@@ -820,3 +820,71 @@ def test_dollars_added_formula_three_known_cases() -> None:
         assert dollars_added == expected_dollars_added
 
     con.close()
+
+
+def test_merged_movers_equal_sum_of_classes() -> None:
+    """Phase 3b: Every merged mover equals the sum of its individual common-equity classes.
+
+    Verifies that options and non-common equity classes (e.g. depositary shares)
+    are excluded from operating company movers. Specifically verifies Alphabet/GOOGL/GOOG:
+    GOOGL (02079K305) +$14,191,333,382 + GOOG (02079K107) +$10,258,744,610 = $24,450,077,992.
+    """
+    if not LOCAL_AUTOPILOT_DB.exists():
+        pytest.skip("Local autopilot.db not found")
+
+    con = sqlite3.connect(LOCAL_AUTOPILOT_DB)
+    cur = con.cursor()
+
+    cur.execute(
+        """
+        SELECT s.ticker, s.cusip,
+               SUM(CASE WHEN f.period = '2026-Q2' THEN f.value_usd ELSE 0 END) -
+               SUM(CASE WHEN f.period = '2026-Q1' THEN f.value_usd ELSE 0 END) AS val_change
+        FROM Fact_Holdings f
+        JOIN Dim_Security s ON f.security_id = s.security_id
+        WHERE (f.put_call IS NULL OR f.put_call = '')
+          AND s.cusip IN ('02079K107', '02079K305')
+          AND f.period IN ('2026-Q1', '2026-Q2')
+        GROUP BY s.ticker, s.cusip
+        """
+    )
+    class_rows = cur.fetchall()
+    class_changes = {r[0]: int(r[2]) for r in class_rows}
+
+    assert class_changes.get("GOOG") == 10_258_744_610
+    assert class_changes.get("GOOGL") == 14_191_333_382
+    expected_merged = class_changes["GOOG"] + class_changes["GOOGL"]
+    assert expected_merged == 24_450_077_992
+
+    # Verify against facts.json
+    facts_path = Path("reports/2026-Q2/facts.json")
+    if facts_path.exists():
+        bundle = FactsBundle.from_file(facts_path)
+        googl_mover = bundle.get_fact("diff.mover.GOOGL_GOOG.value_change")
+        assert googl_mover is not None
+        assert googl_mover.value == expected_merged
+
+    con.close()
+
+
+def test_cusip_display_names_deterministic() -> None:
+    """Phase 3b: CUSIP display names are deterministic and use filing nameOfIssuer as primary.
+
+    OpenFIGI is used for tickers only; filing names are primary.
+    Tests SPCX, ARXS, TGB, VGNT, TMCI.
+    """
+    from autopilot.stages.facts import get_filing_display_name
+
+    benchmark_cases = [
+        ("84615Q103", "SPACE EXPLORATION TECHN CORP"),
+        ("04339D105", "ARXIS INC"),
+        ("89472Y107", "TREKOR METALS LTD"),
+        ("G9600F104", "VERSIGENT PLC"),
+        ("89455T109", "TREACE MED CONCEPTS INC"),
+    ]
+
+    for cusip, expected_name in benchmark_cases:
+        name1 = get_filing_display_name(cusip)
+        name2 = get_filing_display_name(cusip)
+        assert name1 == name2 == expected_name
+        assert len(name1) > 4

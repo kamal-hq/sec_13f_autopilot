@@ -2023,6 +2023,22 @@
     },
     {
       "display": [
+        "1",
+        "estimated as shares added x quarter-end price; actual purchase prices vary during the quarter"
+      ],
+      "id": "limit.dollars_added_estimate",
+      "kind": "limit",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.methodology_limitations",
+        "params": {
+          "id": "limit.dollars_added_estimate"
+        }
+      },
+      "value": 1
+    },
+    {
+      "display": [
         "45",
         "Institutional Form 13F reports are filed up to 45 calendar days after quarter-end, so reported holdings reflect historical quarter-close snapshots."
       ],
@@ -2495,6 +2511,32 @@
         }
       },
       "value": 1
+    },
+    {
+      "display": [
+        "$875,096,281,441",
+        "$875.10B",
+        "$875.1B",
+        "875,096,281,441",
+        "875096281441",
+        "875011794337"
+      ],
+      "id": "quality.restatement.CITADEL_ADVISORS.superseded_total_usd",
+      "kind": "quality",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.IngestStage.amendments_applied",
+        "params": {
+          "cik": "0001423053",
+          "period": "2026-Q2",
+          "restated_accession": "0001423053-26-000202",
+          "restated_value_usd": 875011794337,
+          "superseded_accession": "0001104659-26-097200",
+          "superseded_value_usd": 875096281441
+        }
+      },
+      "superseded": true,
+      "value": 875096281441
     },
     {
       "display": [
@@ -3094,6 +3136,11 @@
       "description": "The discretionary subset contains 2 institutions (Berkshire Hathaway, CalPERS, Temasek Holdings), so a 2-fund discretionary convergence threshold represents a small sample.",
       "id": "limit.small_discretionary_sample",
       "value": 2
+    },
+    {
+      "description": "estimated as shares added x quarter-end price; actual purchase prices vary during the quarter",
+      "id": "limit.dollars_added_estimate",
+      "value": 1
     }
   ],
   "metadata": {

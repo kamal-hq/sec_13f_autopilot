@@ -1,0 +1,88 @@
+# tests/adversarial/cases.yaml
+# Adversarial test suite for ValidateStage (Phase 3b)
+
+bad_cases:
+  - id: "r1_invented_number"
+    expected_rule: "R1"
+    description: "Invented number: Berkshire added $25B"
+    target: "`$17,110,074,056 [discretionary.GOOGL_GOOG.BERKSHIRE_HATHAWAY.dollars_added]`"
+    replacement: "`$25B [discretionary.GOOGL_GOOG.BERKSHIRE_HATHAWAY.dollars_added]`"
+
+  - id: "r1_unit_drift"
+    expected_rule: "R1"
+    description: "Unit drift: $18.67M instead of $18.67B"
+    target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
+    replacement: "`$18.67M [discretionary.GOOGL_GOOG.dollars_added]`"
+
+  - id: "r1_rounding_drift"
+    expected_rule: "R1"
+    description: "Rounding drift: $18.9B instead of $18.67B"
+    target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
+    replacement: "`$18.9B [discretionary.GOOGL_GOOG.dollars_added]`"
+
+  - id: "r2_hallucinated_fact_id"
+    expected_rule: "R2"
+    description: "Hallucinated fact id: [signal.FAKE.dollars_added]"
+    target: "[discretionary.GOOGL_GOOG.dollars_added]"
+    replacement: "[signal.FAKE.dollars_added]"
+
+  - id: "r3_ungrounded_ticker"
+    expected_rule: "R3"
+    description: "Ungrounded ticker NVDA (not in sample)"
+    target: "`C`"
+    replacement: "`NVDA`"
+
+  - id: "r4_entity_binding_swap"
+    expected_rule: "R4"
+    description: "Entity binding swap: attach Alphabet dollars to Temasek instead of Berkshire"
+    target: "Berkshire Hathaway `$17,110,074,056 [discretionary.GOOGL_GOOG.BERKSHIRE_HATHAWAY.dollars_added]`, Temasek Holdings `$1,554,928,442 [discretionary.GOOGL_GOOG.TEMASEK_HOLDINGS.dollars_added]`"
+    replacement: "Temasek Holdings `$17,110,074,056 [discretionary.GOOGL_GOOG.BERKSHIRE_HATHAWAY.dollars_added]`, Berkshire Hathaway `$1,554,928,442 [discretionary.GOOGL_GOOG.TEMASEK_HOLDINGS.dollars_added]`"
+
+  - id: "r5_banned_advice"
+    expected_rule: "R5"
+    description: "Banned advice outside Limitations: investors should accumulate AMD"
+    target: "- **`AMD`** (ADVANCED MICRO DEVICES INC"
+    replacement: "- **`AMD`** (ADVANCED MICRO DEVICES INC — investors should accumulate AMD"
+
+  - id: "r6_causal_claim"
+    expected_rule: "R6"
+    description: "Causal claim outside Limitations: Citadel added Alphabet because of cloud growth"
+    target: "- **`GOOGL/GOOG`** (ALPHABET INC"
+    replacement: "- Citadel added Alphabet because of cloud growth; **`GOOGL/GOOG`** (ALPHABET INC"
+
+  - id: "r7_delete_required_section"
+    expected_rule: "R7"
+    description: "Delete a required section: ## Limitations"
+    target: "## Limitations"
+    action: "truncate_at_target"
+
+  - id: "r8_cite_superseded_total"
+    expected_rule: "R8"
+    description: "Cite Citadel pre-amendment total ($875,096,281,441)"
+    target: "`$875,011,794,337 [fund.CITADEL_ADVISORS.aum_with_options]`"
+    replacement: "`$875,096,281,441 [fund.CITADEL_ADVISORS.aum_with_options]`"
+
+good_cases:
+  - id: "good_rephrase_bullet"
+    description: "Valid rephrasing of a bullet"
+    target: "- **Total 13F AUM (Incl. Options)**:"
+    replacement: "- **Aggregate 13F Portfolio Value (Including Options)**:"
+
+  - id: "good_alt_display_form"
+    description: "Valid alternative display form ($18.67B instead of full precision)"
+    target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
+    replacement: "`$18.67B [discretionary.GOOGL_GOOG.dollars_added]`"
+
+  - id: "good_sig_fig_rounding"
+    description: "Valid rounding to 2 sig figs ($19B instead of $18.67B, within 2%)"
+    target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
+    replacement: "`$19B [discretionary.GOOGL_GOOG.dollars_added]`"
+
+  - id: "good_negated_claim_limitations"
+    description: "Valid negative claim inside Limitations"
+    target: "- **No Forward Return Test**: Smart Money Convergence identifies historical co-buying patterns across institutional allocators; it does not constitute a forward return backtest or guarantee of future outperformance [limit.no_forward_return_test]."
+    replacement: "- **No Forward Return Test**: Smart Money Convergence identifies historical co-buying patterns across institutional allocators; this research note makes no prediction of future returns, and it does not constitute a forward return backtest or guarantee of future outperformance [limit.no_forward_return_test]."
+
+  - id: "good_reordered_sections"
+    description: "Reordered sections preserving all required headings"
+    action: "swap_sector_and_data_quality"
