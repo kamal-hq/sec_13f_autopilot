@@ -129,7 +129,7 @@ def test_default_stage_contracts_and_remaining_stubs() -> None:
         "publish",
     ]
     ctx = PipelineContext(target_period="2026-Q2")
-    stub_names = {"narrate", "validate", "review", "publish"}
+    stub_names = {"validate", "review", "publish"}
     for stage in stages:
         module_doc = __import__(stage.__class__.__module__, fromlist=["*"]).__doc__ or ""
         assert "Input Contract" in module_doc

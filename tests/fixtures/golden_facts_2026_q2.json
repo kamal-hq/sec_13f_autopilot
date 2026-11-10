@@ -424,11 +424,14 @@
       "NVDA"
     ],
     "signals_persisted_count": 1,
+    "top_etf_movers": [],
     "top_position_movers": [
       {
+        "abs_delta": 60000000,
         "company_name": "NVIDIA CORP",
         "current_value_usd": 160000000,
         "cusip": "67066G104",
+        "is_etf": false,
         "prior_value_usd": 100000000,
         "rank": 1,
         "sector": "Technology",
@@ -436,9 +439,11 @@
         "value_change_usd": 60000000
       },
       {
+        "abs_delta": 20000000,
         "company_name": "ADVANCED MICRO DEVICES INC",
         "current_value_usd": 23000000,
         "cusip": "007903107",
+        "is_etf": false,
         "prior_value_usd": 3000000,
         "rank": 2,
         "sector": "Technology",
@@ -446,9 +451,11 @@
         "value_change_usd": 20000000
       },
       {
+        "abs_delta": 6000000,
         "company_name": "CROWDSTRIKE HOLDINGS INC",
         "current_value_usd": 6000000,
         "cusip": "22788C105",
+        "is_etf": false,
         "prior_value_usd": 0,
         "rank": 3,
         "sector": "Technology",
@@ -456,9 +463,11 @@
         "value_change_usd": 6000000
       },
       {
+        "abs_delta": 5000000,
         "company_name": "AMERICAN EXPRESS CO",
         "current_value_usd": 33000000,
         "cusip": "025816109",
+        "is_etf": false,
         "prior_value_usd": 28000000,
         "rank": 4,
         "sector": "Financials",
@@ -831,20 +840,15 @@
     },
     {
       "display": [
-        "$20,000,000",
-        "$20.00M",
-        "$20.0M",
-        "20,000,000",
-        "20000000",
-        "AMD",
-        "ADVANCED MICRO DEVICES INC",
-        "rank 2"
+        "0",
+        "false",
+        "Common Stock"
       ],
-      "id": "diff.mover.AMD.value_change",
+      "id": "diff.mover.AMD.is_etf",
       "kind": "diff",
       "period": "2026-Q2",
       "source": {
-        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "function": "sec_13f_analyzer.holdings_diff",
         "params": {
           "baseline_period": "2026-Q1",
           "cusip": "007903107",
@@ -852,7 +856,54 @@
           "ticker": "AMD"
         }
       },
+      "value": 0
+    },
+    {
+      "display": [
+        "$20,000,000",
+        "$20.00M",
+        "$20.0M",
+        "20,000,000",
+        "20000000",
+        "AMD",
+        "ADVANCED MICRO DEVICES INC",
+        "rank 2",
+        "Common Stock"
+      ],
+      "id": "diff.mover.AMD.value_change",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.holdings_diff",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "007903107",
+          "is_etf": 0,
+          "period": "2026-Q2",
+          "ticker": "AMD"
+        }
+      },
       "value": 20000000
+    },
+    {
+      "display": [
+        "0",
+        "false",
+        "Common Stock"
+      ],
+      "id": "diff.mover.AXP.is_etf",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.holdings_diff",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "025816109",
+          "period": "2026-Q2",
+          "ticker": "AXP"
+        }
+      },
+      "value": 0
     },
     {
       "display": [
@@ -863,21 +914,43 @@
         "5000000",
         "AXP",
         "AMERICAN EXPRESS CO",
-        "rank 4"
+        "rank 4",
+        "Common Stock"
       ],
       "id": "diff.mover.AXP.value_change",
       "kind": "diff",
       "period": "2026-Q2",
       "source": {
-        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "function": "sec_13f_analyzer.holdings_diff",
         "params": {
           "baseline_period": "2026-Q1",
           "cusip": "025816109",
+          "is_etf": 0,
           "period": "2026-Q2",
           "ticker": "AXP"
         }
       },
       "value": 5000000
+    },
+    {
+      "display": [
+        "0",
+        "false",
+        "Common Stock"
+      ],
+      "id": "diff.mover.CRWD.is_etf",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.holdings_diff",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "22788C105",
+          "period": "2026-Q2",
+          "ticker": "CRWD"
+        }
+      },
+      "value": 0
     },
     {
       "display": [
@@ -888,21 +961,43 @@
         "6000000",
         "CRWD",
         "CROWDSTRIKE HOLDINGS INC",
-        "rank 3"
+        "rank 3",
+        "Common Stock"
       ],
       "id": "diff.mover.CRWD.value_change",
       "kind": "diff",
       "period": "2026-Q2",
       "source": {
-        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "function": "sec_13f_analyzer.holdings_diff",
         "params": {
           "baseline_period": "2026-Q1",
           "cusip": "22788C105",
+          "is_etf": 0,
           "period": "2026-Q2",
           "ticker": "CRWD"
         }
       },
       "value": 6000000
+    },
+    {
+      "display": [
+        "0",
+        "false",
+        "Common Stock"
+      ],
+      "id": "diff.mover.NVDA.is_etf",
+      "kind": "diff",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.holdings_diff",
+        "params": {
+          "baseline_period": "2026-Q1",
+          "cusip": "67066G104",
+          "period": "2026-Q2",
+          "ticker": "NVDA"
+        }
+      },
+      "value": 0
     },
     {
       "display": [
@@ -913,16 +1008,18 @@
         "60000000",
         "NVDA",
         "NVIDIA CORP",
-        "rank 1"
+        "rank 1",
+        "Common Stock"
       ],
       "id": "diff.mover.NVDA.value_change",
       "kind": "diff",
       "period": "2026-Q2",
       "source": {
-        "function": "sec_13f_analyzer.get_top_holdings_by_aum",
+        "function": "sec_13f_analyzer.holdings_diff",
         "params": {
           "baseline_period": "2026-Q1",
           "cusip": "67066G104",
+          "is_etf": 0,
           "period": "2026-Q2",
           "ticker": "NVDA"
         }
@@ -2010,7 +2107,8 @@
         "$270.00M",
         "$270.0M",
         "270,000,000",
-        "270000000"
+        "270000000",
+        "Equity-only AUM (excludes options; includes ETFs)"
       ],
       "id": "market.aum_equity",
       "kind": "market",
@@ -2686,6 +2784,25 @@
         }
       },
       "value": 237000000
+    },
+    {
+      "display": [
+        "1",
+        "mostly ETFs and trusts without an operating-company SIC code",
+        "ETFs and trusts without an operating-company SIC code"
+      ],
+      "id": "sector.Unknown.note",
+      "kind": "sector",
+      "period": "2026-Q2",
+      "source": {
+        "function": "sec_13f_analyzer.get_sector_by_period",
+        "params": {
+          "note": "mostly ETFs and trusts without an operating-company SIC code",
+          "period": "2026-Q2",
+          "sector": "Unknown"
+        }
+      },
+      "value": 1
     },
     {
       "display": [

@@ -18,9 +18,11 @@ from pathlib import Path
 from autopilot.models import PipelineContext, StageStatus
 from autopilot.pipeline import Pipeline, build_default_stages
 from autopilot.settings import Settings, configure_logging
+from autopilot.stages.base import StageResult
 from autopilot.stages.detect import DetectStage
 from autopilot.stages.facts import FactsStage
 from autopilot.stages.ingest import IngestStage
+from autopilot.stages.narrate import NarrateStage
 
 logger = logging.getLogger(__name__)
 
@@ -62,10 +64,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
+        "--llm",
+        dest="llm_provider",
         type=str,
-        choices=["null", "manual", "gemini", "auto"],
+        choices=["null", "none", "manual", "gemini", "auto"],
         default=None,
-        help="Override LLM provider selection.",
+        help="Override LLM provider selection (null/none, manual, gemini, auto).",
     )
 
     subparsers = parser.add_subparsers(dest="command")
@@ -109,7 +113,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="Reporting period to compute facts for (e.g., 2026-Q2).",
     )
 
-    # 4. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
+    # 4. `autopilot narrate --period 2026-Q2 [--dry-run] [--llm none]`
+    narrate_parser = subparsers.add_parser(
+        "narrate",
+        help="Draft quarterly research note (reports/<period>/draft.md) from FactsBundle.",
+    )
+    _add_common_flags(narrate_parser)
+    narrate_parser.add_argument(
+        "--period",
+        type=str,
+        default=None,
+        help="Reporting period to draft research note for (e.g., 2026-Q2).",
+    )
+    narrate_parser.add_argument(
+        "--provider",
+        "--llm",
+        dest="llm_provider",
+        type=str,
+        choices=["null", "none", "manual", "gemini", "auto"],
+        default=None,
+        help="Override LLM provider selection (null/none, manual, gemini, auto).",
+    )
+
+    # 5. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
     run_parser = subparsers.add_parser(
         "run",
         help="Run pipeline stages in order (optionally stopping after --through <stage>).",
@@ -119,7 +145,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--through",
         type=str,
         default=None,
-        help="Stop pipeline after executing this stage (e.g., detect, ingest, facts).",
+        help="Stop pipeline after executing this stage (e.g., detect, ingest, facts, narrate).",
     )
     run_parser.add_argument(
         "--period",
@@ -129,10 +155,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run_parser.add_argument(
         "--provider",
+        "--llm",
+        dest="llm_provider",
         type=str,
-        choices=["null", "manual", "gemini", "auto"],
+        choices=["null", "none", "manual", "gemini", "auto"],
         default=None,
-        help="Override LLM provider selection.",
+        help="Override LLM provider selection (null/none, manual, gemini, auto).",
     )
 
     return parser
@@ -146,8 +174,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     settings = Settings.from_env(config_path=args.config)
     if getattr(args, "period", None):
         settings.target_period = str(args.period)
-    if getattr(args, "provider", None):
-        settings.llm_provider = str(args.provider)
+    if getattr(args, "llm_provider", None):
+        raw_prov = str(args.llm_provider).lower()
+        settings.llm_provider = "null" if raw_prov == "none" else raw_prov
 
     configure_logging(settings)
     logger.info("Loaded settings: %s", settings)
@@ -219,6 +248,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             facts_bundle.diff_path,
         )
         return 0
+
+    if cmd == "narrate":
+        narrator = NarrateStage(settings=settings)
+        ctx = PipelineContext(
+            target_period=settings.target_period,
+            baseline_period=settings.baseline_period,
+            as_of=as_of,
+            dry_run=dry_run,
+        )
+        res = narrator.run(ctx)
+        return 0 if (isinstance(res, StageResult) and res.status == StageStatus.SUCCEEDED) else 1
 
     # Default or `autopilot run`
     through_stage = getattr(args, "through", None)

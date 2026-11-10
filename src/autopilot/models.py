@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass, field
 from enum import StrEnum
+from pathlib import Path
 from typing import Any
 
 
@@ -436,6 +438,33 @@ class FactsBundle:
         payload["facts"] = [f.to_dict() for f in self.facts]
         payload["allowed_numbers"] = sorted(self.allowed_numbers)
         return payload
+
+    @classmethod
+    def from_file(cls, path: Path | str) -> FactsBundle:
+        """Load FactsBundle from a facts.json file."""
+        p = Path(path)
+        data = json.loads(p.read_text(encoding="utf-8"))
+        fact_items = [
+            FactItem(
+                id=f["id"],
+                kind=f["kind"],
+                value=f["value"],
+                display=tuple(f.get("display") or ()),
+                period=f["period"],
+                source=f.get("source") or {},
+            )
+            for f in data.get("facts", [])
+        ]
+        allowed = set(data.get("allowed_numbers") or [])
+        return cls(
+            period=data.get("period", ""),
+            baseline_period=data.get("baseline_period", ""),
+            generated_at="",
+            facts=fact_items,
+            allowed_numbers=allowed,
+            raw_metrics=data,
+            report_path=str(p),
+        )
 
 
 @dataclass(frozen=True, slots=True)

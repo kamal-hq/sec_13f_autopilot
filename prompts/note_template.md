@@ -1,15 +1,40 @@
-# Quarterly 13F Research Note Template (Placeholder)
+# Quarterly 13F Research Note ({{ period }})
 
-## Executive Summary ({{ period }})
-- **Reporting Period**: {{ period }} (vs. {{ baseline_period }})
-- **Tracked Funds**: {{ fund_count }}
-- **Aggregate Portfolio Value**: ${{ total_aum_usd }}
+## Executive Summary
 
-## Smart Money Convergence Signals
-{{ convergence_table }}
+{{ executive_summary }}
 
-## Notable Institutional Moves
-{{ notable_moves }}
+## Data and Coverage
+
+{{ data_and_coverage }}
+
+## Broad Convergence
+
+{{ broad_convergence }}
+
+## Discretionary Convergence
+
+{{ discretionary_convergence }}
+
+## New to the Sample
+
+{{ new_to_the_sample }}
+
+## What Changed Since Last Quarter
+
+{{ what_changed_since_last_quarter }}
+
+## Sector View
+
+{{ sector_view }}
+
+## Data Quality
+
+{{ data_quality }}
+
+## Limitations
+
+{{ limitations }}
 
 ---
-*Disclaimer: Not investment advice. This note is AI-drafted and human-reviewed; all quantitative figures are verified against SEC Form 13F filings data.*
+*Not investment advice; AI-drafted, figures checked against filings data.*

@@ -121,6 +121,26 @@ sec_13f_autopilot/
 
 ---
 
+## Phase 3a: Deterministic Template Narration (`NarrateStage`)
+
+### 1. Research Note Draft Generation (`stages/narrate.py`)
+- **Deterministic Draft Generation**: With `NullProvider` (`--llm none`), produces an immutable, offline research note draft `reports/<period>/draft.md` without invoking LLM APIs or touching credentials.
+- **Strict Evidence Citation**: Every quantitative figure (dollars, counts, percentages, split factors, multipliers) in the draft is immediately followed by its bracketed fact id citation, e.g. `$18.67B [discretionary.GOOGL_GOOG.dollars_added]`.
+- **9 Canonical Note Sections (`prompts/note_template.md`)**:
+  1. `Executive Summary`: Portfolio headline AUM, options breakdown, broad and discretionary convergence counts.
+  2. `Data and Coverage`: Funds filed, cover-page reconciliation pass counts, restatements and stock splits.
+  3. `Broad Convergence`: Top broad convergence signals (4+ funds buying, sorted by dollars added, breakdown by fund type).
+  4. `Discretionary Convergence`: Long-horizon allocators (Berkshire Hathaway, CalPERS, Temasek Holdings) co-buying.
+  5. `New to the Sample`: Securities initiated by 3+ funds with zero prior holders in the sample.
+  6. `What Changed Since Last Quarter`: Signal persistence/new/dropped transitions (or `diff.unavailable` explanation), plus top position movers separated into Operating Companies (merged share classes, e.g., `GOOGL/GOOG`) and ETFs.
+  7. `Sector View`: Sector allocations, QoQ shifts, fund counts, and context notes (`sector.Unknown.note`).
+  8. `Data Quality`: Confirmed stock split adjustments, unconfirmed candidate flags, and restatement accession tags.
+  9. `Limitations`: Mandatory citation of all 5 required limitation facts (`limit.long_only`, `limit.filing_lag_45d`, `limit.no_forward_return_test`, `limit.hedge_only_may_be_hedging`, `limit.small_discretionary_sample`).
+- **Mandatory Disclaimer**: Every note concludes with the exact disclaimer:
+  `*Not investment advice; AI-drafted, figures checked against filings data.*`
+
+---
+
 ## Stage Contracts & `RunLog`
 
 `Pipeline.run(context)` executes stages in strict sequence and populates a `RunLog`:

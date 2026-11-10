@@ -54,6 +54,9 @@ ignore = [
     "N818", # Allow control/contract exception names like NeedsManualInput
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"scripts/*" = ["T201"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

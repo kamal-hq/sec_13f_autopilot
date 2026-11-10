@@ -43,8 +43,8 @@ from sec_13f_analyzer import (
     get_fund_summary,
     get_new_to_sample_signals,
     get_sector_by_period,
-    get_top_holdings_by_aum,
 )
+from sec_13f_analyzer.analysis import ETF_SQL_CONDITION
 
 from autopilot.models import (
     AmendmentApplied,
@@ -798,6 +798,7 @@ class FactsStage(Stage):
                 resolved_period,
                 _source_tag("get_aum_by_period", period=resolved_period),
                 unit="usd",
+                extra_displays=["Equity-only AUM (excludes options; includes ETFs)"],
             )
         )
         facts.append(
@@ -1230,16 +1231,17 @@ class FactsStage(Stage):
             val_change = val_curr - val_prev
             pct_change = round((val_change / val_prev * 100.0) if val_prev > 0 else 0.0, 2)
 
-            sectors_payload.append(
-                {
-                    "fund_count": f_cnt_curr,
-                    "sector": s_name,
-                    "value_change_pct": pct_change if has_previous_period else None,
-                    "value_change_usd": val_change if has_previous_period else None,
-                    "value_prev_usd": val_prev if has_previous_period else None,
-                    "value_usd": val_curr,
-                }
-            )
+            sec_dict: dict[str, Any] = {
+                "fund_count": f_cnt_curr,
+                "sector": s_name,
+                "value_change_pct": pct_change if has_previous_period else None,
+                "value_change_usd": val_change if has_previous_period else None,
+                "value_prev_usd": val_prev if has_previous_period else None,
+                "value_usd": val_curr,
+            }
+            if sec_tok == "Unknown":
+                sec_dict["note"] = "mostly ETFs and trusts without an operating-company SIC code"
+            sectors_payload.append(sec_dict)
             facts.append(
                 _make_fact(
                     f"sector.{sec_tok}.value_usd",
@@ -1251,6 +1253,26 @@ class FactsStage(Stage):
                     extra_displays=[s_name],
                 )
             )
+            if sec_tok == "Unknown":
+                facts.append(
+                    _make_fact(
+                        "sector.Unknown.note",
+                        "sector",
+                        1,
+                        resolved_period,
+                        _source_tag(
+                            "get_sector_by_period",
+                            note="mostly ETFs and trusts without an operating-company SIC code",
+                            period=resolved_period,
+                            sector="Unknown",
+                        ),
+                        unit="count",
+                        extra_displays=[
+                            "mostly ETFs and trusts without an operating-company SIC code",
+                            "ETFs and trusts without an operating-company SIC code",
+                        ],
+                    )
+                )
             facts.append(
                 _make_fact(
                     f"sector.{sec_tok}.fund_count",
@@ -1309,6 +1331,27 @@ class FactsStage(Stage):
                         extra_displays=[s_name],
                     )
                 )
+
+        if "sector.Unknown.note" not in {f.id for f in facts}:
+            facts.append(
+                _make_fact(
+                    "sector.Unknown.note",
+                    "sector",
+                    1,
+                    resolved_period,
+                    _source_tag(
+                        "get_sector_by_period",
+                        note="mostly ETFs and trusts without an operating-company SIC code",
+                        period=resolved_period,
+                        sector="Unknown",
+                    ),
+                    unit="count",
+                    extra_displays=[
+                        "mostly ETFs and trusts without an operating-company SIC code",
+                        "ETFs and trusts without an operating-company SIC code",
+                    ],
+                )
+            )
 
         # --- H. Fund AUM Equity-Only and With Options (`kind="fund"`) ---
         faum_curr_map: dict[str, dict[str, Any]] = {}
@@ -1628,61 +1671,149 @@ class FactsStage(Stage):
 
         # --- K. Diff vs Previous Period (`kind="diff"`) ---
         top_movers_payload: list[dict[str, Any]] = []
+        top_etf_movers_payload: list[dict[str, Any]] = []
         if has_previous_period:
-            top_curr_df = get_top_holdings_by_aum(resolved_period, top_n=100000, db_path=db_str)
-            top_prev_df = get_top_holdings_by_aum(previous_period, top_n=100000, db_path=db_str)
-            curr_by_cusip = {
-                str(r["cusip"]): r
-                for r in (top_curr_df.to_dict("records") if not top_curr_df.empty else [])
-            }
-            prev_by_cusip = {
-                str(r["cusip"]): r
-                for r in (top_prev_df.to_dict("records") if not top_prev_df.empty else [])
-            }
-            mover_candidates: list[dict[str, Any]] = []
-            for cusip_key in set(curr_by_cusip.keys()) | set(prev_by_cusip.keys()):
-                c_row = curr_by_cusip.get(cusip_key, {})
-                p_row = prev_by_cusip.get(cusip_key, {})
-                v_curr = int(c_row.get("total_aum", 0) or 0)
-                v_prev = int(p_row.get("total_aum", 0) or 0)
-                delta = v_curr - v_prev
+            with get_connection(db_path=db_str) as conn:
+                q_pos = f"""
+                    SELECT
+                        h.period,
+                        s.cusip,
+                        SUBSTR(s.cusip, 1, 6) AS issuer_id,
+                        s.ticker,
+                        s.company_name,
+                        s.sector,
+                        {ETF_SQL_CONDITION} AS is_etf,
+                        SUM(h.value_usd) AS val
+                    FROM Fact_Holdings h
+                    JOIN Dim_Security s ON h.security_id = s.security_id
+                    WHERE (h.put_call IS NULL OR h.put_call = '')
+                      AND h.period IN (?, ?)
+                    GROUP BY h.period, s.cusip, s.ticker, s.company_name, s.sector
+                """
+                pos_rows = conn.execute(q_pos, (previous_period, resolved_period)).fetchall()
+
+            stocks_by_issuer: dict[tuple[str, str], dict[str, Any]] = {}
+            etfs_by_cusip: dict[tuple[str, str], dict[str, Any]] = {}
+
+            for r in pos_rows:
+                p_item = str(r["period"])
+                v_item = int(r["val"])
+                if r["is_etf"]:
+                    c_key = str(r["cusip"])
+                    if (c_key, p_item) not in etfs_by_cusip:
+                        etfs_by_cusip[(c_key, p_item)] = {
+                            "company_name": r["company_name"],
+                            "sector": r["sector"] or "Unknown",
+                            "ticker": r["ticker"],
+                            "val": 0,
+                        }
+                    etfs_by_cusip[(c_key, p_item)]["val"] += v_item
+                else:
+                    iss_key = str(r["issuer_id"])
+                    if (iss_key, p_item) not in stocks_by_issuer:
+                        stocks_by_issuer[(iss_key, p_item)] = {
+                            "companies": [],
+                            "cusips": set(),
+                            "sectors": [],
+                            "tickers": set(),
+                            "val": 0,
+                        }
+                    stocks_by_issuer[(iss_key, p_item)]["val"] += v_item
+                    if r["ticker"]:
+                        stocks_by_issuer[(iss_key, p_item)]["tickers"].add(str(r["ticker"]))
+                    stocks_by_issuer[(iss_key, p_item)]["cusips"].add(str(r["cusip"]))
+                    if r["company_name"]:
+                        stocks_by_issuer[(iss_key, p_item)]["companies"].append(
+                            str(r["company_name"])
+                        )
+                    if r["sector"]:
+                        stocks_by_issuer[(iss_key, p_item)]["sectors"].append(str(r["sector"]))
+
+            # 1. Non-ETF Operating Company Movers (merged across share classes)
+            stock_movers: list[dict[str, Any]] = []
+            all_stock_issuers = set(k[0] for k in stocks_by_issuer)
+            for iss_key in all_stock_issuers:
+                q1 = stocks_by_issuer.get(
+                    (iss_key, previous_period),
+                    {"companies": [], "cusips": set(), "sectors": [], "tickers": set(), "val": 0},
+                )
+                q2 = stocks_by_issuer.get(
+                    (iss_key, resolved_period),
+                    {"companies": [], "cusips": set(), "sectors": [], "tickers": set(), "val": 0},
+                )
+                delta = q2["val"] - q1["val"]
                 if delta == 0:
                     continue
-                tkr_str = str(c_row.get("ticker") or p_row.get("ticker") or cusip_key)
-                comp_str = sanitize_external_name(
-                    str(c_row.get("company_name") or p_row.get("company_name") or "")
-                )
-                sec_str = sanitize_external_name(
-                    str(c_row.get("sector") or p_row.get("sector") or "Unknown")
-                )
-                mover_candidates.append(
+                tickers_list = sorted(q2["tickers"] | q1["tickers"], key=lambda x: (-len(x), x))
+                ticker_str = "/".join(tickers_list) if tickers_list else iss_key
+                cusips_list = sorted(q2["cusips"] | q1["cusips"])
+                cusip_str = "/".join(cusips_list)
+                all_comps = q2["companies"] or q1["companies"]
+                raw_comp = min(all_comps) if all_comps else iss_key
+                if len(cusips_list) > 1:
+                    for suffix in ("-CL A", "-CL C", "- B SHS", "-A"):
+                        raw_comp = raw_comp.replace(suffix, "")
+                    raw_comp = raw_comp.strip()
+                comp_str = sanitize_external_name(raw_comp)
+                sectors_list = q2["sectors"] or q1["sectors"]
+                sec_str = sanitize_external_name(sectors_list[0] if sectors_list else "Unknown")
+                stock_movers.append(
                     {
                         "abs_delta": abs(delta),
                         "company_name": comp_str,
-                        "current_value_usd": v_curr,
-                        "cusip": cusip_key,
-                        "prior_value_usd": v_prev,
+                        "current_value_usd": q2["val"],
+                        "cusip": cusip_str,
+                        "is_etf": False,
+                        "prior_value_usd": q1["val"],
                         "sector": sec_str,
-                        "ticker": tkr_str,
+                        "ticker": ticker_str,
                         "value_change_usd": delta,
                     }
                 )
-            mover_candidates.sort(
-                key=lambda m: (-int(m["abs_delta"]), str(m["ticker"]), str(m["cusip"]))
-            )
-            for rank_idx, mv in enumerate(mover_candidates[:5], start=1):
-                top_movers_payload.append(
+            stock_movers.sort(key=lambda m: (-m["abs_delta"], m["ticker"], m["cusip"]))
+            for idx, m_item in enumerate(stock_movers[:5], start=1):
+                m_copy = dict(m_item)
+                m_copy["rank"] = idx
+                top_movers_payload.append(m_copy)
+
+            # 2. ETF Movers (individual ETF securities)
+            etf_movers: list[dict[str, Any]] = []
+            all_etf_cusips = set(k[0] for k in etfs_by_cusip)
+            for c_key in all_etf_cusips:
+                q1 = etfs_by_cusip.get(
+                    (c_key, previous_period),
+                    {"company_name": "", "sector": "Unknown", "ticker": None, "val": 0},
+                )
+                q2 = etfs_by_cusip.get(
+                    (c_key, resolved_period),
+                    {"company_name": "", "sector": "Unknown", "ticker": None, "val": 0},
+                )
+                delta = q2["val"] - q1["val"]
+                if delta == 0:
+                    continue
+                t_val = q2["ticker"] or q1["ticker"] or c_key
+                raw_comp = q2["company_name"] or q1["company_name"] or c_key
+                comp_str = sanitize_external_name(str(raw_comp))
+                sec_raw = q2["sector"] if q2["sector"] != "Unknown" else q1["sector"]
+                sec_str = sanitize_external_name(str(sec_raw or "Unknown"))
+                etf_movers.append(
                     {
-                        "company_name": mv["company_name"],
-                        "current_value_usd": mv["current_value_usd"],
-                        "cusip": mv["cusip"],
-                        "prior_value_usd": mv["prior_value_usd"],
-                        "rank": rank_idx,
-                        "sector": mv["sector"],
-                        "ticker": mv["ticker"],
-                        "value_change_usd": mv["value_change_usd"],
+                        "abs_delta": abs(delta),
+                        "company_name": comp_str,
+                        "current_value_usd": q2["val"],
+                        "cusip": c_key,
+                        "is_etf": True,
+                        "prior_value_usd": q1["val"],
+                        "sector": sec_str,
+                        "ticker": str(t_val),
+                        "value_change_usd": delta,
                     }
                 )
+            etf_movers.sort(key=lambda m: (-m["abs_delta"], m["ticker"], m["cusip"]))
+            for idx, m_item in enumerate(etf_movers[:5], start=1):
+                m_copy = dict(m_item)
+                m_copy["rank"] = idx
+                top_etf_movers_payload.append(m_copy)
 
         diff_payload: dict[str, Any]
         if has_previous_period and has_prior_lookback:
@@ -1716,6 +1847,7 @@ class FactsStage(Stage):
                 "signals_new_count": len(new_sig_list),
                 "signals_persisted": persisted_list,
                 "signals_persisted_count": len(persisted_list),
+                "top_etf_movers": top_etf_movers_payload,
                 "top_position_movers": top_movers_payload,
                 "unavailable_reason": None,
             }
@@ -1764,29 +1896,6 @@ class FactsStage(Stage):
                     extra_displays=[", ".join(dropped_sig_list) if dropped_sig_list else "none"],
                 )
             )
-            for mv in top_movers_payload:
-                mv_tok = normalize_fact_id_token(str(mv["ticker"]))
-                facts.append(
-                    _make_fact(
-                        f"diff.mover.{mv_tok}.value_change",
-                        "diff",
-                        int(mv["value_change_usd"]),
-                        resolved_period,
-                        _source_tag(
-                            "get_top_holdings_by_aum",
-                            baseline_period=previous_period,
-                            cusip=str(mv["cusip"]),
-                            period=resolved_period,
-                            ticker=str(mv["ticker"]),
-                        ),
-                        unit="usd",
-                        extra_displays=[
-                            str(mv["ticker"]),
-                            str(mv["company_name"]),
-                            f"rank {mv['rank']}",
-                        ],
-                    )
-                )
         else:
             if not has_previous_period:
                 unavail_reason = (
@@ -1810,6 +1919,7 @@ class FactsStage(Stage):
                 "signals_new_count": None,
                 "signals_persisted": None,
                 "signals_persisted_count": None,
+                "top_etf_movers": top_etf_movers_payload,
                 "top_position_movers": top_movers_payload,
                 "unavailable_reason": unavail_reason,
             }
@@ -1828,29 +1938,54 @@ class FactsStage(Stage):
                     extra_displays=[unavail_reason],
                 )
             )
-            for mv in top_movers_payload:
-                mv_tok = normalize_fact_id_token(str(mv["ticker"]))
-                facts.append(
-                    _make_fact(
-                        f"diff.mover.{mv_tok}.value_change",
-                        "diff",
-                        int(mv["value_change_usd"]),
-                        resolved_period,
-                        _source_tag(
-                            "get_top_holdings_by_aum",
-                            baseline_period=previous_period,
-                            cusip=str(mv["cusip"]),
-                            period=resolved_period,
-                            ticker=str(mv["ticker"]),
-                        ),
-                        unit="usd",
-                        extra_displays=[
-                            str(mv["ticker"]),
-                            str(mv["company_name"]),
-                            f"rank {mv['rank']}",
-                        ],
-                    )
+
+        for mv in (*top_movers_payload, *top_etf_movers_payload):
+            mv_tok = normalize_fact_id_token(str(mv["ticker"]))
+            is_etf_flag = 1 if mv.get("is_etf") else 0
+            facts.append(
+                _make_fact(
+                    f"diff.mover.{mv_tok}.value_change",
+                    "diff",
+                    int(mv["value_change_usd"]),
+                    resolved_period,
+                    _source_tag(
+                        "holdings_diff",
+                        baseline_period=previous_period,
+                        cusip=str(mv["cusip"]),
+                        is_etf=is_etf_flag,
+                        period=resolved_period,
+                        ticker=str(mv["ticker"]),
+                    ),
+                    unit="usd",
+                    extra_displays=[
+                        str(mv["ticker"]),
+                        str(mv["company_name"]),
+                        f"rank {mv['rank']}",
+                        "ETF" if is_etf_flag else "Common Stock",
+                    ],
                 )
+            )
+            facts.append(
+                _make_fact(
+                    f"diff.mover.{mv_tok}.is_etf",
+                    "diff",
+                    is_etf_flag,
+                    resolved_period,
+                    _source_tag(
+                        "holdings_diff",
+                        baseline_period=previous_period,
+                        cusip=str(mv["cusip"]),
+                        period=resolved_period,
+                        ticker=str(mv["ticker"]),
+                    ),
+                    unit="count",
+                    extra_displays=[
+                        "1" if is_etf_flag else "0",
+                        "true" if is_etf_flag else "false",
+                        "ETF" if is_etf_flag else "Common Stock",
+                    ],
+                )
+            )
 
         # Sort facts deterministically by id
         facts.sort(key=lambda f: f.id)
@@ -2015,7 +2150,7 @@ class FactsStage(Stage):
             opt_pct = (opt_delta / aum_opt_prev * 100.0) if aum_opt_prev > 0 else 0.0
             lines.extend(
                 [
-                    f"- **Common-Equity AUM (Excl. Options)**: `${aum_eq_prev:,}` "
+                    f"- **Equity-only AUM (excludes options; includes ETFs)**: `${aum_eq_prev:,}` "
                     f"({previous_period}) -> `${aum_eq_curr:,}` ({period}) "
                     f"(`{eq_delta:+,}` / `{eq_pct:+.2f}%`)",
                     f"- **Total 13F AUM (Incl. Options)**: `${aum_opt_prev:,}` "
@@ -2026,7 +2161,8 @@ class FactsStage(Stage):
         else:
             lines.extend(
                 [
-                    f"- **Common-Equity AUM (Excl. Options)**: `${aum_eq_curr:,}` ({period})",
+                    f"- **Equity-only AUM (excludes options; includes ETFs)**: "
+                    f"`${aum_eq_curr:,}` ({period})",
                     f"- **Total 13F AUM (Incl. Options)**: `${aum_opt_curr:,}` ({period})",
                 ]
             )
@@ -2066,30 +2202,54 @@ class FactsStage(Stage):
         lines.extend(
             [
                 "",
-                "## 3. Top 5 Position Movers (Aggregate Common-Equity AUM)",
+                "## 3. Top Position Movers (Equity-only AUM)",
                 "",
             ]
         )
         movers = diff_payload.get("top_position_movers") or []
-        if movers:
+        etf_movers = diff_payload.get("top_etf_movers") or []
+
+        if movers or etf_movers:
             mover_hdr = (
                 f"| Rank | Ticker | Company | {previous_period} Value | "
                 f"{period} Value | QoQ Change |"
             )
-            lines.extend(
-                [
-                    mover_hdr,
-                    "| :--- | :--- | :--- | ---: | ---: | ---: |",
-                ]
-            )
-            for mv in movers:
-                delta_v = int(mv["value_change_usd"])
-                sign_prefix = "+" if delta_v >= 0 else "-"
-                lines.append(
-                    f"| {mv['rank']} | `{mv['ticker']}` | {mv['company_name']} | "
-                    f"${int(mv['prior_value_usd']):,} | ${int(mv['current_value_usd']):,} | "
-                    f"{sign_prefix}${abs(delta_v):,} |"
+            if movers:
+                lines.extend(
+                    [
+                        "### Top 5 Operating Company Position Movers",
+                        "",
+                        mover_hdr,
+                        "| :--- | :--- | :--- | ---: | ---: | ---: |",
+                    ]
                 )
+                for mv in movers:
+                    delta_v = int(mv["value_change_usd"])
+                    sign_prefix = "+" if delta_v >= 0 else "-"
+                    lines.append(
+                        f"| {mv['rank']} | `{mv['ticker']}` | {mv['company_name']} | "
+                        f"${int(mv['prior_value_usd']):,} | ${int(mv['current_value_usd']):,} | "
+                        f"{sign_prefix}${abs(delta_v):,} |"
+                    )
+                lines.append("")
+
+            if etf_movers:
+                lines.extend(
+                    [
+                        "### Top 5 ETF Position Movers",
+                        "",
+                        mover_hdr,
+                        "| :--- | :--- | :--- | ---: | ---: | ---: |",
+                    ]
+                )
+                for mv in etf_movers:
+                    delta_v = int(mv["value_change_usd"])
+                    sign_prefix = "+" if delta_v >= 0 else "-"
+                    lines.append(
+                        f"| {mv['rank']} | `{mv['ticker']}` | {mv['company_name']} | "
+                        f"${int(mv['prior_value_usd']):,} | ${int(mv['current_value_usd']):,} | "
+                        f"{sign_prefix}${abs(delta_v):,} |"
+                    )
         else:
             lines.append("- No prior-quarter holdings available to compute position movers.")
 
@@ -2180,7 +2340,7 @@ class FactsStage(Stage):
                     else "None"
                 ),
                 "",
-                "*Not investment advice; AI-drafted, figures checked against filings data.*",
+                "*Generated deterministically from filings data; not investment advice.*",
                 "",
             ]
         )

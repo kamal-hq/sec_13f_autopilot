@@ -68,7 +68,7 @@ pip install -e .
 
 ## Usage
 
-### Phase 1 & 2: Detection, Ingestion, and Facts Extraction
+### Phase 1, 2 & 3a: Detection, Ingestion, Facts, and Template Narration
 
 ```bash
 # Detect 13F-HR and 13F-HR/A filings across configured funds (writes reports/<period>/detect.json)
@@ -87,9 +87,40 @@ autopilot ingest --period 2026-Q2
 # Extract deterministic facts, diff markdown, and allowed numbers bundle (reports/<period>/facts.json)
 autopilot facts --period 2026-Q2
 
-# Run the pipeline in sequence through a specific stage (e.g., detect -> ingest -> facts)
-autopilot run --through facts
+# Generate deterministic research note draft with NullProvider (reports/<period>/draft.md)
+autopilot narrate --period 2026-Q2 --llm none
+
+# Run the pipeline in sequence through a specific stage (e.g., detect -> ingest -> facts -> narrate)
+autopilot run --through narrate --llm none
 autopilot run --through facts --as-of 2026-09-05
+```
+
+---
+
+## Verified Parity
+
+Rebuilt from SEC filings in a fresh environment; the database matches the original Project 1 database cell for cell (7 funds, 8,860 securities, 50,311 holdings; all 14 fund-period totals reconcile to SEC cover-page totals to the dollar).
+
+### What the Parity Check Caught (Zero-Value Sinovac Rows)
+A naive count filtering on `value_usd > 0` reports 22,851 active Q1 rows, 24,010 active Q2 rows, and 3,446 exited rows (total 50,307 holdings)—which is **4 rows short** of the 50,311 total rows in `Fact_Holdings`.
+
+The parity verification script caught exactly four active holding records filed with `value_usd = 0`:
+- **Sinovac Biotech Ltd (`SVA`, CUSIP `P8696W104`)**:
+  - CalPERS: 2026-Q1 (68,732 shares, `$0`) and 2026-Q2 (68,732 shares, `$0`, `UNCHANGED`)
+  - Renaissance Technologies: 2026-Q1 (1,312,520 shares, `$0`) and 2026-Q2 (1,312,520 shares, `$0`, `UNCHANGED`)
+
+Accounting for these 4 active zero-value rows restores exact mathematical parity:
+`22,853 (Q1 active) + 24,012 (Q2 active) + 3,446 (exited) = 50,311 total holdings`.
+
+### Reproducing Database Parity
+To verify parity across both databases in read-only mode:
+
+```bash
+# Compare local data/autopilot.db against sibling Project 1 database
+python scripts/parity_check.py
+
+# Or specify custom paths (skips cleanly with code 0 if sibling DB is absent):
+python scripts/parity_check.py --db1 data/autopilot.db --db2 ../sec_13f_analyzer/data/sec_13f.db
 ```
 
 ### Full Pipeline Options

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import socket
+import sqlite3
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -548,7 +549,19 @@ def test_facts_golden_file_and_independent_headline_recomputation(tmp_path: Path
     for lim_id in REQUIRED_LIMITATION_IDS:
         assert bundle.get_fact(lim_id) is not None
 
-    # Quality facts
+    # Sector and quality facts
+    assert bundle.get_fact("sector.Unknown.note") is not None
+    assert bundle.get_fact("sector.Unknown.note").value == 1
+    assert any(
+        "mostly ETFs and trusts without an operating-company SIC code" in d
+        for d in bundle.get_fact("sector.Unknown.note").display
+    )
+    assert any(
+        "Equity-only AUM (excludes options; includes ETFs)" in d
+        for d in bundle.get_fact("market.aum_equity").display
+    )
+    assert bundle.get_fact("diff.mover.NVDA.is_etf").value == 0
+    assert bundle.get_fact("diff.mover.AMD.is_etf").value == 0
     assert bundle.get_fact("quality.split.KLAC.confirmed").value == 10.0
     assert bundle.get_fact("quality.split.CURX.unconfirmed").value == 2.0
 
@@ -706,3 +719,104 @@ def test_local_acceptance_2026_q2(tmp_path: Path) -> None:
     assert bundle.get_fact("coverage.all_reconciled").value == 1
     assert bundle.get_fact("coverage.reconciliations_passed").value == 14
     assert bundle.get_fact("coverage.reconciliations_total").value == 14
+
+    # 5. Position movers include merged Alphabet and separated ETFs
+    googl_mover = bundle.get_fact("diff.mover.GOOGL_GOOG.is_etf")
+    assert googl_mover is not None and googl_mover.value == 0
+    spy_mover = bundle.get_fact("diff.mover.SPY.is_etf")
+    assert spy_mover is not None and spy_mover.value == 1
+    ivv_mover = bundle.get_fact("diff.mover.IVV.is_etf")
+    assert ivv_mover is not None and ivv_mover.value == 1
+
+    # 6. Sector Unknown note fact
+    unknown_note = bundle.get_fact("sector.Unknown.note")
+    assert unknown_note is not None
+    assert any(
+        "ETFs and trusts without an operating-company SIC code" in d for d in unknown_note.display
+    )
+
+
+def test_synthetic_three_period_signal_diff(tmp_path: Path) -> None:
+    """Synthetic three-period fixture test for persisted, new, and dropped signal diffs."""
+    settings, _, ingest_res = _create_fixture_environment(tmp_path, include_q4_2025=True)
+    stage = FactsStage(settings=settings)
+
+    bundle = stage.build_facts(
+        target_period="2026-Q2",
+        ingest_result=ingest_res,
+        write_reports=True,
+    )
+
+    # In 2026-Q1 (vs 2025-Q4): signals are NVDA and MSFT.
+    # In 2026-Q2 (vs 2026-Q1): signals are NVDA and AMD.
+    # Comparison of 2026-Q2 vs 2026-Q1:
+    # - Persisted: NVDA (in both Q1 and Q2)
+    # - New: AMD (in Q2, not in Q1)
+    # - Dropped: MSFT (in Q1, not in Q2)
+    assert bundle.get_fact("diff.unavailable") is None
+
+    persisted = bundle.get_fact("diff.signals_persisted")
+    assert persisted is not None and persisted.value == 1
+    assert any("NVDA" in d for d in persisted.display)
+
+    new_sig = bundle.get_fact("diff.signals_new")
+    assert new_sig is not None and new_sig.value == 1
+    assert any("AMD" in d for d in new_sig.display)
+
+    dropped = bundle.get_fact("diff.signals_dropped")
+    assert dropped is not None and dropped.value == 1
+    assert any("MSFT" in d for d in dropped.display)
+
+    diff_text = bundle.diff_markdown
+    assert "NVDA" in diff_text
+    assert "AMD" in diff_text
+    assert "MSFT" in diff_text
+    assert "*Generated deterministically from filings data; not investment advice.*" in diff_text
+
+
+@pytest.mark.skipif(
+    not LOCAL_AUTOPILOT_DB.exists(),
+    reason="Local data/autopilot.db not present; skipping dollars_added formula test.",
+)
+def test_dollars_added_formula_three_known_cases() -> None:
+    """Prove dollars_added = shares_added x Q2 price for 3 known increased-position cases.
+
+    Isolates capital committed in the quarter from price appreciation on pre-existing shares.
+    1. AMD / CalPERS: (+327,201 shares = $190,074,333)
+    2. Berkshire / GOOGL: (+24,541,369 shares = $8,770,349,040)
+    3. WFC / Temasek: (+514,781 shares = $42,541,502)
+    """
+    con = sqlite3.connect(LOCAL_AUTOPILOT_DB)
+    cur = con.cursor()
+
+    query = """
+    SELECT d.name, s.ticker, f.period, f.shares, f.value_usd
+    FROM Fact_Holdings f
+    JOIN Dim_Fund d ON f.fund_id = d.fund_id
+    JOIN Dim_Security s ON f.security_id = s.security_id
+    WHERE (d.name LIKE ? OR d.name LIKE ?) AND s.ticker = ? AND f.period IN ('2026-Q1', '2026-Q2')
+    ORDER BY f.period
+    """
+
+    test_cases = [
+        ("CalPERS", "%CALPERS%", "AMD", 327_201, 190_074_333),
+        ("Berkshire Hathaway", "%BERKSHIRE%", "GOOGL", 24_541_369, 8_770_349_040),
+        ("Temasek Holdings", "%TEMASEK%", "WFC", 514_781, 42_541_502),
+    ]
+
+    for label, fund_pat, ticker, expected_shares_added, expected_dollars_added in test_cases:
+        rows = cur.execute(query, (fund_pat, fund_pat, ticker)).fetchall()
+        assert len(rows) == 2, f"Expected 2 period rows for {label} {ticker}, got {rows}"
+        r_q1, r_q2 = rows[0], rows[1]
+
+        q1_shares = int(r_q1[3])
+        q2_shares, q2_val = int(r_q2[3]), int(r_q2[4])
+
+        shares_added = q2_shares - q1_shares
+        assert shares_added == expected_shares_added
+
+        q2_price = q2_val / q2_shares
+        dollars_added = round(shares_added * q2_price)
+        assert dollars_added == expected_dollars_added
+
+    con.close()

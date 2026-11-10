@@ -120,6 +120,11 @@ class BudgetGuard(LLMProvider):
         self._total_output_tokens: int = 0
 
     @property
+    def provider(self) -> LLMProvider | None:
+        """Return the wrapped LLMProvider instance."""
+        return self._provider
+
+    @property
     def calls_made(self) -> int:
         """Return the number of LLM calls attempted in the current run."""
         return self._calls_made
@@ -420,19 +425,22 @@ class NullProvider(LLMProvider):
 
     def generate(self, prompt: str, max_output_tokens: int = 2048) -> LLMResult:
         """Return a deterministic markdown research note draft."""
-        draft = (
-            f"# Institutional 13F Research Note ({self.period})\n\n"
-            f"## Overview\n"
-            f"- **Reporting Period**: {self.period}\n"
-            f"- **Comparison Baseline**: {self.baseline_period}\n"
-            f"- **Generation Mode**: Deterministic template (`NullProvider`)\n\n"
-            f"## Quantitative Summary\n"
-            f"All figures in this report are sourced directly from the verified "
-            f"`FactsBundle` for {self.period}.\n\n"
-            f"---\n"
-            f"*Disclaimer: Not investment advice; AI-drafted, figures checked against "
-            f"filings data.*\n"
-        )
+        if prompt and prompt.startswith("# Quarterly 13F Research Note"):
+            draft = prompt
+        else:
+            draft = (
+                f"# Institutional 13F Research Note ({self.period})\n\n"
+                f"## Overview\n"
+                f"- **Reporting Period**: {self.period}\n"
+                f"- **Comparison Baseline**: {self.baseline_period}\n"
+                f"- **Generation Mode**: Deterministic template (`NullProvider`)\n\n"
+                f"## Quantitative Summary\n"
+                f"All figures in this report are sourced directly from the verified "
+                f"`FactsBundle` for {self.period}.\n\n"
+                f"---\n"
+                f"*Disclaimer: Not investment advice; AI-drafted, figures checked against "
+                f"filings data.*\n"
+            )
         prompt_tokens = max(1, len(prompt.split())) if prompt else 0
         output_tokens = min(max_output_tokens, max(1, len(draft.split())))
         logger.info(
@@ -471,7 +479,7 @@ def select_llm_provider(
     kill_switch = settings.llm_disabled or _is_kill_switch_env_set()
 
     if kill_switch:
-        if provider_name in {"null", "auto"}:
+        if provider_name in {"null", "none", "auto"}:
             selected: LLMProvider = NullProvider(
                 period=resolved_period,
                 baseline_period=settings.baseline_period,
@@ -481,7 +489,7 @@ def select_llm_provider(
                 f"Cannot initialize provider {provider_name!r} when "
                 f"AUTOPILOT_LLM_DISABLED=1 is active."
             )
-    elif provider_name == "null":
+    elif provider_name in {"null", "none"}:
         selected = NullProvider(
             period=resolved_period,
             baseline_period=settings.baseline_period,
@@ -512,7 +520,7 @@ def select_llm_provider(
     else:
         raise LLMConfigurationError(
             f"Unsupported llm_provider {provider_name!r}; expected one of "
-            f"'null', 'manual', 'gemini', or 'auto'."
+            f"'null', 'none', 'manual', 'gemini', or 'auto'."
         )
 
     if wrap_with_budget_guard:
