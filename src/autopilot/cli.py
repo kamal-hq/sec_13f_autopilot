@@ -15,6 +15,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from autopilot.metrics import format_metrics_markdown, learn_from_period
 from autopilot.models import NarrativeDraft, PipelineContext, StageStatus
 from autopilot.pipeline import Pipeline, build_default_stages
 from autopilot.settings import Settings, configure_logging
@@ -23,6 +24,7 @@ from autopilot.stages.detect import DetectStage
 from autopilot.stages.facts import FactsStage
 from autopilot.stages.ingest import IngestStage
 from autopilot.stages.narrate import NarrateStage
+from autopilot.stages.publish import PublishStage
 from autopilot.stages.validate import ValidateStage
 
 logger = logging.getLogger(__name__)
@@ -161,7 +163,64 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to draft markdown file (default: reports/<period>/draft.md).",
     )
 
-    # 6. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
+    # 6. `autopilot publish --period 2026-Q2 [--commit-state] [--replay] [--dry-run]`
+    publish_parser = subparsers.add_parser(
+        "publish",
+        help="Publish final.md, final_cited.md, CSV exports, PR body, and optional state commit.",
+    )
+    _add_common_flags(publish_parser)
+    publish_parser.add_argument(
+        "--period",
+        type=str,
+        default=None,
+        help="Reporting period to publish (e.g., 2026-Q2).",
+    )
+    publish_parser.add_argument(
+        "--commit-state",
+        action="store_true",
+        default=False,
+        help="Mark the period's accessions as processed in state/processed_filings.json.",
+    )
+    publish_parser.add_argument(
+        "--replay",
+        action="store_true",
+        default=False,
+        help="Label outputs as replay and never modify state.",
+    )
+
+    # 7. `autopilot learn --period 2026-Q2 [--review-minutes M]`
+    learn_parser = subparsers.add_parser(
+        "learn",
+        help="Compare merged final_cited.md with bot draft and append metrics/history.jsonl.",
+    )
+    _add_common_flags(learn_parser)
+    learn_parser.add_argument(
+        "--period",
+        type=str,
+        required=True,
+        help="Reporting period to record feedback for (e.g., 2026-Q2).",
+    )
+    learn_parser.add_argument(
+        "--review-minutes",
+        type=float,
+        default=None,
+        help="Optional human review duration in minutes.",
+    )
+
+    # 8. `autopilot metrics [--markdown]`
+    metrics_parser = subparsers.add_parser(
+        "metrics",
+        help="Render historical pipeline and feedback metrics table.",
+    )
+    _add_common_flags(metrics_parser)
+    metrics_parser.add_argument(
+        "--markdown",
+        action="store_true",
+        default=False,
+        help="Output the Markdown results table for README.",
+    )
+
+    # 9. `autopilot run [--through STAGE] [--period YYYY-QN] [--as-of YYYY-MM-DD] [--dry-run]`
     run_parser = subparsers.add_parser(
         "run",
         help="Run pipeline stages in order (optionally stopping after --through <stage>).",
@@ -171,7 +230,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--through",
         type=str,
         default=None,
-        help="Stop pipeline after executing this stage (e.g., detect, ingest, facts, narrate).",
+        help="Stop pipeline after executing this stage (detect..publish).",
     )
     run_parser.add_argument(
         "--period",
@@ -193,6 +252,18 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         help="Maximum validation retry attempts for narrative generation (default: 3).",
+    )
+    run_parser.add_argument(
+        "--commit-state",
+        action="store_true",
+        default=False,
+        help="Commit period accessions to state/processed_filings.json during publish.",
+    )
+    run_parser.add_argument(
+        "--replay",
+        action="store_true",
+        default=False,
+        help="Run in replay mode (labels outputs replay and never modifies state).",
     )
 
     return parser
@@ -319,6 +390,49 @@ def main(argv: Sequence[str] | None = None) -> int:
             logger.error("Validation error: %s", exc)
             return 1
 
+    commit_state = bool(getattr(args, "commit_state", False))
+    replay = bool(getattr(args, "replay", False))
+
+    if cmd == "publish":
+        publisher = PublishStage(
+            settings=settings,
+            commit_state=commit_state,
+            replay=replay,
+        )
+        ctx = PipelineContext(
+            target_period=settings.target_period,
+            baseline_period=settings.baseline_period,
+            as_of=as_of,
+            dry_run=dry_run,
+            commit_state=commit_state,
+            replay=replay,
+        )
+        try:
+            res = publisher.run(ctx)
+            return (
+                0 if (isinstance(res, StageResult) and res.status == StageStatus.SUCCEEDED) else 1
+            )
+        except StageError as exc:
+            logger.error("Publish error: %s", exc)
+            return 1
+
+    if cmd == "learn":
+        review_minutes = getattr(args, "review_minutes", None)
+        learn_from_period(
+            settings=settings,
+            period=settings.target_period,
+            review_minutes=review_minutes,
+        )
+        return 0
+
+    if cmd == "metrics":
+        table_md = format_metrics_markdown()
+        if getattr(args, "markdown", False):
+            sys.stdout.write(table_md + "\n")
+        else:
+            logger.info("Metrics table:\n%s", table_md)
+        return 0
+
     # Default or `autopilot run`
     through_stage = getattr(args, "through", None)
     stages = build_default_stages(settings)
@@ -333,6 +447,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         baseline_period=settings.baseline_period,
         as_of=as_of,
         dry_run=dry_run,
+        commit_state=commit_state,
+        replay=replay,
     )
     run_log = pipeline.run(
         context,

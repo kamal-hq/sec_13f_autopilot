@@ -61,8 +61,8 @@ def build_default_stages(settings: Settings | None = None) -> list[Stage]:
         FactsStage(settings=resolved_settings),
         NarrateStage(settings=resolved_settings),
         ValidateStage(settings=resolved_settings),
-        ReviewStage(),
-        PublishStage(),
+        ReviewStage(settings=resolved_settings),
+        PublishStage(settings=resolved_settings),
     ]
 
 
@@ -181,6 +181,9 @@ class Pipeline:
                 raw_outcome = stage.run(ctx)
                 result = self._normalize_outcome(raw_outcome)
                 duration_ms = max(0.0, (self._clock_fn() - stage_start_perf) * 1000.0)
+                ctx.artifacts.setdefault("stage_timings", {})[stage_name] = round(
+                    duration_ms / 1000.0, 3
+                )
                 entry = StageLogEntry(
                     stage_name=stage_name,
                     status=result.status,

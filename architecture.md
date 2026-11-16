@@ -153,15 +153,54 @@ sec_13f_autopilot/
 - **R6 Causal Claims**: Verbs of cause (`because`, `due to`, `driven by`, `as a result of`) linking market movements to external events are forbidden outside Limitations.
 - **R7 Required Content**: All 9 canonical section headings, 6 required `limit.*` facts (`limit.long_only`, `limit.filing_lag_45d`, `limit.no_forward_return_test`, `limit.hedge_only_may_be_hedging`, `limit.small_discretionary_sample`, `limit.dollars_added_estimate`), and valid reporting period metadata must be present.
 - **R8 Stale Data (Superseded Facts)**: Detects and rejects superseded pre-amendment values (e.g., Citadel's pre-amendment total of $875,096,281,441 vs restated $875,011,794,337) using facts flagged with `superseded: true`.
+- **R9 Formatting & Length Guardrails**: Rejects URLs (`http://`, `https://`, `www.`), markdown links (`[text](url)`), HTML tags (`<...>`), code fences (`` ``` `` or `~~~`), and narrative blocks exceeding 150 words.
 
 ### 2. Adversarial Suite (`tests/adversarial/cases.yaml`)
-- Evaluates 10 bad mutations (each systematically rejected by rules R1–R8) and 5 good mutations (rephrasing, alternative display, 2-sig-fig rounding, negative claims in limitations, section reordering) accepted cleanly with status `PASS`.
-- Rigorously asserts `bad rejected 10/10, good accepted 5/5`.
+- Evaluates 20 bad mutations (each systematically rejected by rules R1–R9) and 7 good mutations (including $k$-sig-fig boundary rounding cases for $k \ge 2$) accepted cleanly with status `PASS`.
+- Rigorously asserts `bad rejected 20/20, good accepted 7/7`, and fails the test run if any rule R1–R9 has zero exercising cases.
 
 ### 3. Display Name Determinism & Common Stock Merging
 - Primary display names for securities derive deterministically from the filing `nameOfIssuer` (via `data/mappings/filing_names.json`), while OpenFIGI is used strictly for ticker mapping.
 - Operating company position movers merge common stock classes (e.g., `GOOGL/GOOG` equals $24,450,077,992) and exclude non-common equity depositary shares ($476,936,007) and options.
 - Clean draft rendering: `render_clean(draft)` generates `reports/<period>/draft_clean.md` stripping citation tags for institutional reading.
+
+---
+
+## Phase 4: Governed LLM Narrative & Validation Retry Loop (`NarrateStage`)
+
+- **Compact Fact Sheet Only**: The LLM (`GeminiProvider` or `ManualProvider`) writes only concise narrative commentary blocks (`Executive Summary` and one short paragraph per major section) while tables, lists, and limitations remain 100% deterministic. The prompt builder (`build_narrative_prompt`) passes only a compact `id | label | display` fact sheet (zero file paths, zero environment variables, zero raw XML).
+- **Automated Repair & Fallback Loop**:
+  - Generates narrative blocks (up to `--max-attempts 3`), merges into the deterministic skeleton, and validates via `ValidateStage`.
+  - On `FAIL`, builds a targeted repair prompt (`build_repair_prompt`) with the exact rule ID, line number, defect snippet, and expected value from `facts.json`.
+  - Persists every attempt (`attempt_{k}_prompt.md`, `attempt_{k}_response.md`, `attempt_{k}_draft.md`, `attempt_{k}_findings.json`, `attempt_{k}_repair_prompt.md`) under `reports/<period>/attempts/`.
+  - Falls back cleanly to the deterministic template draft after persistent validation failures (`llm_status="fallback_after_failed_validation"`) or HTTP 429 quota exhaustion (`llm_status="quota_exhaustion_fallback"`).
+
+---
+
+## Phase 5: Publish Stage, GitHub Action PR Gate, Feedback Loop & Metrics
+
+### 1. Publish Stage (`stages/publish.py`)
+- Verifies that `ValidateStage` passed (`status == "PASS"`), then writes under `reports/<period>/`:
+  - `final.md`: Clean human-facing research note with no backticks around figures, validator-accepted short USD display forms (such as `"$917.2B"`), and all `[fact_id]` citations stripped.
+  - `final_cited.md`: Cited research note retaining all `[fact_id]` provenance tags.
+  - `validation_report.md`, `diff.md`, `run.json` (scrubbed via `redact_text`), and `pr_body.md`.
+  - `exports/`: Deterministic CSV exports (`signals.csv`, `discretionary.csv`, `new_to_sample.csv`, `fund_summary.csv`).
+- **State Gate (`--commit-state` vs `--replay`)**:
+  - Without `--commit-state`, `state/processed_filings.json` is never modified.
+  - With `publish --commit-state` (used on the PR branch so merging the PR into `main` is the human approval gate), marks the period's accessions as processed in `state/processed_filings.json`.
+  - With `--replay`, labels outputs `[REPLAY]` / `replay` and **never** touches `state/processed_filings.json`.
+
+### 2. Pull Request Body Builder (`build_pr_body`)
+- Pure function rendering `reports/<period>/pr_body.md` with:
+  1. Quarter-over-quarter `diff.md` summary.
+  2. Validation `PASS`/`FAIL` status and per-rule defect table (`R1`–`R9`).
+  3. Execution & LLM metrics table (`mode`, `model`, `attempts`, `stage_seconds`).
+  4. Mandatory 4-item human reviewer checklist (`3 figures spot-checked against the filings`, `issuer names checked`, `limitations present`, `no predictive language`).
+  5. Relative links to all published markdown and CSV artifacts.
+
+### 3. Feedback Loop & Metrics (`metrics.py`)
+- `autopilot learn --period X [--review-minutes M]` computes the human edit ratio (`1.0 - SequenceMatcher.ratio()`) between the merged `final_cited.md` and the bot's `draft.md`, appends a secret-free record to `metrics/history.jsonl`, and copies the approved note to `style_examples/` (from which `build_narrative_prompt` may include at most one excerpt).
+- `autopilot metrics --markdown` renders the README Results table from `metrics/history.jsonl` and `docs/baseline.md`, outputting `not measured yet` for any empty field and computing `Time Saved (%)` only when both `review_minutes` and `manual_baseline_minutes` exist.
 
 ---
 

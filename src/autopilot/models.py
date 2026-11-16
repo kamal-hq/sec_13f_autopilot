@@ -523,6 +523,10 @@ class PublishResult:
 
     period: str
     published_files: list[str] = field(default_factory=list)
+    export_files: list[str] = field(default_factory=list)
+    state_committed: bool = False
+    replay: bool = False
+    pr_body_path: str | None = None
     commit_sha: str | None = None
 
 
@@ -534,6 +538,8 @@ class PipelineContext:
     baseline_period: str = "2026-Q1"
     as_of: str | None = None
     dry_run: bool = False
+    commit_state: bool = False
+    replay: bool = False
     detection: DetectResult | None = None
     ingest: IngestResult | None = None
     facts: FactsBundle | None = None

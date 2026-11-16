@@ -30,7 +30,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from autopilot.models import FactsBundle
+from autopilot.models import FactsBundle, ValidationResult
 from autopilot.settings import Settings
 from autopilot.stages.base import PipelineContext, Stage, StageError, StageResult, StageStatus
 
@@ -214,6 +214,12 @@ class ValidateStage(Stage):
             raise StageError(f"ValidateStage requires draft.md for period {period}")
 
         report = self.validate_draft(draft_md, facts, period)
+        context.validation = ValidationResult(
+            passed=(report.status == "PASS"),
+            attempt=context.draft.attempt if context.draft else 1,
+            errors=[f"{i.rule_id} (line {i.line}): {i.expected}" for i in report.issues],
+        )
+        context.artifacts["validation_report"] = report
 
         # Write reports/<period>/validation_report.json and .md
         rep_json_path = self.settings.reports_dir / period / "validation_report.json"

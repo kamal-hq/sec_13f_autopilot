@@ -11,35 +11,46 @@ name: Quarterly 13F Autopilot
 on:
   workflow_dispatch:
     inputs:
-      target_period:
-        description: "Target reporting period (e.g., 2026-Q2)"
-        required: true
-        default: "2026-Q2"
+      period:
+        description: "Target reporting period (e.g., 2026-Q2); leave blank to auto-detect"
+        required: false
+        default: ""
         type: string
-      llm_provider:
-        description: "LLM provider selection"
+      llm:
+        description: "LLM narrative mode (none or gemini)"
         required: true
-        default: "null"
+        default: "none"
         type: choice
         options:
-          - "null"
-          - "manual"
+          - "none"
           - "gemini"
-      dry_run:
-        description: "Validate configuration and stage plan only"
+      as_of:
+        description: "Optional historical cutoff date (YYYY-MM-DD)"
         required: false
-        default: true
+        default: ""
+        type: string
+      replay:
+        description: "Run in replay mode (labels outputs replay and never modifies state)"
+        required: false
+        default: false
         type: boolean
 
-# Default least-privilege token permissions
+# Default least-privilege token permissions at workflow level
 permissions:
   contents: read
 
+concurrency:
+  group: autopilot-13f-${{ inputs.period || 'auto' }}
+  cancel-in-progress: false
+
 jobs:
-  run-autopilot:
-    name: Run 13F Autopilot Pipeline
+  autopilot-pr:
+    name: Run 13F Autopilot & Open Review PR
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -54,25 +65,99 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "sec_13f_analyzer @ git+https://github.com/kamal-hq/sec_13f_analyzer@v1.1.0"
-          pip install -e .
+          pip install -e ".[dev]"
 
-      - name: Execute autopilot CLI
+      - name: Cache SEC downloads and CUSIP mapping caches keyed by accession list
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            data/raw
+            data/mappings
+          key: sec-13f-cache-${{ runner.os }}-${{ hashFiles('reports/*/detect.json', 'reports/*/ingest.json', 'state/processed_filings.json', 'config.yaml') }}
+          restore-keys: |
+            sec-13f-cache-${{ runner.os }}-
+
+      - name: Run offline pytest suite (fail fast)
+        env:
+          AUTOPILOT_LLM_DISABLED: "1"
+        run: |
+          pytest
+
+      - name: Run autopilot pipeline through publish
+        id: run_pipeline
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENFIGI_API_KEY: ${{ secrets.OPENFIGI_API_KEY }}
+          INPUT_PERIOD: ${{ inputs.period }}
+          INPUT_LLM: ${{ inputs.llm }}
+          INPUT_AS_OF: ${{ inputs.as_of }}
+          INPUT_REPLAY: ${{ inputs.replay }}
         run: |
-          DRY_FLAG=""
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            DRY_FLAG="--dry-run"
+          set -euo pipefail
+          PERIOD="${INPUT_PERIOD}"
+          if [ -z "${PERIOD}" ]; then
+            PERIOD=$(python -c "from autopilot.settings import Settings; print(Settings.from_env().target_period)")
           fi
-          autopilot --period "${{ inputs.target_period }}" --provider "${{ inputs.llm_provider }}" $DRY_FLAG
+          echo "period=${PERIOD}" >> "${GITHUB_OUTPUT}"
 
-      - name: Upload staged report and run log artifacts for human review
+          ARGS=(run --through publish --period "${PERIOD}" --llm "${INPUT_LLM}")
+          if [ -n "${INPUT_AS_OF}" ]; then
+            ARGS+=(--as-of "${INPUT_AS_OF}")
+          fi
+          if [ "${INPUT_REPLAY}" = "true" ]; then
+            ARGS+=(--replay)
+          else
+            ARGS+=(--commit-state)
+          fi
+          autopilot "${ARGS[@]}"
+
+      - name: Create branch, commit artifacts, and open PR via gh CLI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PERIOD: ${{ steps.run_pipeline.outputs.period }}
+          INPUT_REPLAY: ${{ inputs.replay }}
+        run: |
+          set -euo pipefail
+          BRANCH="autopilot/${PERIOD}"
+          if [ "${INPUT_REPLAY}" = "true" ]; then
+            BRANCH="autopilot/${PERIOD}-replay"
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "${BRANCH}"
+          git add "reports/${PERIOD}/"
+          if [ "${INPUT_REPLAY}" != "true" ] && [ -f "state/processed_filings.json" ]; then
+            git add "state/processed_filings.json"
+          fi
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit for ${PERIOD}."
+            exit 0
+          fi
+
+          git commit -m "chore(reports): publish ${PERIOD} 13F research note for review"
+          git push --force-with-lease origin "${BRANCH}"
+
+          EXISTING_PR=$(gh pr list --head "${BRANCH}" --base main --json number --jq '.[0].number // empty')
+          if [ -n "${EXISTING_PR}" ]; then
+            gh pr edit "${EXISTING_PR}" \
+              --title "Quarterly 13F Research Note: ${PERIOD}" \
+              --body-file "reports/${PERIOD}/pr_body.md"
+          else
+            gh pr create \
+              --base main \
+              --head "${BRANCH}" \
+              --title "Quarterly 13F Research Note: ${PERIOD}" \
+              --body-file "reports/${PERIOD}/pr_body.md"
+          fi
+
+      - name: Upload published report artifacts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: autopilot-${{ inputs.target_period }}-artifacts
+          name: autopilot-${{ steps.run_pipeline.outputs.period || 'run' }}-artifacts
           path: |
             reports/
             state/

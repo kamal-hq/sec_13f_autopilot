@@ -107,6 +107,18 @@ autopilot run --through validate --llm none
 autopilot run --through validate --llm gemini --max-attempts 3
 autopilot run --through narrate --llm none
 autopilot run --through facts --as-of 2026-09-05
+
+# Phase 5: Publish final.md, final_cited.md, CSV exports, and PR body (state untouched without --commit-state)
+autopilot publish --period 2026-Q2
+autopilot publish --period 2026-Q2 --commit-state
+autopilot publish --period 2026-Q2 --replay
+
+# Run full pipeline through publish
+autopilot run --through publish --llm none --commit-state
+
+# Record human review feedback (edit ratio + style_examples/) and render Results table
+autopilot learn --period 2026-Q2
+autopilot metrics --markdown
 ```
 
 ### Deterministic Validator Rules (R1–R9)
@@ -179,10 +191,13 @@ autopilot --period 2026-Q2 --provider gemini
 - **Redacted Logging**: `SecretRedactionFilter` scrubs literal secret values as well as `key=...`, `api_key=...`, `Authorization: Bearer ...`, and Google API key (`AIza...`) patterns from all log records. Request/response bodies are **never** logged—only HTTP/LLM status codes and token counts.
 - **LLM Budget & Kill Switch**: `BudgetGuard` enforces `max_calls_per_run` (default `5`), `max_output_tokens`, per-call timeouts, and an immediate environment kill switch (`AUTOPILOT_LLM_DISABLED=1`).
 - **Hardened GitHub Workflows**:
-  - Default `permissions: contents: read`
-  - **No** `pull_request` or `pull_request_target` triggers
-  - All actions pinned to full 40-character commit SHAs
-  - `autopilot.yml` triggers via `workflow_dispatch` only (the `cron` schedule line is commented out with a note regarding GitHub's 60-day repository inactivity rule).
+  - Top-level `permissions: contents: read`; only the `autopilot-pr` job gets `contents: write` and `pull-requests: write`.
+  - **No** `pull_request` or `pull_request_target` triggers; `autopilot.yml` triggers via `workflow_dispatch` only (the `cron` schedule line stays commented out with a note regarding GitHub's 60-day repository inactivity rule).
+  - All actions are pinned to full 40-character commit SHAs and verified against the unauthenticated public GitHub REST API via `python scripts/verify_action_shas.py`.
+  - `GEMINI_API_KEY` and `SEC_USER_AGENT` are passed **only** in step-level `env` on the single step that executes `autopilot` (never job-level or top-level, never echoed).
+  - **Repository Settings Requirement**: Enable **"Allow GitHub Actions to create and approve pull requests"** under repository *Settings → Actions → General → Workflow permissions* so `gh pr create` can open the review Pull Request using `GITHUB_TOKEN`.
+  - **Self-Contained Test Gate**: Because Pull Requests created with `GITHUB_TOKEN` do not trigger other GitHub Actions workflows (by GitHub design to prevent recursive loops), `.github/workflows/autopilot.yml` runs the offline `pytest` suite itself (fail-fast) before executing the pipeline and opening the PR.
+  - **Workflow Linting**: `tests/test_workflow_security.py` runs offline on every `pytest` invocation; an optional `actionlint` hook is also documented in `.pre-commit-config.yaml` for environments with the `actionlint` Go binary installed.
 - **Secret Scanning**: `.env` is gitignored, `.env.example` contains placeholders only, and `gitleaks` is enforced via `.pre-commit-config.yaml`.
 
 ---
@@ -209,6 +224,16 @@ autopilot --period 2026-Q2 --provider gemini
      $env:GEMINI_API_KEY="your-gemini-api-key"
      pytest tests/live/test_gemini_smoke.py -v
      ```
+
+---
+
+## Results
+
+Generated deterministically from `metrics/history.jsonl` via `autopilot metrics --markdown` (manual baseline template in [`docs/baseline.md`](docs/baseline.md); fields not yet timed are reported as `not measured yet`):
+
+| Period | Mode | Model | Attempts | Validation Failures | Stage Seconds | Edit Ratio | Review Minutes | Manual Baseline | Time Saved |
+| :--- | :--- | :--- | :---: | :--- | ---: | ---: | ---: | ---: | ---: |
+| 2026-Q2 | none | deterministic-template | 0 | 0 | 0.00s | 0.0000 | not measured yet | not measured yet | not measured yet |
 
 ---
 

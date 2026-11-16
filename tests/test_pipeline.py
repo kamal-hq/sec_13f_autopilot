@@ -116,9 +116,13 @@ def test_pipeline_halts_on_review_gate_and_failure() -> None:
     assert detect_failed is not None and "RuntimeError: detect boom" in (detect_failed.error or "")
 
 
-def test_default_stage_contracts_and_remaining_stubs() -> None:
-    """All 7 stages define input/output contracts; Phases 4-5 stages raise NotImplementedError."""
-    stages = build_default_stages()
+def test_default_stage_contracts_and_fail_closed_gates(tmp_path: Path) -> None:
+    """All 7 stages define input/output contracts; review and publish fail closed without inputs."""
+    from autopilot.settings import Settings
+    from autopilot.stages.base import StageError
+
+    settings = Settings(reports_dir=tmp_path / "reports", state_dir=tmp_path / "state")
+    stages = build_default_stages(settings)
     assert [s.name for s in stages] == [
         "detect",
         "ingest",
@@ -129,11 +133,10 @@ def test_default_stage_contracts_and_remaining_stubs() -> None:
         "publish",
     ]
     ctx = PipelineContext(target_period="2026-Q2")
-    stub_names = {"review", "publish"}
     for stage in stages:
         module_doc = __import__(stage.__class__.__module__, fromlist=["*"]).__doc__ or ""
         assert "Input Contract" in module_doc
         assert "Output Contract" in module_doc
-        if stage.name in stub_names:
-            with pytest.raises(NotImplementedError):
+        if stage.name in {"review", "publish"}:
+            with pytest.raises(StageError):
                 stage.run(ctx)

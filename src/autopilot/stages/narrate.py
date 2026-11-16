@@ -811,8 +811,12 @@ def build_narrative_prompt(
     facts: FactsBundle,
     prompts_dir: Path | str,
     period: str,
+    *,
+    style_examples_dir: Path | str | None = None,
 ) -> str:
-    """Construct initial prompt for LLM narrative commentary blocks."""
+    """Construct initial prompt for LLM narrative blocks (with at most 1 style example)."""
+    from autopilot.metrics import load_one_style_example
+
     pdir = Path(prompts_dir)
     sys_path = pdir / "system.md"
     style_path = pdir / "style_guide.md"
@@ -821,6 +825,11 @@ def build_narrative_prompt(
     style_text = style_path.read_text(encoding="utf-8") if style_path.exists() else ""
 
     fact_sheet = build_compact_fact_sheet(facts)
+    style_example_block = ""
+    if style_examples_dir is not None:
+        excerpt = load_one_style_example(style_examples_dir)
+        if excerpt:
+            style_example_block = f"## Approved Style Example (Reference Only):\n\n{excerpt}\n\n"
 
     prompt = (
         f"{sys_text}\n\n"
@@ -850,6 +859,7 @@ def build_narrative_prompt(
         f"   - ## What Changed Since Last Quarter\n"
         f"   - ## Sector View\n"
         f"   - ## Data Quality\n\n"
+        f"{style_example_block}"
         f"## Compact Fact Sheet ({period})\n\n"
         f"{fact_sheet}\n"
     )
