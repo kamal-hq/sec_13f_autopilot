@@ -352,7 +352,15 @@ def build_pr_body(
     )
     retry_failures = dict(llm_meta.get("validation_failures_per_rule") or {})
 
-    stage_seconds = dict(run_metadata.get("stage_seconds") or {})
+    stage_seconds: dict[str, float] = {}
+    raw_stage_sec = run_metadata.get("stage_seconds") or run_metadata.get("stage_timings")
+    if isinstance(raw_stage_sec, dict):
+        stage_seconds = {str(k): float(v) for k, v in raw_stage_sec.items()}
+    elif isinstance(run_metadata.get("stages"), list):
+        for st_entry in run_metadata["stages"]:
+            if isinstance(st_entry, dict) and st_entry.get("stage_name"):
+                dur_ms = float(st_entry.get("duration_ms", 0.0))
+                stage_seconds[str(st_entry["stage_name"])] = round(dur_ms / 1000.0, 3)
     total_stage_sec = round(sum(float(v) for v in stage_seconds.values()), 3)
 
     replay_badge = " `[REPLAY]`" if replay else ""
@@ -421,14 +429,15 @@ def build_pr_body(
         "",
         "## 4. Mandatory Human Reviewer Checklist",
         "",
-        "- [ ] **3 figures spot-checked against the filings** (verified 3 cited numbers in "
-        f"`reports/{period}/final_cited.md` against raw SEC Form 13F XML / cover pages)",
-        "- [ ] **Issuer names checked** (verified deterministic `nameOfIssuer` display names "
-        "and share-class merges such as `GOOGL/GOOG`)",
-        "- [ ] **Limitations present** (confirmed all 6 required `limit.*` disclosures appear "
-        f"in `reports/{period}/final.md`)",
-        "- [ ] **No predictive language** (confirmed absence of forward-looking return "
-        "predictions, trade advice, or ungrounded causal claims)",
+        "- [ ] **Spot-check 3 cited figures against the filings XML or cover pages** "
+        f"(verify 3 cited numbers in `reports/{period}/final_cited.md` against raw SEC Form 13F)",
+        "- [ ] **Check issuer names against nameOfIssuer** "
+        "(verify deterministic `nameOfIssuer` display names and share-class merges "
+        "such as `GOOGL/GOOG`)",
+        "- [ ] **Confirm all required limitations are present** "
+        f"(verify all 6 required `limit.*` disclosures appear in `reports/{period}/final.md`)",
+        "- [ ] **Confirm no predictive language or ungrounded causal claims** "
+        "(verify absence of forward-looking return predictions, trade advice, or causal claims)",
         "",
         "## 5. Published Artifacts",
         "",
@@ -638,8 +647,23 @@ class PublishStage(Stage):
         stage_timings = dict(context.artifacts.get("stage_timings") or {})
         if stage_timings:
             run_data["stage_seconds"] = stage_timings
-        elif "stage_seconds" not in run_data:
-            run_data["stage_seconds"] = {}
+        elif not run_data.get("stage_seconds"):
+            last_run_path = self.settings.state_dir / "last_run.json"
+            if last_run_path.exists():
+                try:
+                    lr_data = json.loads(last_run_path.read_text(encoding="utf-8"))
+                    if lr_data.get("target_period") == period:
+                        extracted: dict[str, float] = {}
+                        for st in lr_data.get("stages") or []:
+                            if isinstance(st, dict) and st.get("stage_name"):
+                                extracted[str(st["stage_name"])] = round(
+                                    float(st.get("duration_ms", 0.0)) / 1000.0, 3
+                                )
+                        run_data["stage_seconds"] = extracted
+                except Exception:
+                    run_data.setdefault("stage_seconds", {})
+            else:
+                run_data.setdefault("stage_seconds", {})
 
         run_data["period"] = period
         run_data["replay"] = effective_replay

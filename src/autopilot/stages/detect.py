@@ -31,12 +31,43 @@ from autopilot.models import (
     PipelineContext,
     StageStatus,
 )
-from autopilot.policies import PeriodCompletenessPolicy
+from autopilot.policies import PeriodCompletenessPolicy, compute_previous_period
 from autopilot.settings import Settings
 from autopilot.stages.base import Stage, StageResult
 from autopilot.state import StateStore
 
 logger = logging.getLogger(__name__)
+
+
+def select_actionable_period(detect_result: DetectResult) -> str | None:
+    """Return the most recent COMPLETE or RESTATED period with an available baseline period.
+
+    Invariants:
+    - Status must be COMPLETE or RESTATED (never PROCESSED, PENDING, PARTIAL, or NEEDS_REVIEW).
+    - Baseline period (`compute_previous_period(period)`) must exist in `detect_result.periods`
+      with status COMPLETE, PROCESSED, or RESTATED (or have non-empty filings).
+    - Never falls back to `config.yaml` `target_period`.
+    """
+    periods_map = detect_result.periods
+    for period_name in sorted(periods_map.keys(), reverse=True):
+        period_obj = periods_map[period_name]
+        if period_obj.status not in {PeriodStatus.COMPLETE, PeriodStatus.RESTATED}:
+            continue
+        baseline_name = compute_previous_period(period_name)
+        baseline_obj = periods_map.get(baseline_name)
+        if baseline_obj is None:
+            continue
+        if (
+            baseline_obj.status
+            in {
+                PeriodStatus.COMPLETE,
+                PeriodStatus.PROCESSED,
+                PeriodStatus.RESTATED,
+            }
+            or len(baseline_obj.filings) > 0
+        ):
+            return period_name
+    return None
 
 
 def _resolve_sec_gateway(settings: Settings, sec_gateway: SecGateway | None) -> SecGateway:
@@ -91,9 +122,12 @@ class DetectStage(Stage):
         as_of: str | None = None,
         dry_run: bool = False,
         write_reports: bool = True,
+        include_config_target: bool = True,
     ) -> DetectResult:
         """Fetch submissions for configured funds, evaluate periods, and build `DetectResult`."""
-        resolved_target = target_period or self._settings.target_period
+        resolved_target = target_period or (
+            self._settings.target_period if include_config_target else ""
+        )
         gateway = _resolve_sec_gateway(self._settings, self._sec_gateway)
         store = self._state_store or StateStore(self._settings.state_dir / "processed_filings.json")
         store.load()
@@ -179,7 +213,7 @@ class DetectStage(Stage):
 
         if write_reports and not dry_run:
             # Write reports/<period>/detect.json for target period and any actionable period
-            periods_to_write = set(actionable_periods) | {resolved_target}
+            periods_to_write = {p for p in (set(actionable_periods) | {resolved_target}) if p}
             for p_name in sorted(periods_to_write):
                 report_dir = self._settings.reports_dir / p_name
                 report_dir.mkdir(parents=True, exist_ok=True)

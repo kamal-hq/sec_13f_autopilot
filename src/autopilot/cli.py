@@ -18,14 +18,16 @@ from pathlib import Path
 from autopilot.metrics import format_metrics_markdown, learn_from_period
 from autopilot.models import NarrativeDraft, PipelineContext, StageStatus
 from autopilot.pipeline import Pipeline, build_default_stages
+from autopilot.policies import compute_previous_period
 from autopilot.settings import Settings, configure_logging
 from autopilot.stages.base import StageError, StageResult
-from autopilot.stages.detect import DetectStage
+from autopilot.stages.detect import DetectStage, select_actionable_period
 from autopilot.stages.facts import FactsStage
 from autopilot.stages.ingest import IngestStage
 from autopilot.stages.narrate import NarrateStage
 from autopilot.stages.publish import PublishStage
 from autopilot.stages.validate import ValidateStage
+from autopilot.state import seed_state_through
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +79,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command")
 
-    # 1. `autopilot detect [--as-of YYYY-MM-DD] [--dry-run]`
+    # 1. `autopilot detect [--as-of YYYY-MM-DD] [--emit-period] [--dry-run]`
     detect_parser = subparsers.add_parser(
         "detect",
         help="Detect new 13F-HR and 13F-HR/A filings across configured funds.",
@@ -88,6 +90,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=str,
         default=None,
         help="Target reporting period to focus on (default: from config.yaml).",
+    )
+    detect_parser.add_argument(
+        "--emit-period",
+        action="store_true",
+        default=False,
+        help="Print the most recent COMPLETE/RESTATED period with baseline available.",
     )
 
     # 2. `autopilot ingest --period 2026-Q2 [--as-of YYYY-MM-DD] [--dry-run]`
@@ -266,6 +274,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run in replay mode (labels outputs replay and never modifies state).",
     )
 
+    # 10. `autopilot seed-state --through 2026-Q2 [--yes]`
+    seed_state_parser = subparsers.add_parser(
+        "seed-state",
+        help="Mark accessions through a period as processed (dry-run by default; --yes to write).",
+    )
+    _add_common_flags(seed_state_parser)
+    seed_state_parser.add_argument(
+        "--through",
+        type=str,
+        required=True,
+        help="Mark all filing accessions up through this period (e.g., 2026-Q2).",
+    )
+    seed_state_parser.add_argument(
+        "--yes",
+        action="store_true",
+        default=False,
+        help="Apply state write to state/processed_filings.json (default is dry-run).",
+    )
+
     return parser
 
 
@@ -275,8 +302,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     settings = Settings.from_env(config_path=args.config)
-    if getattr(args, "period", None):
-        settings.target_period = str(args.period)
+    explicit_period = getattr(args, "period", None)
+    if explicit_period:
+        settings.target_period = str(explicit_period)
+        settings.baseline_period = compute_previous_period(settings.target_period)
     if getattr(args, "llm_provider", None):
         raw_prov = str(args.llm_provider).lower()
         settings.llm_provider = "null" if raw_prov == "none" else raw_prov
@@ -291,13 +320,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     dry_run = bool(getattr(args, "dry_run", False))
 
     if cmd == "detect":
+        emit_period = bool(getattr(args, "emit_period", False))
         detector = DetectStage(settings=settings)
         detect_res = detector.detect(
-            target_period=settings.target_period,
+            target_period=str(explicit_period) if explicit_period else None,
             as_of=as_of,
-            dry_run=dry_run,
-            write_reports=not dry_run,
+            dry_run=dry_run or emit_period,
+            write_reports=not (dry_run or emit_period),
+            include_config_target=not emit_period or bool(explicit_period),
         )
+        if emit_period:
+            chosen_period = select_actionable_period(detect_res)
+            out_line = chosen_period if chosen_period else "no actionable period"
+            sys.stdout.write(f"{out_line}\n")
+            return 0
+
         for p_name, p_obj in sorted(detect_res.periods.items()):
             logger.info(
                 "Detect [%s] status=%s actionable=%s filings=%d new=%d reason=%s",
@@ -310,6 +347,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         if detect_res.noop_reason:
             logger.info("Detect no-op reason: %s", detect_res.noop_reason)
+        return 0
+
+    if cmd == "seed-state":
+        apply_writes = bool(getattr(args, "yes", False)) and not dry_run
+        _, summary_text = seed_state_through(
+            state_path=settings.state_dir / "processed_filings.json",
+            through_period=str(args.through),
+            apply_writes=apply_writes,
+            seed_dir=settings.seed_dir,
+            reports_dir=settings.reports_dir,
+        )
+        sys.stdout.write(f"{summary_text}\n")
         return 0
 
     if cmd == "ingest":

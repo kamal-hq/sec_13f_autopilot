@@ -26,6 +26,7 @@ import json
 import logging
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 from sec_13f_analyzer import (
@@ -59,6 +60,56 @@ from autopilot.stages.detect import DetectStage, _resolve_sec_gateway
 from autopilot.state import StateStore
 
 logger = logging.getLogger(__name__)
+
+SEED_CACHE_FILES: tuple[str, ...] = (
+    "cusip_cache.json",
+    "sector_cache.json",
+    "split_cache.json",
+    "filing_metadata.json",
+)
+
+
+def ensure_seed_caches(
+    mappings_dir: Path,
+    seed_dir: Path = Path("seed"),
+) -> list[str]:
+    """Copy or merge tracked `seed/` caches into `mappings_dir` on cache miss."""
+    mappings_dir.mkdir(parents=True, exist_ok=True)
+    seeded: list[str] = []
+    if not seed_dir.exists():
+        return seeded
+
+    for fname in SEED_CACHE_FILES:
+        src = seed_dir / fname
+        if not src.exists():
+            continue
+        dest = mappings_dir / fname
+        if not dest.exists():
+            shutil.copy2(src, dest)
+            seeded.append(fname)
+            logger.info("Seeded mapping cache %s from %s", dest, src)
+        else:
+            try:
+                seed_data = json.loads(src.read_text(encoding="utf-8"))
+                dest_data = json.loads(dest.read_text(encoding="utf-8"))
+                if isinstance(seed_data, dict) and isinstance(dest_data, dict):
+                    missing_keys = set(seed_data.keys()) - set(dest_data.keys())
+                    if missing_keys:
+                        merged = {**seed_data, **dest_data}
+                        dest.write_text(
+                            json.dumps(merged, indent=2, sort_keys=True) + "\n",
+                            encoding="utf-8",
+                        )
+                        seeded.append(fname)
+                        logger.info(
+                            "Merged %d missing seed entries into %s from %s",
+                            len(missing_keys),
+                            dest,
+                            src,
+                        )
+            except Exception:
+                logger.debug("Skipped merging seed cache for %s", fname)
+    return seeded
 
 
 class IngestStage(Stage):
@@ -174,6 +225,7 @@ class IngestStage(Stage):
         mappings_dir = self._settings.data_dir / "mappings"
         raw_store_dir.mkdir(parents=True, exist_ok=True)
         mappings_dir.mkdir(parents=True, exist_ok=True)
+        ensure_seed_caches(mappings_dir, self._settings.seed_dir)
 
         cusip_cache_path = mappings_dir / "cusip_cache.json"
         sector_cache_path = mappings_dir / "sector_cache.json"
@@ -234,6 +286,15 @@ class IngestStage(Stage):
             df = validate_parsed_data(df)
 
         unique_cusips = df["cusip"].unique().tolist()
+        cached_cusips: set[str] = set()
+        if cusip_cache_path.exists():
+            try:
+                cached_cusips = set(json.loads(cusip_cache_path.read_text(encoding="utf-8")).keys())
+            except Exception:
+                cached_cusips = set()
+        api_cusip_hits = sum(1 for c in unique_cusips if c not in cached_cusips)
+        map_start_t = time.perf_counter()
+
         cusip_map = map_cusips(
             unique_cusips,
             cache_path=str(cusip_cache_path),
@@ -252,6 +313,14 @@ class IngestStage(Stage):
             fetch_uncached=False,
             cache_path=str(sector_cache_path),
             user_agent=self._settings.sec_user_agent or None,
+        )
+        map_elapsed_s = time.perf_counter() - map_start_t
+        logger.info(
+            "CUSIP mapping complete: total_cusips=%d cached=%d api_hits=%d elapsed_s=%.3f",
+            len(unique_cusips),
+            len(unique_cusips) - api_cusip_hits,
+            api_cusip_hits,
+            map_elapsed_s,
         )
         df["sector"] = df["ticker"].map(
             lambda t: (

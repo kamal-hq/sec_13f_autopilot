@@ -165,3 +165,173 @@ class StateStore:
             if tmp_path is not None and tmp_path.exists():
                 tmp_path.unlink(missing_ok=True)
             raise
+
+
+DEFAULT_SEED_FILINGS: tuple[dict[str, Any], ...] = (
+    {
+        "accession": "0000899140-26-000547",
+        "period": "2026-Q1",
+        "filed_date": "2026-05-15",
+        "supersedes": None,
+    },
+    {
+        "accession": "0000919079-26-000006",
+        "period": "2026-Q1",
+        "filed_date": "2026-05-06",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001021944-26-000011",
+        "period": "2026-Q1",
+        "filed_date": "2026-05-12",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001037389-26-000033",
+        "period": "2026-Q1",
+        "filed_date": "2026-05-14",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001104659-26-062477",
+        "period": "2026-Q1",
+        "filed_date": "2026-05-15",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001193125-26-226661",
+        "period": "2026-Q1",
+        "filed_date": "2026-05-15",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001350694-26-000002",
+        "period": "2026-Q1",
+        "filed_date": "2026-05-15",
+        "supersedes": None,
+    },
+    {
+        "accession": "0000899140-26-000855",
+        "period": "2026-Q2",
+        "filed_date": "2026-08-14",
+        "supersedes": None,
+    },
+    {
+        "accession": "0000919079-26-000011",
+        "period": "2026-Q2",
+        "filed_date": "2026-08-14",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001021944-26-000013",
+        "period": "2026-Q2",
+        "filed_date": "2026-08-07",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001037389-26-000059",
+        "period": "2026-Q2",
+        "filed_date": "2026-08-13",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001104659-26-104387",
+        "period": "2026-Q2",
+        "filed_date": "2026-09-02",
+        "supersedes": ["0001104659-26-097200"],
+    },
+    {
+        "accession": "0001193125-26-352200",
+        "period": "2026-Q2",
+        "filed_date": "2026-08-14",
+        "supersedes": None,
+    },
+    {
+        "accession": "0001350694-26-000003",
+        "period": "2026-Q2",
+        "filed_date": "2026-08-14",
+        "supersedes": None,
+    },
+)
+
+
+def seed_state_through(
+    state_path: Path | str,
+    through_period: str,
+    *,
+    apply_writes: bool = False,
+    seed_dir: Path | str = Path("seed"),
+    reports_dir: Path | str = Path("reports"),
+) -> tuple[list[dict[str, Any]], str]:
+    """Collect and optionally write processed filing records for all periods <= `through_period`."""
+    by_acc: dict[str, dict[str, Any]] = {}
+
+    for item in DEFAULT_SEED_FILINGS:
+        if str(item["period"]) <= through_period:
+            by_acc[str(item["accession"])] = dict(item)
+
+    # Also check seed/filing_metadata.json if present
+    meta_path = Path(seed_dir) / "filing_metadata.json"
+    if meta_path.exists():
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            for acc, per in (meta.get("filing_periods") or {}).items():
+                if str(per) <= through_period and str(acc) not in by_acc:
+                    by_acc[str(acc)] = {
+                        "accession": str(acc),
+                        "period": str(per),
+                        "filed_date": "",
+                        "supersedes": None,
+                    }
+        except Exception:
+            logger.debug("Could not read filing_metadata.json from %s", meta_path)
+
+    # Also check reports/*/detect.json if present
+    rdir = Path(reports_dir)
+    if rdir.exists():
+        for det_file in sorted(rdir.glob("*/detect.json")):
+            try:
+                det_data = json.loads(det_file.read_text(encoding="utf-8"))
+                for p_key, p_val in (det_data.get("periods") or {}).items():
+                    if str(p_key) <= through_period and isinstance(p_val, dict):
+                        for f_obj in p_val.get("filings") or []:
+                            acc = str(f_obj.get("accession", ""))
+                            if acc:
+                                by_acc[acc] = {
+                                    "accession": acc,
+                                    "period": str(f_obj.get("period", p_key)),
+                                    "filed_date": str(f_obj.get("filed_date", "")),
+                                    "supersedes": f_obj.get("supersedes") or None,
+                                }
+            except Exception:
+                continue
+
+    ordered = [by_acc[k] for k in sorted(by_acc.keys(), key=lambda a: (by_acc[a]["period"], a))]
+
+    store = StateStore(state_path)
+    for entry in ordered:
+        store.record_filing(
+            entry["accession"],
+            period=entry["period"],
+            filed_date=entry["filed_date"],
+            supersedes=entry["supersedes"],
+        )
+
+    if apply_writes:
+        store.save(dry_run=False)
+        header = (
+            f"[APPLIED] Marked {len(ordered)} filing accession(s) through {through_period} "
+            f"as processed in {state_path}:"
+        )
+    else:
+        header = (
+            f"[DRY-RUN] Would mark {len(ordered)} filing accession(s) through {through_period} "
+            f"as processed in {state_path} (pass --yes to write):"
+        )
+
+    lines = [header]
+    for entry in ordered:
+        f_date = entry["filed_date"] or "unknown-date"
+        lines.append(f"  - {entry['period']} | {entry['accession']} | filed {f_date}")
+    summary_text = "\n".join(lines)
+    return ordered, summary_text

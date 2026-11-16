@@ -202,6 +202,12 @@ sec_13f_autopilot/
 - `autopilot learn --period X [--review-minutes M]` computes the human edit ratio (`1.0 - SequenceMatcher.ratio()`) between the merged `final_cited.md` and the bot's `draft.md`, appends a secret-free record to `metrics/history.jsonl`, and copies the approved note to `style_examples/` (from which `build_narrative_prompt` may include at most one excerpt).
 - `autopilot metrics --markdown` renders the README Results table from `metrics/history.jsonl` and `docs/baseline.md`, outputting `not measured yet` for any empty field and computing `Time Saved (%)` only when both `review_minutes` and `manual_baseline_minutes` exist.
 
+### 4. Phase 5b: Actionable Period Auto-Detection, Seed Caches & State Seeding
+- **Period Auto-Selection (`autopilot detect --emit-period`)**: `select_actionable_period(detect_result)` selects the most recent period whose status is `COMPLETE` or `RESTATED` (never `PROCESSED`) and whose immediate baseline period (`compute_previous_period(period)`) is available. If none qualifies, prints `"no actionable period"` and exits `0` without falling back to `config.yaml` `target_period`.
+- **Seed Caches (`seed/` & `scripts/refresh_seed.py`)**: Tracked public caches (`cusip_cache.json`, `sector_cache.json`, `split_cache.json`, `filing_metadata.json`) in `seed/` are copied/merged into `data/mappings/` on a cache miss by `ensure_seed_caches()` before `IngestStage` calls `map_cusips`, logging total CUSIPs, cached hits, API hits, and elapsed seconds.
+- **State Seeding (`autopilot seed-state --through 2026-Q2 [--yes]`)**: `seed_state_through()` lists all historical accessions `<= through_period` (dry-run by default) and writes `state/processed_filings.json` when `--yes` is passed.
+- **Action SHA & Tag Verifier (`scripts/verify_action_shas.py`)**: Verifies every pinned 40-hex action SHA exists on GitHub and dereferences the `# vX.Y.Z` tag comment (including annotated tag objects) via the unauthenticated public GitHub API to confirm the version tag resolves to the pinned commit SHA.
+
 ---
 
 ## Stage Contracts & `RunLog`

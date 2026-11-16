@@ -163,6 +163,7 @@ class Settings:
     reports_dir: Path = field(default_factory=lambda: Path("reports"))
     prompts_dir: Path = field(default_factory=lambda: Path("prompts"))
     data_dir: Path = field(default_factory=lambda: Path("data"))
+    seed_dir: Path = field(default_factory=lambda: Path("seed"))
     db_path: Path = field(default_factory=lambda: Path("data/autopilot.db"))
 
     # SEC Gateway settings
@@ -203,6 +204,7 @@ class Settings:
         reports_dir: Path | str = Path("reports"),
         prompts_dir: Path | str = Path("prompts"),
         data_dir: Path | str = Path("data"),
+        seed_dir: Path | str = Path("seed"),
         db_path: Path | str | None = None,
         sec_base_url: str = "https://data.sec.gov",
         sec_edgar_archives_url: str = "https://www.sec.gov/Archives/edgar/data",
@@ -242,6 +244,7 @@ class Settings:
         self.reports_dir = Path(reports_dir)
         self.prompts_dir = Path(prompts_dir)
         self.data_dir = Path(data_dir)
+        self.seed_dir = Path(seed_dir)
         self.db_path = Path(db_path) if db_path is not None else self.data_dir / "autopilot.db"
 
         self.sec_base_url = sec_base_url.rstrip("/")
@@ -370,6 +373,7 @@ class Settings:
             reports_dir=Path(pipeline_cfg.get("reports_dir", "reports")),
             prompts_dir=Path(pipeline_cfg.get("prompts_dir", "prompts")),
             data_dir=data_dir,
+            seed_dir=Path(pipeline_cfg.get("seed_dir", "seed")),
             db_path=resolved_db_path,
             sec_base_url=str(sec_cfg.get("base_url", "https://data.sec.gov")),
             sec_edgar_archives_url=str(

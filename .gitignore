@@ -24,7 +24,9 @@ dist/
 venv/
 env/
 
-# Runtime state, databases, and generated reports
+# Runtime state, databases, and generated reports (seed/ caches are tracked in git)
+!seed/
+!seed/*.json
 state/*
 !state/.gitkeep
 reports/*

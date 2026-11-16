@@ -74,6 +74,13 @@ pip install -e .
 # Detect 13F-HR and 13F-HR/A filings across configured funds (writes reports/<period>/detect.json)
 autopilot detect
 
+# Print the most recent COMPLETE (or RESTATED) period with an available baseline (or "no actionable period")
+autopilot detect --emit-period
+
+# Seed state/processed_filings.json through 2026-Q2 (dry-run by default; pass --yes to write)
+autopilot seed-state --through 2026-Q2
+autopilot seed-state --through 2026-Q2 --yes
+
 # Replay detection as of a historical cutoff date (ignores filings with filed_date > as-of)
 autopilot detect --as-of 2026-08-20
 autopilot detect --as-of 2026-09-05
@@ -193,8 +200,10 @@ autopilot --period 2026-Q2 --provider gemini
 - **Hardened GitHub Workflows**:
   - Top-level `permissions: contents: read`; only the `autopilot-pr` job gets `contents: write` and `pull-requests: write`.
   - **No** `pull_request` or `pull_request_target` triggers; `autopilot.yml` triggers via `workflow_dispatch` only (the `cron` schedule line stays commented out with a note regarding GitHub's 60-day repository inactivity rule).
-  - All actions are pinned to full 40-character commit SHAs and verified against the unauthenticated public GitHub REST API via `python scripts/verify_action_shas.py`.
-  - `GEMINI_API_KEY` and `SEC_USER_AGENT` are passed **only** in step-level `env` on the single step that executes `autopilot` (never job-level or top-level, never echoed).
+  - All actions are pinned to full 40-character commit SHAs and verified against the unauthenticated public GitHub REST API (including annotated tag dereferencing for `# vX.Y.Z` comments) via `python scripts/verify_action_shas.py`.
+  - `SEC_USER_AGENT`, `GEMINI_API_KEY`, and optional `OPENFIGI_API_KEY` are passed **only** in step-level `env` on the single step that executes `autopilot` (never job-level or top-level, never echoed); `timeout-minutes: 45`.
+  - **Auto-Detection & Clean Exit on Blank Period**: When the workflow `period` input is left blank, it runs `autopilot detect --emit-period` (which selects the most recent `COMPLETE` or `RESTATED` period that has a baseline period available and is not `PROCESSED`, never falling back to `config.yaml` `target_period`). If nothing is actionable (`"no actionable period"`), the step sets `actionable=false` and exits `0` cleanly without running the pipeline or opening a PR.
+  - **Tracked Seed Caches (`seed/`) & State Seeding (`seed-state`)**: Public mapping caches (`cusip_cache.json`, `sector_cache.json`, `split_cache.json`, `filing_metadata.json`) are tracked under `seed/` (regenerated via `python scripts/refresh_seed.py`). On a cache miss in CI or a fresh checkout, `IngestStage` copies `seed/` into `data/mappings/` and queries external APIs only for uncached CUSIPs. Use `autopilot seed-state --through 2026-Q2` (dry-run by default; `--yes` to write) to mark historical Q1/Q2 accessions as processed in `state/processed_filings.json`.
   - **Repository Settings Requirement**: Enable **"Allow GitHub Actions to create and approve pull requests"** under repository *Settings → Actions → General → Workflow permissions* so `gh pr create` can open the review Pull Request using `GITHUB_TOKEN`.
   - **Self-Contained Test Gate**: Because Pull Requests created with `GITHUB_TOKEN` do not trigger other GitHub Actions workflows (by GitHub design to prevent recursive loops), `.github/workflows/autopilot.yml` runs the offline `pytest` suite itself (fail-fast) before executing the pipeline and opening the PR.
   - **Workflow Linting**: `tests/test_workflow_security.py` runs offline on every `pytest` invocation; an optional `actionlint` hook is also documented in `.pre-commit-config.yaml` for environments with the `actionlint` Go binary installed.

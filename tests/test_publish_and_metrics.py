@@ -216,11 +216,12 @@ def test_pr_body_builder_contains_all_required_sections(publish_env: dict[str, A
     assert "| **Narrative Attempts** | `2` |" in body
     assert "| `ingest` | `2.300s` |" in body
 
-    # 4. Reviewer checklist (4 mandatory items)
-    assert "- [ ] **3 figures spot-checked against the filings**" in body
-    assert "- [ ] **Issuer names checked**" in body
-    assert "- [ ] **Limitations present**" in body
-    assert "- [ ] **No predictive language**" in body
+    # 4. Reviewer checklist (4 mandatory imperative items, all unchecked)
+    assert "- [ ] **Spot-check 3 cited figures against the filings XML or cover pages**" in body
+    assert "- [ ] **Check issuer names against nameOfIssuer**" in body
+    assert "- [ ] **Confirm all required limitations are present**" in body
+    assert "- [ ] **Confirm no predictive language or ungrounded causal claims**" in body
+    assert "- [x]" not in body.lower()
 
     # 5. Artifact links
     for rel_link in (
@@ -359,3 +360,291 @@ def test_render_final_clean_short_usd_and_no_backticks(publish_env: dict[str, An
     )
     rendered = render_final_clean(sample, facts, replay=False)
     assert rendered.strip() == "- **Equity-only AUM**: $917.2B across 7 funds."
+
+
+def test_detect_emit_period_selection_and_no_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """detect --emit-period selects most recent COMPLETE/RESTATED with baseline;
+    never falls back.
+    """
+    from autopilot.cli import main
+    from autopilot.models import DetectResult, Period, PeriodStatus
+    from autopilot.stages.detect import DetectStage, select_actionable_period
+
+    # Case 1: 2026-Q1 PROCESSED, 2026-Q2 COMPLETE, 2026-Q3 PARTIAL -> selects 2026-Q2
+    res_q2 = DetectResult(
+        period="",
+        periods={
+            "2026-Q1": Period(period="2026-Q1", status=PeriodStatus.PROCESSED, actionable=False),
+            "2026-Q2": Period(period="2026-Q2", status=PeriodStatus.COMPLETE, actionable=True),
+            "2026-Q3": Period(period="2026-Q3", status=PeriodStatus.PARTIAL, actionable=False),
+        },
+        actionable_periods=["2026-Q2"],
+        has_updates=True,
+    )
+    assert select_actionable_period(res_q2) == "2026-Q2"
+
+    # Case 2: 2026-Q1 PROCESSED, 2026-Q2 RESTATED -> selects 2026-Q2
+    res_restated = DetectResult(
+        period="",
+        periods={
+            "2026-Q1": Period(period="2026-Q1", status=PeriodStatus.PROCESSED, actionable=False),
+            "2026-Q2": Period(period="2026-Q2", status=PeriodStatus.RESTATED, actionable=True),
+        },
+        actionable_periods=["2026-Q2"],
+        has_updates=True,
+    )
+    assert select_actionable_period(res_restated) == "2026-Q2"
+
+    # Case 3: 2026-Q1 COMPLETE but no 2025-Q4 baseline period available -> None
+    res_no_baseline = DetectResult(
+        period="",
+        periods={
+            "2026-Q1": Period(period="2026-Q1", status=PeriodStatus.COMPLETE, actionable=True),
+        },
+        actionable_periods=["2026-Q1"],
+        has_updates=True,
+    )
+    assert select_actionable_period(res_no_baseline) is None
+
+    # Case 4: All periods PROCESSED (even though config target_period is 2026-Q2) -> no fallback
+    res_all_processed = DetectResult(
+        period="",
+        periods={
+            "2026-Q1": Period(period="2026-Q1", status=PeriodStatus.PROCESSED, actionable=False),
+            "2026-Q2": Period(period="2026-Q2", status=PeriodStatus.PROCESSED, actionable=False),
+        },
+        actionable_periods=[],
+        has_updates=False,
+    )
+    assert select_actionable_period(res_all_processed) is None
+
+    monkeypatch.setattr(DetectStage, "detect", lambda self, **kwargs: res_all_processed)
+    rc = main(["detect", "--emit-period"])
+    assert rc == 0
+    assert capsys.readouterr().out.strip() == "no actionable period"
+
+
+def test_seed_caches_resolve_all_2026_q2_cusips_with_zero_network_calls(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With an empty data dir and seed/ present, all 2026-Q2 CUSIPs resolve with 0 network calls."""
+    import socket
+    import urllib.request
+
+    import requests
+    from sec_13f_analyzer import map_cusips, map_sectors
+
+    from autopilot.stages.ingest import SEED_CACHE_FILES, ensure_seed_caches
+
+    seed_dir = Path("seed")
+    for fname in SEED_CACHE_FILES:
+        assert (seed_dir / fname).exists(), f"Missing tracked seed file: seed/{fname}"
+
+    # Verify all 2026-Q2 CUSIPs from seed/cusip_cache.json
+    seed_cusips = list(
+        json.loads((seed_dir / "cusip_cache.json").read_text(encoding="utf-8")).keys()
+    )
+    assert len(seed_cusips) >= 8000
+
+    empty_data_dir = tmp_path / "empty_data"
+    mappings_dir = empty_data_dir / "mappings"
+    assert not empty_data_dir.exists()
+
+    # Copy seed into empty data/mappings
+    seeded = ensure_seed_caches(mappings_dir, seed_dir)
+    assert set(seeded) == set(SEED_CACHE_FILES)
+
+    # Strictly forbid any network call
+    def _forbid_network(*args: Any, **kwargs: Any) -> Any:
+        raise AssertionError("Network call attempted during seeded CUSIP/sector resolution!")
+
+    monkeypatch.setattr(requests.Session, "request", _forbid_network)
+    monkeypatch.setattr(socket, "create_connection", _forbid_network)
+    monkeypatch.setattr(urllib.request, "urlopen", _forbid_network)
+
+    resolved_map = map_cusips(
+        seed_cusips,
+        cache_path=str(mappings_dir / "cusip_cache.json"),
+        api_key="",
+    )
+    assert len(resolved_map) == len(seed_cusips)
+
+    tickers = [
+        str(v.get("ticker"))
+        for v in resolved_map.values()
+        if isinstance(v, dict) and v.get("ticker")
+    ][:200]
+    resolved_sectors = map_sectors(
+        tickers,
+        fetch_uncached=False,
+        cache_path=str(mappings_dir / "sector_cache.json"),
+        user_agent=None,
+    )
+    assert len(resolved_sectors) > 0
+
+
+def test_seed_state_dry_run_default_and_yes_flag(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """seed-state --through 2026-Q2 is dry-run by default and writes 14 accessions with --yes."""
+    from autopilot.state import seed_state_through
+
+    state_file = tmp_path / "state" / "processed_filings.json"
+
+    # Default dry-run: prints what it will mark, does not write state_file
+    entries_dry, summary_dry = seed_state_through(
+        state_file,
+        "2026-Q2",
+        apply_writes=False,
+        seed_dir=Path("seed"),
+        reports_dir=Path("reports"),
+    )
+    assert len(entries_dry) == 14
+    assert "[DRY-RUN]" in summary_dry
+    assert "0001104659-26-104387" in summary_dry
+    assert not state_file.exists()
+
+    # With --yes (apply_writes=True): writes state_file with all 14 Q1 and Q2 accessions
+    entries_yes, summary_yes = seed_state_through(
+        state_file,
+        "2026-Q2",
+        apply_writes=True,
+        seed_dir=Path("seed"),
+        reports_dir=Path("reports"),
+    )
+    assert len(entries_yes) == 14
+    assert "[APPLIED]" in summary_yes
+    assert state_file.exists()
+    saved = json.loads(state_file.read_text(encoding="utf-8"))
+    assert len(saved["filings"]) == 14
+    periods_marked = {v["period"] for v in saved["filings"].values()}
+    assert periods_marked == {"2026-Q1", "2026-Q2"}
+    _ = capsys
+
+
+def test_q3_readiness_three_period_full_pipeline_offline(tmp_path: Path) -> None:
+    """--period 2026-Q3 sets baseline 2026-Q2, loads Q1+Q2+Q3, computes diff,
+    and passes validate.
+    """
+    import pandas as pd
+    from sec_13f_analyzer import bulk_insert_holdings, create_schema
+    from tests.test_facts import FIXTURE_FUNDS, _fixture_raw_rows
+
+    from autopilot.models import FundReconciliation, IngestResult
+    from autopilot.pipeline import Pipeline
+    from autopilot.policies import compute_lookback_periods, compute_previous_period
+    from autopilot.stages.facts import FactsStage
+    from autopilot.stages.narrate import NarrateStage
+    from autopilot.stages.review import ReviewStage
+    from autopilot.stages.validate import ValidateStage
+
+    target_period = "2026-Q3"
+    baseline_period = compute_previous_period(target_period)
+    assert baseline_period == "2026-Q2"
+    assert compute_lookback_periods(target_period, 2) == ["2026-Q1", "2026-Q2"]
+
+    # Map the 3-period synthetic rows (2025-Q4, 2026-Q1, 2026-Q2) -> (2026-Q1, 2026-Q2, 2026-Q3)
+    period_shift = {
+        "2025-Q4": "2026-Q1",
+        "2026-Q1": "2026-Q2",
+        "2026-Q2": "2026-Q3",
+    }
+    base_rows = _fixture_raw_rows(include_q4_2025=True)
+    shifted_rows = [{**r, "period": period_shift[r["period"]]} for r in base_rows]
+
+    data_dir = tmp_path / "data"
+    db_path = data_dir / "autopilot.db"
+    reports_dir = tmp_path / "reports"
+    state_dir = tmp_path / "state"
+    split_cache = data_dir / "mappings" / "split_cache.json"
+    split_cache.parent.mkdir(parents=True, exist_ok=True)
+    split_cache.write_text("{}", encoding="utf-8")
+
+    create_schema(db_path=str(db_path))
+    bulk_insert_holdings(
+        pd.DataFrame(shifted_rows),
+        db_path=str(db_path),
+        split_cache_path=str(split_cache),
+    )
+
+    reconciliations: list[FundReconciliation] = []
+    for p_idx, per in enumerate(("2026-Q1", "2026-Q2", "2026-Q3"), start=1):
+        for f_idx, (fund_name, cik) in enumerate(sorted(FIXTURE_FUNDS.items()), start=1):
+            f_rows = [r for r in shifted_rows if r["period"] == per and r["fund_name"] == fund_name]
+            tot_val = sum(int(r["value_usd"]) for r in f_rows)
+            reconciliations.append(
+                FundReconciliation(
+                    cik=cik,
+                    fund_name=fund_name,
+                    period=per,
+                    accession=f"{cik}-26-000{p_idx}{f_idx:02d}",
+                    form_type="13F-HR",
+                    amendment_type=None,
+                    raw_rows=len(f_rows),
+                    aggregated_rows=len(f_rows),
+                    db_total_value_usd=tot_val,
+                    cover_page_total_usd=tot_val,
+                    diff_usd=0,
+                    pct_diff=0.0,
+                    reconciled=True,
+                )
+            )
+
+    ingest_res = IngestResult(
+        period="2026-Q3",
+        previous_period="2026-Q2",
+        loaded_periods=["2026-Q1", "2026-Q2", "2026-Q3"],
+        db_path=str(db_path),
+        ingested_accessions=[r.accession for r in reconciliations],
+        holdings_row_count=len(shifted_rows),
+        reconciliations=reconciliations,
+        all_reconciled=True,
+    )
+
+    settings = Settings(
+        target_period="2026-Q3",
+        baseline_period="2026-Q2",
+        lookback_periods=2,
+        min_funds=len(FIXTURE_FUNDS),
+        funds=dict(FIXTURE_FUNDS),
+        data_dir=data_dir,
+        db_path=db_path,
+        reports_dir=reports_dir,
+        state_dir=state_dir,
+        prompts_dir=Path("prompts"),
+        llm_provider="null",
+    )
+
+    pipeline = Pipeline(
+        stages=[
+            FactsStage(settings=settings),
+            NarrateStage(settings=settings),
+            ValidateStage(settings=settings),
+            ReviewStage(settings=settings),
+            PublishStage(settings=settings, commit_state=True),
+        ],
+        settings=settings,
+    )
+    ctx = PipelineContext(
+        target_period="2026-Q3",
+        baseline_period="2026-Q2",
+        ingest=ingest_res,
+        commit_state=True,
+    )
+    run_log = pipeline.run(ctx, persist_path=state_dir / "last_run.json")
+
+    assert run_log.succeeded is True
+    assert ctx.facts is not None
+    assert ctx.facts.period == "2026-Q3"
+    assert ctx.facts.baseline_period == "2026-Q2"
+    assert ctx.facts.raw_metrics["diff"]["available"] is True
+    assert ctx.facts.get_fact("diff.signals_persisted") is not None
+    assert ctx.validation is not None and ctx.validation.passed is True
+    assert (reports_dir / "2026-Q3" / "final.md").exists()
+    assert (reports_dir / "2026-Q3" / "pr_body.md").exists()
+    assert (state_dir / "processed_filings.json").exists()

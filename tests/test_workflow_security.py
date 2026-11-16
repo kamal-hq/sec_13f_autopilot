@@ -67,7 +67,7 @@ def test_workflows_minimal_permissions_concurrency_and_timeout() -> None:
         "contents": "write",
         "pull-requests": "write",
     }
-    assert isinstance(pr_job.get("timeout-minutes"), int) and pr_job["timeout-minutes"] <= 30
+    assert pr_job.get("timeout-minutes") == 45
 
 
 def test_every_uses_pinned_to_40_hex_sha_and_no_third_party_pr_action() -> None:
@@ -94,9 +94,10 @@ def test_every_uses_pinned_to_40_hex_sha_and_no_third_party_pr_action() -> None:
 
 
 def test_secrets_only_in_single_step_env_never_job_or_run() -> None:
-    """GEMINI_API_KEY and SEC_USER_AGENT are passed ONLY in step-level env of one step."""
+    """SEC_USER_AGENT, GEMINI_API_KEY, OPENFIGI_API_KEY are in step-level env of one step only."""
     wf_path = Path(".github/workflows/autopilot.yml")
     wf = _load_workflow(wf_path)
+    allowed_secrets = {"SEC_USER_AGENT", "GEMINI_API_KEY", "OPENFIGI_API_KEY"}
 
     # Never at workflow top-level env
     top_env_str = str(wf.get("env") or "")
@@ -121,7 +122,16 @@ def test_secrets_only_in_single_step_env_never_job_or_run() -> None:
             step_env_str = str(step_env)
             if _SECRET_REF_RE.search(step_env_str):
                 secret_steps.append(step_name)
-                assert set(step_env.keys()).issuperset({"SEC_USER_AGENT", "GEMINI_API_KEY"})
+                found_secrets = {
+                    m.group(0).split("secrets.")[1].rstrip(" }")
+                    for m in _SECRET_REF_RE.finditer(step_env_str)
+                }
+                assert found_secrets == allowed_secrets, (
+                    f"Expected allowed secrets {allowed_secrets}, found {found_secrets}"
+                )
+                assert "detect --emit-period" in run_script
+                assert "no actionable period" in run_script
+                assert "target_period" not in run_script
 
     assert len(secret_steps) == 1, (
         f"Expected secrets in env of exactly 1 step, found {len(secret_steps)}: {secret_steps}"

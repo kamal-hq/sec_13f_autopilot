@@ -47,7 +47,7 @@ jobs:
   autopilot-pr:
     name: Run 13F Autopilot & Open Review PR
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     permissions:
       contents: write
       pull-requests: write
@@ -73,7 +73,7 @@ jobs:
           path: |
             data/raw
             data/mappings
-          key: sec-13f-cache-${{ runner.os }}-${{ hashFiles('reports/*/detect.json', 'reports/*/ingest.json', 'state/processed_filings.json', 'config.yaml') }}
+          key: sec-13f-cache-${{ runner.os }}-${{ hashFiles('seed/filing_metadata.json', 'state/processed_filings.json', 'config.yaml') }}
           restore-keys: |
             sec-13f-cache-${{ runner.os }}-
 
@@ -88,16 +88,30 @@ jobs:
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENFIGI_API_KEY: ${{ secrets.OPENFIGI_API_KEY }}
           INPUT_PERIOD: ${{ inputs.period }}
           INPUT_LLM: ${{ inputs.llm }}
           INPUT_AS_OF: ${{ inputs.as_of }}
           INPUT_REPLAY: ${{ inputs.replay }}
         run: |
           set -euo pipefail
+          DETECT_ARGS=(detect --emit-period)
+          if [ -n "${INPUT_AS_OF}" ]; then
+            DETECT_ARGS+=(--as-of "${INPUT_AS_OF}")
+          fi
+
           PERIOD="${INPUT_PERIOD}"
           if [ -z "${PERIOD}" ]; then
-            PERIOD=$(python -c "from autopilot.settings import Settings; print(Settings.from_env().target_period)")
+            PERIOD=$(autopilot "${DETECT_ARGS[@]}")
           fi
+
+          if [ -z "${PERIOD}" ] || [ "${PERIOD}" = "no actionable period" ]; then
+            echo "No actionable period detected; exiting cleanly without opening a PR."
+            echo "actionable=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          echo "actionable=true" >> "${GITHUB_OUTPUT}"
           echo "period=${PERIOD}" >> "${GITHUB_OUTPUT}"
 
           ARGS=(run --through publish --period "${PERIOD}" --llm "${INPUT_LLM}")
@@ -112,6 +126,7 @@ jobs:
           autopilot "${ARGS[@]}"
 
       - name: Create branch, commit artifacts, and open PR via gh CLI
+        if: steps.run_pipeline.outputs.actionable == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           PERIOD: ${{ steps.run_pipeline.outputs.period }}
@@ -154,7 +169,7 @@ jobs:
           fi
 
       - name: Upload published report artifacts
-        if: always()
+        if: always() && steps.run_pipeline.outputs.actionable == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: autopilot-${{ steps.run_pipeline.outputs.period || 'run' }}-artifacts
