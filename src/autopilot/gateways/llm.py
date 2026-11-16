@@ -130,6 +130,16 @@ class BudgetGuard(LLMProvider):
         return self._calls_made
 
     @property
+    def provider_name(self) -> str:
+        """Return the wrapped provider's name."""
+        return getattr(self._provider, "provider_name", "null")
+
+    @property
+    def model(self) -> str:
+        """Return the wrapped provider's model ID."""
+        return getattr(self._provider, "model", "deterministic-template")
+
+    @property
     def remaining_calls(self) -> int:
         """Return the remaining allowed LLM calls in the current run."""
         return max(0, self.max_calls_per_run - self._calls_made)
@@ -237,6 +247,8 @@ class GeminiProvider(LLMProvider):
     - Logs only status and token counts; never logs prompts, responses, or keys.
     """
 
+    provider_name: str = "gemini"
+
     def __init__(
         self,
         settings: Settings,
@@ -251,7 +263,11 @@ class GeminiProvider(LLMProvider):
                 "GEMINI_API_KEY must be set in environment variables to use GeminiProvider."
             )
 
-        self.model = settings.llm_model
+        self.model = settings.llm_model.strip()
+        if (not self.model or "PLACEHOLDER" in self.model.upper()) and client is None:
+            raise LLMConfigurationError(
+                "Gemini model ID must be configured in config.yaml or CLI; placeholder was found."
+            )
         self.max_retries = settings.llm_max_retries
         self.backoff_base_seconds = settings.llm_backoff_base_seconds
         self.timeout_seconds = settings.llm_timeout_seconds
@@ -349,6 +365,9 @@ class ManualProvider(LLMProvider):
     `reports/<period>/response.md`, raising `NeedsManualInput` if absent.
     """
 
+    provider_name: str = "manual"
+    model: str = "human-review"
+
     def __init__(self, reports_dir: Path | str = Path("reports"), period: str = "2026-Q2") -> None:
         self.reports_dir = Path(reports_dir)
         self.period = period
@@ -418,6 +437,9 @@ class ManualProvider(LLMProvider):
 
 class NullProvider(LLMProvider):
     """Offline deterministic template-based provider requiring no network or keys."""
+
+    provider_name: str = "null"
+    model: str = "deterministic-template"
 
     def __init__(self, period: str = "2026-Q2", baseline_period: str = "2026-Q1") -> None:
         self.period = period

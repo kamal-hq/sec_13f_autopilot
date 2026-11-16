@@ -1,9 +1,10 @@
-"""Adversarial test suite for ValidateStage (Phase 3b).
+"""Adversarial test suite for ValidateStage (Phase 3b & Phase 4).
 
 Loads tests/adversarial/cases.yaml and exercises:
-- 10 bad mutations (each rejected by specified rule R1-R8)
-- 5 good mutations (all accepted cleanly with status=PASS)
-Logs summary line: 'bad rejected 10/10, good accepted 5/5'.
+- Bad mutations rejected by specified rules (R1-R9)
+- Good mutations accepted cleanly with status=PASS
+- Rule coverage table verifying every rule R1-R9 has at least one exercising case.
+Logs summary line: 'bad rejected X/X, good accepted Y/Y'.
 """
 
 from __future__ import annotations
@@ -45,7 +46,7 @@ def _apply_mutation(draft_md: str, case: dict[str, Any]) -> str:
 
 
 def test_adversarial_suite(caplog: Any) -> None:
-    """Execute all 10 bad mutations and 5 good mutations from cases.yaml."""
+    """Execute all bad and good mutations from cases.yaml and enforce R1-R9 coverage."""
     caplog.set_level(logging.INFO)
     cases_path = Path(__file__).parent / "adversarial" / "cases.yaml"
     assert cases_path.exists(), f"Missing {cases_path}"
@@ -63,10 +64,16 @@ def test_adversarial_suite(caplog: Any) -> None:
     base_draft = draft_path.read_text(encoding="utf-8")
     stage = ValidateStage()
 
+    # Track rule coverage for R1 through R9
+    rule_coverage: dict[str, list[str]] = {f"R{i}": [] for i in range(1, 10)}
+
     bad_rejected = 0
     for case in bad_cases:
         case_id = case["id"]
         expected_rule = case["expected_rule"]
+        if expected_rule in rule_coverage:
+            rule_coverage[expected_rule].append(case_id)
+
         mutated_md = _apply_mutation(base_draft, case)
         report = stage.validate_draft(mutated_md, facts, "2026-Q2")
 
@@ -90,11 +97,27 @@ def test_adversarial_suite(caplog: Any) -> None:
         assert len(report.issues) == 0
         good_accepted += 1
 
+    # Print / log rule coverage table
+    table_lines = [
+        "Rule Coverage Table (R1-R9):",
+        "| Rule | Count | Exercising Case IDs |",
+        "| :--- | :---: | :--- |",
+    ]
+    for rule_id in sorted(rule_coverage.keys(), key=lambda r: int(r[1:])):
+        c_list = rule_coverage[rule_id]
+        table_lines.append(f"| {rule_id} | {len(c_list)} | {', '.join(c_list)} |")
+    coverage_table_str = "\n".join(table_lines)
+    logger.info("\n%s", coverage_table_str)
+
+    # Fail test run if any rule has zero cases
+    for rule_id, cases_list in rule_coverage.items():
+        assert len(cases_list) > 0, f"Rule {rule_id} has zero adversarial test cases!"
+
     summary_msg = (
         f"bad rejected {bad_rejected}/{len(bad_cases)}, "
         f"good accepted {good_accepted}/{len(good_cases)}"
     )
     logger.info(summary_msg)
     assert summary_msg in caplog.text
-    assert bad_rejected == 10
-    assert good_accepted == 5
+    assert bad_rejected == len(bad_cases)
+    assert good_accepted == len(good_cases)

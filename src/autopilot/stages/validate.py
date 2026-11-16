@@ -78,6 +78,13 @@ FACT_TAG_REGEX = re.compile(r"\[([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)+)\](?!\()")
 PERIOD_TOKEN_REGEX = re.compile(r"\b20\d\d-Q[1-4]\b")
 
 
+URL_REGEX = re.compile(r"https?://|www\.", re.IGNORECASE)
+HTML_TAG_REGEX = re.compile(r"<[a-zA-Z/][^>]*>")
+MD_LINK_REGEX = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+CODE_FENCE_REGEX = re.compile(r"^```|^~~~")
+MAX_BLOCK_WORDS = 150
+
+
 @dataclass(frozen=True, slots=True)
 class ValidationIssue:
     """A single validation defect detected during audit."""
@@ -159,6 +166,22 @@ def parse_numeric_token(val_str: str) -> float | None:
         return None
 
 
+def is_valid_k_sig_figs(parsed_fig: float, fact_val: float, max_k: int = 6) -> bool:
+    """Check if parsed_fig equals fact_val rounded to k significant figures for some k >= 2."""
+    if fact_val == 0:
+        return parsed_fig == 0
+    import math
+
+    digits = math.floor(math.log10(abs(fact_val))) + 1
+    for k in range(2, max_k + 1):
+        power = k - digits
+        mag = 10**power
+        k_sig = round(fact_val * mag) / mag if mag != 0 else 0
+        if abs(parsed_fig - k_sig) <= 1e-4 * max(1.0, abs(k_sig)):
+            return True
+    return False
+
+
 class ValidateStage(Stage):
     """Deterministic validation stage auditing research note against facts."""
 
@@ -198,7 +221,7 @@ class ValidateStage(Stage):
         rep_json_path.parent.mkdir(parents=True, exist_ok=True)
 
         rep_json_path.write_text(
-            json.dumps(report.to_dict(), indent=2, sort_keys=True),
+            json.dumps(report.to_dict(), indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
         rep_md_path.write_text(report.to_markdown(), encoding="utf-8")
@@ -589,18 +612,8 @@ class ValidateStage(Stage):
 
                     if rel_diff > 0.01:
                         is_valid_rounding = False
-                        if abs(fact_val) > 0:
-                            import math
-
-                            d = math.ceil(math.log10(abs(fact_val)))
-                            power = 2 - d
-                            mag = 10**power
-                            two_sig = round(fact_val * mag) / mag if mag != 0 else 0
-                            if (
-                                abs(parsed_fig - two_sig) < 1e-6 * abs(fact_val)
-                                and rel_diff <= 0.02
-                            ):
-                                is_valid_rounding = True
+                        if abs(fact_val) > 0 and is_valid_k_sig_figs(parsed_fig, fact_val):
+                            is_valid_rounding = True
 
                         if not is_valid_rounding:
                             issues.append(
@@ -649,6 +662,97 @@ class ValidateStage(Stage):
                             ),
                         )
                     )
+
+            # --- Rule R9: URLs, HTML, Markdown links, and Code fences ---
+            checks_count += 1
+            if URL_REGEX.search(line):
+                issues.append(
+                    ValidationIssue(
+                        rule_id="R9",
+                        line=line_no,
+                        snippet=line,
+                        expected="URLs are forbidden in narrative research note",
+                    )
+                )
+            if HTML_TAG_REGEX.search(line):
+                issues.append(
+                    ValidationIssue(
+                        rule_id="R9",
+                        line=line_no,
+                        snippet=line,
+                        expected="HTML tags are forbidden in narrative research note",
+                    )
+                )
+            if MD_LINK_REGEX.search(line):
+                issues.append(
+                    ValidationIssue(
+                        rule_id="R9",
+                        line=line_no,
+                        snippet=line,
+                        expected="Markdown links are forbidden in narrative research note",
+                    )
+                )
+            if CODE_FENCE_REGEX.search(line):
+                issues.append(
+                    ValidationIssue(
+                        rule_id="R9",
+                        line=line_no,
+                        snippet=line,
+                        expected="Code fences are forbidden in narrative research note",
+                    )
+                )
+
+        # --- Rule R9: Length Cap for Narrative Blocks ---
+        current_block: list[str] = []
+        block_start_line = 1
+        for line_no, raw_line in enumerate(lines, start=1):
+            stripped = raw_line.strip()
+            if (
+                not stripped
+                or stripped.startswith("#")
+                or stripped.startswith("-")
+                or stripped.startswith("*")
+                or stripped.startswith("|")
+                or stripped.startswith(">")
+            ):
+                if current_block:
+                    block_text = " ".join(current_block)
+                    word_count = len(block_text.split())
+                    if word_count > MAX_BLOCK_WORDS:
+                        checks_count += 1
+                        issues.append(
+                            ValidationIssue(
+                                rule_id="R9",
+                                line=block_start_line,
+                                snippet=block_text[:60] + "...",
+                                expected=(
+                                    f"Narrative block exceeds {MAX_BLOCK_WORDS} words cap "
+                                    f"({word_count} words)"
+                                ),
+                            )
+                        )
+                    current_block = []
+            else:
+                if not current_block:
+                    block_start_line = line_no
+                current_block.append(stripped)
+
+        if current_block:
+            block_text = " ".join(current_block)
+            word_count = len(block_text.split())
+            if word_count > MAX_BLOCK_WORDS:
+                checks_count += 1
+                issues.append(
+                    ValidationIssue(
+                        rule_id="R9",
+                        line=block_start_line,
+                        snippet=block_text[:60] + "...",
+                        expected=(
+                            f"Narrative block exceeds {MAX_BLOCK_WORDS} words cap "
+                            f"({word_count} words)"
+                        ),
+                    )
+                )
 
         # --- Rule R7: Section Headings and Limit Facts ---
         checks_count += 1

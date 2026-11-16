@@ -1,6 +1,16 @@
-# Style Guide (Placeholder)
+# Institutional 13F Style Guide
 
-- **Tone**: Objective, institutional, concise, and evidence-bound.
-- **Formatting**: Use GitHub-Flavored Markdown tables for quantitative comparisons.
-- **Attribution**: Cite the exact filing period (e.g., `2026-Q2`) and accession number when referencing fund-specific holdings.
-- **Compliance**: Never use promotional or predictive language (e.g., avoid "guaranteed", "must-buy", "will outperform"). Always retain the non-advisory disclaimer.
+- **Voice & Tone**: Objective, institutional, concise, evidence-grounded.
+- **Section Scope**: Write one short "what the data shows" narrative block under each required section heading.
+- **Figures & Citations**: Every figure must be cited as `<Figure> [<fact_id>]`. Non-figure facts must be cited as `[<fact_id>]` without figures.
+- **Entity Binding**: Always mention the associated entity (fund or security) in the same sentence or clause as its cited breakdown fact.
+- **Section Headings**: Use the exact canonical section headings:
+  - `## Executive Summary`
+  - `## Data and Coverage`
+  - `## Broad Convergence`
+  - `## Discretionary Convergence`
+  - `## New to the Sample`
+  - `## What Changed Since Last Quarter`
+  - `## Sector View`
+  - `## Data Quality`
+- **Exclusions**: Do NOT write commentary for `## Limitations`; limitations are managed deterministically.

@@ -1,5 +1,7 @@
 # tests/adversarial/cases.yaml
-# Adversarial test suite for ValidateStage (Phase 3b)
+# Adversarial test suite for ValidateStage (Phase 3b & Phase 4).
+#
+# Rounding rule: a figure is valid if it equals a listed display form, or the fact rounded to k significant figures for some k >= 2.
 
 bad_cases:
   - id: "r1_invented_number"
@@ -16,9 +18,21 @@ bad_cases:
 
   - id: "r1_rounding_drift"
     expected_rule: "R1"
-    description: "Rounding drift: $18.9B instead of $18.67B"
+    description: "Rounding drift on Alphabet: $18.9B instead of $18.67B (fails rounding rule)"
     target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
     replacement: "`$18.9B [discretionary.GOOGL_GOOG.dollars_added]`"
+
+  - id: "r1_amd_rounding_drift_1_3b"
+    expected_rule: "R1"
+    description: "Rounding drift on AMD: $1.3B instead of $1,195,133,634 (fails rounding rule)"
+    target: "`$1,195,133,634 [signal.AMD.dollars_added]`"
+    replacement: "`$1.3B [signal.AMD.dollars_added]`"
+
+  - id: "r1_wrong_count_hedge_only"
+    expected_rule: "R1"
+    description: "Wrong count: 40 of 56 signals were hedge-fund-only"
+    target: "(`31 [market.signals_hedge_only]` hedge-fund-only, `25 [market.signals_with_discretionary]` including discretionary allocators)"
+    replacement: "(40 of 56 signals were hedge-fund-only)"
 
   - id: "r2_hallucinated_fact_id"
     expected_rule: "R2"
@@ -32,6 +46,12 @@ bad_cases:
     target: "`C`"
     replacement: "`NVDA`"
 
+  - id: "r3_unknown_fund_vanguard"
+    expected_rule: "R3"
+    description: "Unknown fund: Vanguard also increased its AMD position"
+    target: "funds buying, `$1,195,133,634 [signal.AMD.dollars_added]` estimated dollars added"
+    replacement: "funds buying (Vanguard also increased its AMD position), `$1,195,133,634 [signal.AMD.dollars_added]` estimated dollars added"
+
   - id: "r4_entity_binding_swap"
     expected_rule: "R4"
     description: "Entity binding swap: attach Alphabet dollars to Temasek instead of Berkshire"
@@ -43,6 +63,12 @@ bad_cases:
     description: "Banned advice outside Limitations: investors should accumulate AMD"
     target: "- **`AMD`** (ADVANCED MICRO DEVICES INC"
     replacement: "- **`AMD`** (ADVANCED MICRO DEVICES INC — investors should accumulate AMD"
+
+  - id: "r5_predictive_outperform"
+    expected_rule: "R5"
+    description: "Predictive language outside Limitations: suggests Alphabet will outperform"
+    target: "discretionary funds buying, `$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]` estimated dollars added"
+    replacement: "discretionary funds buying (suggests Alphabet will outperform), `$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]` estimated dollars added"
 
   - id: "r6_causal_claim"
     expected_rule: "R6"
@@ -56,11 +82,47 @@ bad_cases:
     target: "## Limitations"
     action: "truncate_at_target"
 
+  - id: "r7_wrong_period_q3"
+    expected_rule: "R7"
+    description: "Wrong period label: 2026-Q3"
+    target: "- **Reporting Period**: 2026-Q2 (comparison baseline: 2026-Q1)"
+    replacement: "- **Reporting Period**: 2026-Q3 (comparison baseline: 2026-Q1)"
+
   - id: "r8_cite_superseded_total"
     expected_rule: "R8"
     description: "Cite Citadel pre-amendment total ($875,096,281,441)"
     target: "`$875,011,794,337 [fund.CITADEL_ADVISORS.aum_with_options]`"
     replacement: "`$875,096,281,441 [fund.CITADEL_ADVISORS.aum_with_options]`"
+
+  - id: "r9_forbidden_url"
+    expected_rule: "R9"
+    description: "URL present in narrative note"
+    target: "`$226,493,349 [discretionary.C.dollars_added]`"
+    replacement: "`$226,493,349 [discretionary.C.dollars_added]` (see https://sec.gov)"
+
+  - id: "r9_forbidden_markdown_link"
+    expected_rule: "R9"
+    description: "Markdown link present in narrative note"
+    target: "`$224,060,786 [discretionary.WMT.dollars_added]`"
+    replacement: "`$224,060,786 [discretionary.WMT.dollars_added]` [link](https://sec.gov)"
+
+  - id: "r9_forbidden_code_fence"
+    expected_rule: "R9"
+    description: "Code fence present in narrative note"
+    target: "- **`FORM`** (FORMFACTOR INC"
+    replacement: "```python\nprint(1)\n```\n- **`FORM`** (FORMFACTOR INC"
+
+  - id: "r9_forbidden_html_tag"
+    expected_rule: "R9"
+    description: "HTML tag present in narrative note"
+    target: "discretionary funds buying, `$204,656,336 [discretionary.AMD.dollars_added]` estimated dollars added"
+    replacement: "discretionary funds buying <script>alert(1)</script>, `$204,656,336 [discretionary.AMD.dollars_added]` estimated dollars added"
+
+  - id: "r9_narrative_block_too_long"
+    expected_rule: "R9"
+    description: "Narrative prose block exceeds 150 words cap"
+    target: "## Executive Summary\n\n"
+    replacement: "## Executive Summary\n\nThe fund observed significant inflow during the second quarter of 2026 across major allocators. Institutional filings revealed substantial co-buying in broad market technology and healthcare names. The total aggregate equity value expanded meaningfully as multiple funds established new initiating stakes and scaled existing long positions. In particular, technology allocations led overall quarterly shifts while consumer names saw selective rotation among discretionary allocators. Furthermore, several funds adjusted position weights in response to quarter-end portfolio realignments and capital redeployment strategies. Allocators maintained disciplined risk controls across all major holdings without incurring excessive sector concentration. Continued monitoring of upcoming 13F amendment cycles remains critical for tracking subsequent holdings adjustments and restatements. Overall institutional sentiment remained constructive throughout the entire trading period as reported by quarterly filings. Portfolio managers actively rotated capital out of mature consumer defensives and into expanding semiconductor and infrastructure investments to capture secular momentum over the medium term. Risk parameters were updated across multi-strategy desks to maintain beta-neutral factor balance.\n\n"
 
 good_cases:
   - id: "good_rephrase_bullet"
@@ -73,10 +135,20 @@ good_cases:
     target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
     replacement: "`$18.67B [discretionary.GOOGL_GOOG.dollars_added]`"
 
-  - id: "good_sig_fig_rounding"
-    description: "Valid rounding to 2 sig figs ($19B instead of $18.67B, within 2%)"
+  - id: "good_sig_fig_rounding_googl_19b"
+    description: "Valid rounding to 2 sig figs for Alphabet: $19B (k=2)"
     target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
     replacement: "`$19B [discretionary.GOOGL_GOOG.dollars_added]`"
+
+  - id: "good_sig_fig_rounding_googl_18_7b"
+    description: "Valid rounding to 3 sig figs for Alphabet: $18.7B (k=3)"
+    target: "`$18,665,002,497 [discretionary.GOOGL_GOOG.dollars_added]`"
+    replacement: "`$18.7B [discretionary.GOOGL_GOOG.dollars_added]`"
+
+  - id: "good_sig_fig_rounding_amd_1_2b"
+    description: "Valid rounding to 2 sig figs for AMD: $1.2B (k=2)"
+    target: "`$1,195,133,634 [signal.AMD.dollars_added]`"
+    replacement: "`$1.2B [signal.AMD.dollars_added]`"
 
   - id: "good_negated_claim_limitations"
     description: "Valid negative claim inside Limitations"

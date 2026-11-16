@@ -27,20 +27,31 @@ Stage Contract
 
 from __future__ import annotations
 
+import json
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
-from autopilot.gateways.llm import BudgetGuard, LLMProvider, NullProvider, select_llm_provider
+from autopilot.gateways.llm import (
+    BudgetGuard,
+    LLMProvider,
+    LLMRateLimitError,
+    NeedsManualInput,
+    NullProvider,
+    select_llm_provider,
+)
 from autopilot.models import (
     FactItem,
     FactsBundle,
+    LLMResult,
     NarrativeDraft,
     PipelineContext,
     StageStatus,
 )
 from autopilot.settings import Settings
 from autopilot.stages.base import Stage, StageError, StageResult
+from autopilot.stages.validate import ValidateStage, ValidationReport
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +114,7 @@ def render_template_note(
     facts: FactsBundle,
     template_path: Path | None = None,
     provider: str = "none",
+    llm_blocks: dict[str, str] | None = None,
 ) -> str:
     """Deterministically render `draft.md` from `FactsBundle` with every figure cited."""
     period = facts.period
@@ -666,6 +678,12 @@ def render_template_note(
         "footer": footer_text,
     }
 
+    if llm_blocks:
+        for sec_key, prose in llm_blocks.items():
+            if sec_key in sections and sec_key != "limitations" and prose.strip():
+                existing = sections[sec_key]
+                sections[sec_key] = f"{prose.strip()}\n\n{existing}"
+
     if template_path and template_path.exists():
         template_content = template_path.read_text(encoding="utf-8")
         rendered = template_content
@@ -696,11 +714,263 @@ def render_template_note(
 
 def render_clean(draft: str) -> str:
     """Strip bracketed fact citation tags to produce clean Markdown for human reading."""
-    import re
-
     cleaned = re.sub(r"\s*\[([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)+)\](?!\()", "", draft)
     cleaned = re.sub(r" +([.,;:)\]])", r"\1", cleaned)
     return cleaned
+
+
+def _clean_fact_label(fid: str) -> str:
+    """Generate concise, human-readable semantic label for fact id."""
+    if fid.startswith("market."):
+        tok = fid[len("market.") :]
+        return f"Market {tok.replace('_', ' ').title()}"
+    if fid.startswith("coverage."):
+        tok = fid[len("coverage.") :]
+        return f"Coverage {tok.replace('_', ' ').title()}"
+    if fid.startswith("signal."):
+        parts = fid.split(".")
+        return f"Broad Signal {parts[1]} {parts[2].replace('_', ' ')}"
+    if fid.startswith("discretionary."):
+        parts = fid.split(".")
+        suffix = " ".join(parts[2:])
+        return f"Discretionary {parts[1]} {suffix.replace('_', ' ')}"
+    if fid.startswith("new_to_sample."):
+        parts = fid.split(".")
+        return f"New to Sample {parts[1]} {parts[2].replace('_', ' ')}"
+    if fid.startswith("diff.mover."):
+        parts = fid.split(".")
+        return f"Mover {parts[2]} {parts[3].replace('_', ' ')}"
+    if fid.startswith("diff."):
+        tok = fid[len("diff.") :]
+        return f"Diff {tok.replace('_', ' ').title()}"
+    if fid.startswith("sector."):
+        parts = fid.split(".")
+        return f"Sector {parts[1]} {parts[2].replace('_', ' ')}"
+    if fid.startswith("quality.split."):
+        parts = fid.split(".")
+        return f"Split {parts[2]} {parts[3]}"
+    if fid.startswith("quality.restatement."):
+        tok = fid[len("quality.restatement.") :]
+        return f"Restatement {tok.replace('_', ' ').title()}"
+    if fid.startswith("fund."):
+        parts = fid.split(".")
+        return f"Fund {parts[1]} {parts[2].replace('_', ' ')}"
+    return fid
+
+
+def _clean_fact_displays(displays: tuple[str, ...] | list[str]) -> str:
+    """Filter displays to clean numeric/currency representations, stripping paths and XML."""
+    cleaned: list[str] = []
+    for d in displays:
+        s = str(d).strip()
+        if not s:
+            continue
+        # Strip paths, XML, or excessively long dumps
+        if "/" in s or "\\" in s or "<" in s or ">" in s or len(s) > 40:
+            continue
+        cleaned.append(s)
+    return ", ".join(cleaned[:4]) if cleaned else "N/A"
+
+
+def build_compact_fact_sheet(facts: FactsBundle) -> str:
+    """Build a compact (id | label | display) table for narrative commentary blocks."""
+    relevant_prefixes = (
+        "market.",
+        "coverage.funds_filed",
+        "coverage.reconciliations_passed",
+        "coverage.reconciliations_total",
+        "coverage.all_reconciled",
+        "coverage.amendments_applied",
+        "signal.",
+        "discretionary.",
+        "new_to_sample.",
+        "diff.",
+        "sector.",
+        "quality.",
+        "fund.",
+    )
+
+    rows: list[str] = [
+        "| Fact ID | Semantic Label | Acceptable Display Values |",
+        "| :--- | :--- | :--- |",
+    ]
+
+    for f in facts.facts:
+        fid = f.id
+        if f.superseded or fid.startswith("limit.") or fid.startswith("coverage.fund."):
+            continue
+        if any(fid.startswith(p) for p in relevant_prefixes):
+            lbl = _clean_fact_label(fid)
+            disp = _clean_fact_displays(f.display)
+            rows.append(f"| `{fid}` | {lbl} | {disp} |")
+
+    return "\n".join(rows)
+
+
+def build_narrative_prompt(
+    facts: FactsBundle,
+    prompts_dir: Path | str,
+    period: str,
+) -> str:
+    """Construct initial prompt for LLM narrative commentary blocks."""
+    pdir = Path(prompts_dir)
+    sys_path = pdir / "system.md"
+    style_path = pdir / "style_guide.md"
+
+    sys_text = sys_path.read_text(encoding="utf-8") if sys_path.exists() else ""
+    style_text = style_path.read_text(encoding="utf-8") if style_path.exists() else ""
+
+    fact_sheet = build_compact_fact_sheet(facts)
+
+    prompt = (
+        f"{sys_text}\n\n"
+        f"---\n\n"
+        f"{style_text}\n\n"
+        f"---\n\n"
+        f"# Task: Draft Quarterly 13F Narrative Commentary ({period})\n\n"
+        f"Draft concise narrative commentary for the quarterly 13F research note for period "
+        f"{period}.\n"
+        f"You write ONLY narrative prose paragraphs under the exact headings below.\n"
+        f"Do NOT write bulleted lists, tables, or limitations (managed deterministically).\n\n"
+        f"## Mandatory Rules:\n"
+        f"1. Use ONLY facts listed in the compact fact sheet below. Never invent numbers.\n"
+        f"2. Every numeric figure, count, percentage, or dollar amount MUST be cited with its "
+        f"bracketed fact id: `<figure> [<fact_id>]`.\n"
+        f"3. Non-figure facts must be cited as `[<fact_id>]` without figures.\n"
+        f"4. No forward-looking predictions, trade advice, or promotional claims.\n"
+        f"5. No causal claims (avoid 'because', 'due to', 'driven by', 'as a result of').\n"
+        f"6. Strictly NO URLs, NO HTML tags, NO markdown links, and NO code fences.\n"
+        f"7. Length cap: strictly under 150 words per narrative block.\n"
+        f"8. Use the exact canonical section headings:\n"
+        f"   - ## Executive Summary\n"
+        f"   - ## Data and Coverage\n"
+        f"   - ## Broad Convergence\n"
+        f"   - ## Discretionary Convergence\n"
+        f"   - ## New to the Sample\n"
+        f"   - ## What Changed Since Last Quarter\n"
+        f"   - ## Sector View\n"
+        f"   - ## Data Quality\n\n"
+        f"## Compact Fact Sheet ({period})\n\n"
+        f"{fact_sheet}\n"
+    )
+    return prompt
+
+
+def build_repair_prompt(
+    facts: FactsBundle,
+    prompts_dir: Path | str,
+    period: str,
+    previous_response: str,
+    report: ValidationReport,
+    attempt: int,
+    max_attempts: int,
+) -> str:
+    """Construct repair prompt containing exact validation findings."""
+    fact_sheet = build_compact_fact_sheet(facts)
+
+    defect_rows: list[str] = []
+    for issue in report.issues:
+        snip = issue.snippet.replace("|", "\\|").replace("\n", " ")[:60]
+        exp = issue.expected.replace("|", "\\|").replace("\n", " ")
+        defect_rows.append(f"| {issue.rule_id} | Line {issue.line} | `{snip}` | {exp} |")
+
+    defect_table = (
+        "| Rule ID | Location | Defect Snippet | Expected / Instruction |\n"
+        "| :--- | :--- | :--- | :--- |\n" + "\n".join(defect_rows)
+    )
+
+    prompt = (
+        f"# Validation Repair Request (Attempt {attempt + 1} of {max_attempts})\n\n"
+        f"Your previous narrative submission for {period} failed deterministic validation with "
+        f"{len(report.issues)} defect(s):\n\n"
+        f"{defect_table}\n\n"
+        f"## Previous Response with Issues:\n"
+        f"{previous_response}\n\n"
+        f"## Mandatory Correction Instructions:\n"
+        f"1. Fix all defects identified in the table above.\n"
+        f"2. Ensure every figure cited in your text is followed by its bracketed fact id "
+        f"citation: `<figure> [<fact_id>]`.\n"
+        f"3. Non-figure facts must be cited as `[<fact_id>]` without figures.\n"
+        f"4. Do NOT include URLs, HTML tags, markdown links, or code fences.\n"
+        f"5. Keep each narrative block strictly under 150 words.\n"
+        f"6. Use the exact canonical section headings:\n"
+        f"   - ## Executive Summary\n"
+        f"   - ## Data and Coverage\n"
+        f"   - ## Broad Convergence\n"
+        f"   - ## Discretionary Convergence\n"
+        f"   - ## New to the Sample\n"
+        f"   - ## What Changed Since Last Quarter\n"
+        f"   - ## Sector View\n"
+        f"   - ## Data Quality\n\n"
+        f"## Compact Fact Sheet (Reference):\n\n"
+        f"{fact_sheet}\n"
+    )
+    return prompt
+
+
+def parse_llm_blocks(llm_text: str) -> dict[str, str]:
+    """Parse section blocks from LLM markdown response by canonical section headings."""
+    if not llm_text or not llm_text.strip():
+        return {}
+
+    lines = llm_text.splitlines()
+    blocks: dict[str, list[str]] = {}
+    current_key: str | None = None
+
+    heading_patterns = [
+        ("executive", "executive_summary"),
+        ("coverage", "data_and_coverage"),
+        ("broad", "broad_convergence"),
+        ("discretionary", "discretionary_convergence"),
+        ("new to", "new_to_the_sample"),
+        ("changed", "what_changed_since_last_quarter"),
+        ("sector", "sector_view"),
+        ("quality", "data_quality"),
+    ]
+
+    has_headings = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("## ") or stripped.startswith("# "):
+            heading_text = stripped.lstrip("#").strip().lower()
+            matched_key = None
+            for pattern, key in heading_patterns:
+                if pattern in heading_text:
+                    matched_key = key
+                    break
+            if matched_key:
+                has_headings = True
+                current_key = matched_key
+                blocks.setdefault(current_key, [])
+                continue
+        if current_key:
+            blocks.setdefault(current_key, []).append(line)
+
+    if not has_headings:
+        clean_text = llm_text.strip()
+        return {"executive_summary": clean_text} if clean_text else {}
+
+    result: dict[str, str] = {}
+    for k, line_list in blocks.items():
+        text = "\n".join(line_list).strip()
+        if text:
+            result[k] = text
+    return result
+
+
+def merge_llm_blocks_into_skeleton(
+    facts: FactsBundle,
+    llm_blocks: dict[str, str],
+    template_path: Path | None = None,
+    provider: str = "none",
+) -> str:
+    """Merge LLM narrative blocks into deterministic note template."""
+    return render_template_note(
+        facts=facts,
+        template_path=template_path,
+        provider=provider,
+        llm_blocks=llm_blocks,
+    )
 
 
 class NarrateStage(Stage):
@@ -712,9 +982,13 @@ class NarrateStage(Stage):
         self,
         settings: Settings | None = None,
         provider: LLMProvider | None = None,
+        max_attempts: int | None = None,
     ) -> None:
         self.settings = settings or Settings()
         self._provider = provider
+        self.max_attempts = (
+            max_attempts if max_attempts is not None else self.settings.max_validation_retries
+        )
 
     def run(self, context: PipelineContext) -> StageResult:
         """Execute narrative generation stage contract."""
@@ -734,7 +1008,6 @@ class NarrateStage(Stage):
                     f"neither context.facts nor {facts_path} was found."
                 )
 
-        # Resolve LLM provider first so template footer matches provider mode
         provider = self._provider
         if provider is None:
             provider = select_llm_provider(
@@ -742,44 +1015,177 @@ class NarrateStage(Stage):
                 period=period,
                 wrap_with_budget_guard=True,
             )
+        elif not isinstance(provider, BudgetGuard | NullProvider):
+            provider = BudgetGuard(
+                provider,
+                max_calls_per_run=self.settings.llm_max_calls_per_run,
+                max_output_tokens=self.settings.llm_max_output_tokens,
+                timeout_seconds=self.settings.llm_timeout_seconds,
+                llm_disabled=self.settings.llm_disabled,
+            )
 
         provider_name = provider.provider_name if hasattr(provider, "provider_name") else "none"
         template_path = self.settings.prompts_dir / "note_template.md"
         deterministic_draft = render_template_note(
             facts,
             template_path=template_path,
-            provider=provider_name,
+            provider="none",
         )
 
-        # Generate draft
-        if isinstance(provider, NullProvider) or (
-            isinstance(provider, BudgetGuard) and isinstance(provider.provider, NullProvider)
-        ):
-            llm_res = provider.generate(prompt=deterministic_draft)
-            draft_markdown = llm_res.text
-        else:
-            # External or manual provider
-            prompt_text = (
-                f"You are drafting the quarterly 13F research note for {period}.\n"
-                f"Use ONLY the following pre-computed facts and template:\n\n"
-                f"{deterministic_draft}\n"
+        is_null_provider = (
+            provider_name in ("null", "none")
+            or isinstance(provider, NullProvider)
+            or (isinstance(provider, BudgetGuard) and isinstance(provider.provider, NullProvider))
+        )
+
+        recorded_attempts = 0
+        total_prompt_tokens = 0
+        total_output_tokens = 0
+        total_latency_ms = 0.0
+        rule_failures: dict[str, int] = {}
+        llm_status = "deterministic"
+        final_draft = deterministic_draft
+        last_llm_result: LLMResult | None = None
+
+        if is_null_provider:
+            final_draft = deterministic_draft
+            llm_status = "deterministic"
+            last_llm_result = LLMResult(
+                text=deterministic_draft,
+                provider="null",
+                model="deterministic-template",
+                prompt_tokens=0,
+                output_tokens=0,
+                total_tokens=0,
+                latency_ms=0.0,
+                finish_reason="STOP",
             )
-            llm_res = provider.generate(prompt=prompt_text)
-            draft_markdown = llm_res.text
+        else:
+            attempts_dir = self.settings.reports_dir / period / "attempts"
+            attempts_dir.mkdir(parents=True, exist_ok=True)
+            current_prompt = build_narrative_prompt(facts, self.settings.prompts_dir, period)
+            validator = ValidateStage(self.settings)
+
+            for attempt_idx in range(1, self.max_attempts + 1):
+                recorded_attempts = attempt_idx
+                prompt_file = attempts_dir / f"attempt_{attempt_idx}_prompt.md"
+                prompt_file.write_text(current_prompt, encoding="utf-8")
+
+                try:
+                    llm_res = provider.generate(prompt=current_prompt)
+                except LLMRateLimitError as exc:
+                    logger.warning(
+                        "Upstream rate limit (429) hit: %s. Falling back to deterministic draft.",
+                        exc,
+                    )
+                    final_draft = deterministic_draft
+                    llm_status = "quota_exhaustion_fallback"
+                    last_llm_result = LLMResult(
+                        text=deterministic_draft,
+                        provider=provider_name,
+                        model=getattr(provider, "model", "unknown"),
+                        prompt_tokens=total_prompt_tokens,
+                        output_tokens=total_output_tokens,
+                        total_tokens=total_prompt_tokens + total_output_tokens,
+                        latency_ms=total_latency_ms,
+                        finish_reason="RATE_LIMIT",
+                    )
+                    break
+                except NeedsManualInput as exc:
+                    logger.info("Human input required for manual mode: %s", exc)
+                    raise
+
+                last_llm_result = llm_res
+                total_prompt_tokens += llm_res.prompt_tokens
+                total_output_tokens += llm_res.output_tokens
+                total_latency_ms += llm_res.latency_ms
+
+                # Save raw response
+                resp_file = attempts_dir / f"attempt_{attempt_idx}_response.md"
+                resp_file.write_text(llm_res.text, encoding="utf-8")
+
+                # Parse and merge
+                llm_blocks = parse_llm_blocks(llm_res.text)
+                merged_draft = merge_llm_blocks_into_skeleton(
+                    facts=facts,
+                    llm_blocks=llm_blocks,
+                    template_path=template_path,
+                    provider=provider_name,
+                )
+                draft_attempt_file = attempts_dir / f"attempt_{attempt_idx}_draft.md"
+                draft_attempt_file.write_text(merged_draft, encoding="utf-8")
+
+                # Validate
+                report = validator.validate_draft(merged_draft, facts, period)
+                findings_file = attempts_dir / f"attempt_{attempt_idx}_findings.json"
+                findings_file.write_text(
+                    json.dumps(report.to_dict(), indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+
+                if report.status == "PASS":
+                    logger.info("Narrative attempt %d passed validation cleanly.", attempt_idx)
+                    final_draft = merged_draft
+                    llm_status = "success"
+                    break
+                else:
+                    logger.warning(
+                        "Narrative attempt %d failed validation with %d issue(s).",
+                        attempt_idx,
+                        len(report.issues),
+                    )
+                    for issue in report.issues:
+                        rule_failures[issue.rule_id] = rule_failures.get(issue.rule_id, 0) + 1
+
+                    if attempt_idx < self.max_attempts:
+                        repair_prompt = build_repair_prompt(
+                            facts=facts,
+                            prompts_dir=self.settings.prompts_dir,
+                            period=period,
+                            previous_response=llm_res.text,
+                            report=report,
+                            attempt=attempt_idx,
+                            max_attempts=self.max_attempts,
+                        )
+                        repair_file = attempts_dir / f"attempt_{attempt_idx}_repair_prompt.md"
+                        repair_file.write_text(repair_prompt, encoding="utf-8")
+
+                        if provider_name == "manual":
+                            manual_repair_path = (
+                                self.settings.reports_dir / period / "repair_prompt.md"
+                            )
+                            manual_repair_path.write_text(repair_prompt, encoding="utf-8")
+                            manual_resp_path = self.settings.reports_dir / period / "response.md"
+                            raise NeedsManualInput(
+                                f"Validation failed on attempt {attempt_idx}. Repair prompt "
+                                f"written to '{manual_repair_path}'. Update '{manual_resp_path}' "
+                                "and re-run.",
+                                prompt_path=manual_repair_path,
+                                response_path=manual_resp_path,
+                            )
+                        current_prompt = repair_prompt
+                    else:
+                        logger.error(
+                            "All %d narrative attempts failed validation. "
+                            "Falling back to deterministic template draft.",
+                            self.max_attempts,
+                        )
+                        final_draft = deterministic_draft
+                        llm_status = "fallback_after_failed_validation"
 
         # Write reports/<period>/draft.md deterministically
         draft_path = self.settings.reports_dir / period / "draft.md"
         draft_path.parent.mkdir(parents=True, exist_ok=True)
-        draft_path.write_text(draft_markdown, encoding="utf-8")
+        draft_path.write_text(final_draft, encoding="utf-8")
         logger.info(
-            "Wrote draft.md to %s (%d words, provider=%s)",
+            "Wrote draft.md to %s (%d words, status=%s)",
             draft_path,
-            len(draft_markdown.split()),
-            llm_res.provider,
+            len(final_draft.split()),
+            llm_status,
         )
 
         # Write reports/<period>/draft_clean.md for human reading
-        clean_markdown = render_clean(draft_markdown)
+        clean_markdown = render_clean(final_draft)
         clean_path = self.settings.reports_dir / period / "draft_clean.md"
         clean_path.write_text(clean_markdown, encoding="utf-8")
         logger.info(
@@ -788,21 +1194,60 @@ class NarrateStage(Stage):
             len(clean_markdown.split()),
         )
 
+        # Update reports/<period>/run.json metrics
+        run_json_path = self.settings.reports_dir / period / "run.json"
+        run_data: dict[str, Any] = {}
+        if run_json_path.exists():
+            try:
+                run_data = json.loads(run_json_path.read_text(encoding="utf-8"))
+            except Exception:
+                run_data = {}
+
+        model_name = getattr(provider, "model", "deterministic-template")
+        llm_metrics = {
+            "attempts": recorded_attempts,
+            "final_status": llm_status,
+            "latency_ms": round(total_latency_ms, 2),
+            "llm_mode": provider_name,
+            "model": model_name,
+            "output_tokens": total_output_tokens,
+            "prompt_tokens": total_prompt_tokens,
+            "total_tokens": total_prompt_tokens + total_output_tokens,
+            "validation_failures_per_rule": dict(sorted(rule_failures.items())),
+        }
+        run_data["llm"] = llm_metrics
+        run_data["llm_mode"] = provider_name
+        run_data["llm_status"] = llm_status
+        run_json_path.write_text(
+            json.dumps(run_data, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+
         narrative_draft = NarrativeDraft(
             period=period,
-            markdown=draft_markdown,
-            llm_result=llm_res,
-            attempt=1,
+            markdown=final_draft,
+            llm_result=last_llm_result
+            or LLMResult(
+                text=final_draft,
+                provider=provider_name,
+                model=model_name,
+            ),
+            attempt=max(1, recorded_attempts),
         )
         context.draft = narrative_draft
         context.artifacts["narrative_draft"] = narrative_draft
 
         return StageResult(
             status=StageStatus.SUCCEEDED,
-            message=f"Generated research note draft ({len(draft_markdown.split())} words)",
+            message=(
+                f"Generated research note draft ({len(final_draft.split())} words, "
+                f"status={llm_status})"
+            ),
             metadata={
+                "attempts": recorded_attempts,
                 "clean_path": str(clean_path),
                 "draft_path": str(draft_path),
-                "provider": llm_res.provider,
+                "llm_status": llm_status,
+                "provider": provider_name,
             },
         )

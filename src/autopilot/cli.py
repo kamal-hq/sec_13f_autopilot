@@ -135,6 +135,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override LLM provider selection (null/none, manual, gemini, auto).",
     )
+    narrate_parser.add_argument(
+        "--max-attempts",
+        type=int,
+        default=None,
+        help="Maximum validation retry attempts for narrative generation (default: 3).",
+    )
 
     # 5. `autopilot validate --period 2026-Q2 [--draft path] [--dry-run]`
     validate_parser = subparsers.add_parser(
@@ -182,6 +188,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override LLM provider selection (null/none, manual, gemini, auto).",
     )
+    run_parser.add_argument(
+        "--max-attempts",
+        type=int,
+        default=None,
+        help="Maximum validation retry attempts for narrative generation (default: 3).",
+    )
 
     return parser
 
@@ -197,6 +209,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if getattr(args, "llm_provider", None):
         raw_prov = str(args.llm_provider).lower()
         settings.llm_provider = "null" if raw_prov == "none" else raw_prov
+    if getattr(args, "max_attempts", None) is not None:
+        settings.max_validation_retries = int(args.max_attempts)
 
     configure_logging(settings)
     logger.info("Loaded settings: %s", settings)

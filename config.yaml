@@ -25,7 +25,7 @@ sec:
 
 llm:
   provider: "null"          # Options: "null" | "manual" | "gemini" | "auto"
-  model: "gemini-2.5-flash"
+  model: "PLACEHOLDER_SET_GEMINI_MODEL_HERE"
   max_calls_per_run: 5
   max_output_tokens: 2048
   timeout_seconds: 30.0

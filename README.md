@@ -90,22 +90,29 @@ autopilot facts --period 2026-Q2
 # Generate deterministic research note draft with NullProvider (reports/<period>/draft.md & draft_clean.md)
 autopilot narrate --period 2026-Q2 --llm none
 
-# Audit draft markdown against facts bundle using deterministic rules R1-R8 (reports/<period>/validation_report.json/.md)
+# Generate draft with Gemini narrative and automated retry loop (max 3 attempts)
+autopilot narrate --period 2026-Q2 --llm gemini --max-attempts 3
+
+# Generate draft using human-in-the-loop manual file exchange
+autopilot narrate --period 2026-Q2 --llm manual
+
+# Audit draft markdown against facts bundle using deterministic rules R1-R9 (reports/<period>/validation_report.json/.md)
 autopilot validate --period 2026-Q2
 
 # Validate a custom draft path
 autopilot validate --period 2026-Q2 --draft reports/2026-Q2/draft.md
 
-# Run the pipeline in sequence through a specific stage (e.g., detect -> ingest -> facts -> narrate -> validate)
+# Run the pipeline in sequence through a specific stage with LLM narrative
 autopilot run --through validate --llm none
+autopilot run --through validate --llm gemini --max-attempts 3
 autopilot run --through narrate --llm none
 autopilot run --through facts --as-of 2026-09-05
 ```
 
-### Deterministic Validator Rules (R1–R8)
+### Deterministic Validator Rules (R1–R9)
 
 `ValidateStage` (`src/autopilot/stages/validate.py`) executes 100% offline without LLM invocations, auditing the draft against `facts.json`:
-- **R1 Number Grounding**: Every figure (currency, percent, count, multiplier) must cite an existing `[fact_id]` and match: equal to a listed display format, or rounded to 2 significant figures within 2%. Units must agree ($M is not $B).
+- **R1 Number Grounding**: Every figure (currency, percent, count, multiplier) must cite an existing `[fact_id]` and match: equal to a listed display format, or the underlying fact rounded to $k$ significant figures for some $k \ge 2$ (within 2%). Units must agree ($M is not $B).
 - **R2 Citation Integrity**: Every cited `[fact_id]` exists in `facts.json`; no orphan tags.
 - **R3 Entities**: Tracked institutional funds and ticker symbols in prose must exist in facts for the target period.
 - **R4 Entity Binding**: Cited breakdown facts must bind to the entity named in their clause/bullet.
@@ -113,8 +120,9 @@ autopilot run --through facts --as-of 2026-09-05
 - **R6 Causal Claims**: Verbs of cause (`because`, `due to`, `driven by`, `as a result of`) linking market movements to external events are forbidden outside Limitations.
 - **R7 Required Content**: All 9 canonical section headings, 6 required `limit.*` facts, and valid period metadata must be present.
 - **R8 Stale Superseded Data**: Superseded pre-amendment values (e.g., Citadel's pre-amendment 2026-Q2 total) are rejected.
+- **R9 Formatting & Length Guardrails**: Strictly forbids URLs, markdown links (`[text](url)`), HTML tags, and code fences in narrative blocks, and enforces a strict length cap of 150 words per narrative block.
 
-The adversarial suite (`tests/adversarial/cases.yaml`) validates that 10 bad mutations are rejected by their specific rule (R1–R8) and 5 good mutations are accepted cleanly (`bad rejected 10/10, good accepted 5/5`).
+The adversarial suite (`tests/adversarial/cases.yaml`) validates that 20 bad mutations are rejected by their specific rule (R1–R9) and 7 good mutations are accepted cleanly (`bad rejected 20/20, good accepted 7/7`). Every rule R1–R9 is exercised by at least one adversarial case.
 
 
 ---
@@ -176,6 +184,31 @@ autopilot --period 2026-Q2 --provider gemini
   - All actions pinned to full 40-character commit SHAs
   - `autopilot.yml` triggers via `workflow_dispatch` only (the `cron` schedule line is commented out with a note regarding GitHub's 60-day repository inactivity rule).
 - **Secret Scanning**: `.env` is gitignored, `.env.example` contains placeholders only, and `gitleaks` is enforced via `.pre-commit-config.yaml`.
+
+---
+
+## LLM Modes and Security
+
+`sec_13f_autopilot` supports three operational modes for quarterly research note narrative generation:
+
+| Mode | Provider | Key Required | Description |
+| :--- | :--- | :---: | :--- |
+| `none` / `null` | `NullProvider` | No | 100% deterministic template generation. Zero API tokens or external calls. Footer: *"Generated deterministically from filings data; not investment advice."* |
+| `manual` | `ManualProvider` | No | Human-in-the-loop file exchange. Generates `reports/<period>/prompt.md`, awaits `reports/<period>/response.md`. If validation fails, outputs `reports/<period>/repair_prompt.md`. |
+| `gemini` | `GeminiProvider` | Yes (`GEMINI_API_KEY`) | Official Google GenAI SDK with automated retry loop (up to `--max-attempts 3`). On validation failure, builds targeted repair prompts. Falls back cleanly to deterministic draft on quota exhaustion (HTTP 429) or persistent defects. |
+
+### Security Invariants for LLM Narratives
+1. **API Keys from Environment Only**: `GEMINI_API_KEY` is loaded exclusively from environment variables via `Settings.read_gemini_api_key()`. It is never stored in `config.yaml`, fixtures, or logs.
+2. **Free-Tier Data Hygiene**: Prompts sent to Gemini contain ONLY a compact, pre-computed fact sheet of public quantitative facts (`id | label | display`). Prompts contain **zero** local file paths, **zero** environment variable names or credentials, and **zero** raw SEC filing XML text.
+3. **Guarded Budget**: `BudgetGuard` caps calls per run (default `5`), output tokens, per-request timeouts, and provides an immediate kill switch via `AUTOPILOT_LLM_DISABLED=1`.
+4. **Offline Test Suite & Live Smoke Test**:
+   - The test suite (`pytest`) runs 100% offline with zero network calls and mocked/fake providers.
+   - An optional live smoke test (`tests/live/test_gemini_smoke.py`) is marked `@pytest.mark.live` and skipped by default. Operators can manually execute it in an isolated terminal session with a real key:
+     ```bash
+     $env:RUN_LIVE_GEMINI="1"
+     $env:GEMINI_API_KEY="your-gemini-api-key"
+     pytest tests/live/test_gemini_smoke.py -v
+     ```
 
 ---
 

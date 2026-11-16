@@ -176,7 +176,7 @@ class Settings:
 
     # LLM Gateway & Budget Guard settings
     llm_provider: str = "null"
-    llm_model: str = "gemini-2.5-flash"
+    llm_model: str = ""
     llm_max_calls_per_run: int = 5
     llm_max_output_tokens: int = 2048
     llm_timeout_seconds: float = 30.0
@@ -212,7 +212,7 @@ class Settings:
         sec_backoff_base_seconds: float = 0.5,
         sec_backoff_max_seconds: float = 30.0,
         llm_provider: str = "null",
-        llm_model: str = "gemini-2.5-flash",
+        llm_model: str = "",
         llm_max_calls_per_run: int = 5,
         llm_max_output_tokens: int = 2048,
         llm_timeout_seconds: float = 30.0,
@@ -381,7 +381,7 @@ class Settings:
             sec_backoff_base_seconds=float(sec_cfg.get("backoff_base_seconds", 0.5)),
             sec_backoff_max_seconds=float(sec_cfg.get("backoff_max_seconds", 30.0)),
             llm_provider=provider,
-            llm_model=str(llm_cfg.get("model", "gemini-2.5-flash")),
+            llm_model=str(llm_cfg.get("model", "")),
             llm_max_calls_per_run=int(llm_cfg.get("max_calls_per_run", 5)),
             llm_max_output_tokens=int(llm_cfg.get("max_output_tokens", 2048)),
             llm_timeout_seconds=float(llm_cfg.get("timeout_seconds", 30.0)),
