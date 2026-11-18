@@ -93,17 +93,18 @@ def test_every_uses_pinned_to_40_hex_sha_and_no_third_party_pr_action() -> None:
     assert uses_count >= 6
 
 
-def test_secrets_only_in_single_step_env_never_job_or_run() -> None:
-    """SEC_USER_AGENT, GEMINI_API_KEY, OPENFIGI_API_KEY are in step-level env of one step only."""
+def test_secrets_least_privilege_step_env_never_job_or_run() -> None:
+    """Resolve step gets ONLY SEC_USER_AGENT; GEMINI/OPENFIGI stay on pipeline step only."""
     wf_path = Path(".github/workflows/autopilot.yml")
     wf = _load_workflow(wf_path)
-    allowed_secrets = {"SEC_USER_AGENT", "GEMINI_API_KEY", "OPENFIGI_API_KEY"}
+    resolve_secrets = {"SEC_USER_AGENT"}
+    pipeline_secrets = {"SEC_USER_AGENT", "GEMINI_API_KEY", "OPENFIGI_API_KEY"}
 
     # Never at workflow top-level env
     top_env_str = str(wf.get("env") or "")
     assert not _SECRET_REF_RE.search(top_env_str), "Secrets must never be in workflow-level env"
 
-    secret_steps: list[str] = []
+    secret_steps_by_id: dict[str, set[str]] = {}
     for job_name, job_cfg in (wf.get("jobs") or {}).items():
         # Never at job-level env
         job_env_str = str((job_cfg or {}).get("env") or "")
@@ -112,6 +113,7 @@ def test_secrets_only_in_single_step_env_never_job_or_run() -> None:
         )
 
         for step in (job_cfg or {}).get("steps") or []:
+            step_id = str(step.get("id", ""))
             step_name = str(step.get("name", "unnamed"))
             run_script = str(step.get("run") or "")
             # Secrets must never be interpolated into `run:` scripts or echoed
@@ -121,18 +123,30 @@ def test_secrets_only_in_single_step_env_never_job_or_run() -> None:
             step_env = step.get("env") or {}
             step_env_str = str(step_env)
             if _SECRET_REF_RE.search(step_env_str):
-                secret_steps.append(step_name)
                 found_secrets = {
                     m.group(0).split("secrets.")[1].rstrip(" }")
                     for m in _SECRET_REF_RE.finditer(step_env_str)
                 }
-                assert found_secrets == allowed_secrets, (
-                    f"Expected allowed secrets {allowed_secrets}, found {found_secrets}"
+                assert step_id in {"resolve_period", "run_pipeline"}, (
+                    f"Unexpected step with secrets: id={step_id!r} name={step_name!r}"
                 )
-                assert "detect --emit-period" in run_script
-                assert "no actionable period" in run_script
-                assert "target_period" not in run_script
+                assert step_id not in secret_steps_by_id, f"Duplicate secret step id: {step_id}"
+                secret_steps_by_id[step_id] = found_secrets
 
-    assert len(secret_steps) == 1, (
-        f"Expected secrets in env of exactly 1 step, found {len(secret_steps)}: {secret_steps}"
+                if step_id == "resolve_period":
+                    assert found_secrets == resolve_secrets, (
+                        f"Resolve step must receive ONLY {resolve_secrets}, found {found_secrets}"
+                    )
+                    assert "detect --emit-period" in run_script
+                    assert "no actionable period" in run_script
+                    assert "target_period" not in run_script
+                elif step_id == "run_pipeline":
+                    assert found_secrets == pipeline_secrets, (
+                        f"Pipeline step expected {pipeline_secrets}, found {found_secrets}"
+                    )
+                    assert "run --through publish" in run_script
+                    assert step.get("if") == "steps.resolve_period.outputs.actionable == 'true'"
+
+    assert set(secret_steps_by_id.keys()) == {"resolve_period", "run_pipeline"}, (
+        f"Expected secrets only on resolve_period and run_pipeline, found {secret_steps_by_id}"
     )

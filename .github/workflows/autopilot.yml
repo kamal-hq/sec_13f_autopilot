@@ -83,16 +83,12 @@ jobs:
         run: |
           pytest
 
-      - name: Run autopilot pipeline through publish
-        id: run_pipeline
+      - name: Resolve actionable period
+        id: resolve_period
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENFIGI_API_KEY: ${{ secrets.OPENFIGI_API_KEY }}
           INPUT_PERIOD: ${{ inputs.period }}
-          INPUT_LLM: ${{ inputs.llm }}
           INPUT_AS_OF: ${{ inputs.as_of }}
-          INPUT_REPLAY: ${{ inputs.replay }}
         run: |
           set -euo pipefail
           DETECT_ARGS=(detect --emit-period)
@@ -114,6 +110,19 @@ jobs:
           echo "actionable=true" >> "${GITHUB_OUTPUT}"
           echo "period=${PERIOD}" >> "${GITHUB_OUTPUT}"
 
+      - name: Run autopilot pipeline through publish
+        id: run_pipeline
+        if: steps.resolve_period.outputs.actionable == 'true'
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENFIGI_API_KEY: ${{ secrets.OPENFIGI_API_KEY }}
+          PERIOD: ${{ steps.resolve_period.outputs.period }}
+          INPUT_LLM: ${{ inputs.llm }}
+          INPUT_AS_OF: ${{ inputs.as_of }}
+          INPUT_REPLAY: ${{ inputs.replay }}
+        run: |
+          set -euo pipefail
           ARGS=(run --through publish --period "${PERIOD}" --llm "${INPUT_LLM}")
           if [ -n "${INPUT_AS_OF}" ]; then
             ARGS+=(--as-of "${INPUT_AS_OF}")
@@ -126,10 +135,10 @@ jobs:
           autopilot "${ARGS[@]}"
 
       - name: Create branch, commit artifacts, and open PR via gh CLI
-        if: steps.run_pipeline.outputs.actionable == 'true'
+        if: steps.resolve_period.outputs.actionable == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          PERIOD: ${{ steps.run_pipeline.outputs.period }}
+          PERIOD: ${{ steps.resolve_period.outputs.period }}
           INPUT_REPLAY: ${{ inputs.replay }}
         run: |
           set -euo pipefail
@@ -142,7 +151,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -B "${BRANCH}"
-          git add "reports/${PERIOD}/"
+          git add -f "reports/${PERIOD}/"
           if [ "${INPUT_REPLAY}" != "true" ] && [ -f "state/processed_filings.json" ]; then
             git add "state/processed_filings.json"
           fi
@@ -169,10 +178,10 @@ jobs:
           fi
 
       - name: Upload published report artifacts
-        if: always() && steps.run_pipeline.outputs.actionable == 'true'
+        if: always() && steps.resolve_period.outputs.actionable == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: autopilot-${{ steps.run_pipeline.outputs.period || 'run' }}-artifacts
+          name: autopilot-${{ steps.resolve_period.outputs.period || 'run' }}-artifacts
           path: |
             reports/
             state/

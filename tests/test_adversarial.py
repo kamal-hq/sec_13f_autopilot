@@ -55,8 +55,9 @@ def test_adversarial_suite(caplog: Any) -> None:
     bad_cases: list[dict[str, Any]] = cases_data.get("bad_cases", [])
     good_cases: list[dict[str, Any]] = cases_data.get("good_cases", [])
 
-    facts_path = Path("reports/2026-Q2/facts.json")
-    draft_path = Path("reports/2026-Q2/draft.md")
+    fixtures_2026_q2 = Path(__file__).parent / "fixtures" / "2026_q2"
+    facts_path = fixtures_2026_q2 / "facts.json"
+    draft_path = fixtures_2026_q2 / "draft.md"
     assert facts_path.exists(), f"Missing facts.json at {facts_path}"
     assert draft_path.exists(), f"Missing draft.md at {draft_path}"
 

@@ -35,10 +35,11 @@ def publish_env(tmp_path: Path) -> dict[str, Any]:
     period_dir.mkdir(parents=True)
     state_dir.mkdir(parents=True)
 
+    fixtures_2026_q2 = Path(__file__).parent / "fixtures" / "2026_q2"
     for fname in ("facts.json", "draft.md", "diff.md", "run.json", "validation_report.json"):
-        src = Path("reports/2026-Q2") / fname
-        if src.exists():
-            shutil.copyfile(src, period_dir / fname)
+        src = fixtures_2026_q2 / fname
+        assert src.exists(), f"Missing tracked 2026-Q2 fixture: {src}"
+        shutil.copyfile(src, period_dir / fname)
 
     settings = Settings(
         reports_dir=reports_dir,
@@ -502,7 +503,7 @@ def test_seed_state_dry_run_default_and_yes_flag(
         "2026-Q2",
         apply_writes=False,
         seed_dir=Path("seed"),
-        reports_dir=Path("reports"),
+        reports_dir=tmp_path / "reports",
     )
     assert len(entries_dry) == 14
     assert "[DRY-RUN]" in summary_dry
@@ -515,7 +516,7 @@ def test_seed_state_dry_run_default_and_yes_flag(
         "2026-Q2",
         apply_writes=True,
         seed_dir=Path("seed"),
-        reports_dir=Path("reports"),
+        reports_dir=tmp_path / "reports",
     )
     assert len(entries_yes) == 14
     assert "[APPLIED]" in summary_yes

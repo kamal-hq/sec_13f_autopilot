@@ -65,8 +65,9 @@ def test_env(tmp_path: Path) -> dict[str, Any]:
     period_dir = reports_dir / "2026-Q2"
     period_dir.mkdir(parents=True)
 
-    src_facts = Path("reports/2026-Q2/facts.json")
-    src_run = Path("reports/2026-Q2/run.json")
+    fixtures_2026_q2 = Path(__file__).parent / "fixtures" / "2026_q2"
+    src_facts = fixtures_2026_q2 / "facts.json"
+    src_run = fixtures_2026_q2 / "run.json"
 
     facts_text = src_facts.read_text(encoding="utf-8")
     run_text = src_run.read_text(encoding="utf-8")

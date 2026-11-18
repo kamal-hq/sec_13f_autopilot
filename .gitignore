@@ -29,6 +29,7 @@ env/
 !seed/*.json
 state/*
 !state/.gitkeep
+!state/processed_filings.json
 reports/*
 !reports/.gitkeep
 data/

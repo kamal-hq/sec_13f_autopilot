@@ -856,8 +856,10 @@ def test_merged_movers_equal_sum_of_classes() -> None:
     expected_merged = class_changes["GOOG"] + class_changes["GOOGL"]
     assert expected_merged == 24_450_077_992
 
-    # Verify against facts.json
+    # Verify against facts.json (local output or committed 2026-Q2 fixture)
     facts_path = Path("reports/2026-Q2/facts.json")
+    if not facts_path.exists():
+        facts_path = Path(__file__).parent / "fixtures" / "2026_q2" / "facts.json"
     if facts_path.exists():
         bundle = FactsBundle.from_file(facts_path)
         googl_mover = bundle.get_fact("diff.mover.GOOGL_GOOG.value_change")
