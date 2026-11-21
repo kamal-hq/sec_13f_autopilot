@@ -1,0 +1,5 @@
+period,ticker,company_name,cusip,sector,funds_buying,dollars_added,fund_type_breakdown,funds
+2026-Q2,SPCX,SPACE EXPLORATION TECHNOLOGIES CORP,84615Q103,Technology,4,2861656740,"Hedge Fund: 3, Sovereign Wealth Fund: 1",Bridgewater Associates; Citadel Advisors; Temasek Holdings; Two Sigma Investments
+2026-Q2,VGNT,VERSIGENT PLC,G9600F104,Consumer Discretionary,4,47816706,"Hedge Fund: 3, Public Pension Fund: 1",CalPERS; Citadel Advisors; Renaissance Technologies; Two Sigma Investments
+2026-Q2,ARXS,ARXIS INC,04339D105,Industrials,3,152128701,"Hedge Fund: 2, Sovereign Wealth Fund: 1",Citadel Advisors; Temasek Holdings; Two Sigma Investments
+2026-Q2,TGB,TREKOR METALS LTD,89472Y107,Materials,3,90094508,"Hedge Fund: 2, Sovereign Wealth Fund: 1",Renaissance Technologies; Temasek Holdings; Two Sigma Investments

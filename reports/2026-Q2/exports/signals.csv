@@ -1,0 +1,11 @@
+period,ticker,company_name,cusip,sector,funds_buying,dollars_added,hedge_fund_buyers,discretionary_buyers,buyer_mix,fund_type_breakdown,funds
+2026-Q2,AMD,ADVANCED MICRO DEVICES INC,007903107,Technology,5,1195133634,3,2,Includes discretionary,"Hedge Fund: 3, Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Citadel Advisors; Renaissance Technologies; Temasek Holdings; Two Sigma Investments
+2026-Q2,WFC,WELLS FARGO & CO,949746101,Financials,5,903048556,4,1,Includes discretionary,"Hedge Fund: 4, Sovereign Wealth Fund: 1",Bridgewater Associates; Citadel Advisors; Renaissance Technologies; Temasek Holdings; Two Sigma Investments
+2026-Q2,CBRE,CBRE GROUP INC,12504L109,Real Estate,5,268148933,4,1,Includes discretionary,"Hedge Fund: 4, Public Pension Fund: 1",Bridgewater Associates; CalPERS; Citadel Advisors; Renaissance Technologies; Two Sigma Investments
+2026-Q2,FORM,FORMFACTOR INC,346375108,Technology,5,119590856,4,1,Includes discretionary,"Hedge Fund: 4, Sovereign Wealth Fund: 1",Bridgewater Associates; Citadel Advisors; Renaissance Technologies; Temasek Holdings; Two Sigma Investments
+2026-Q2,STX,SEAGATE TECHNOLOGY HLDNGS PL,G7997R103,Technology,4,1333294180,3,1,Includes discretionary,"Hedge Fund: 3, Public Pension Fund: 1",CalPERS; Citadel Advisors; Renaissance Technologies; Two Sigma Investments
+2026-Q2,NFLX,NETFLIX INC.,64110L106,Communication Services,4,1058109711,3,1,Includes discretionary,"Hedge Fund: 3, Sovereign Wealth Fund: 1",Citadel Advisors; Renaissance Technologies; Temasek Holdings; Two Sigma Investments
+2026-Q2,MDT,MEDTRONIC PLC,G5960L103,Healthcare,4,815269329,4,0,Hedge-fund-only,Hedge Fund: 4,Bridgewater Associates; Citadel Advisors; Renaissance Technologies; Two Sigma Investments
+2026-Q2,BLK,BLACKROCK INC,09290D101,Financials,4,778654630,4,0,Hedge-fund-only,Hedge Fund: 4,Bridgewater Associates; Citadel Advisors; Renaissance Technologies; Two Sigma Investments
+2026-Q2,WMT,WALMART INC,931142103,Consumer Staples,4,755714705,2,2,Includes discretionary,"Hedge Fund: 2, Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Citadel Advisors; Renaissance Technologies; Temasek Holdings
+2026-Q2,ICE,INTERCONTINENTAL EXCHANGE IN,45866F104,Financials,4,572770629,4,0,Hedge-fund-only,Hedge Fund: 4,Bridgewater Associates; Citadel Advisors; Renaissance Technologies; Two Sigma Investments
