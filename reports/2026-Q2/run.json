@@ -1,0 +1,59 @@
+{
+  "baseline_period": "2026-Q1",
+  "diff_path": "reports/2026-Q2/diff.md",
+  "export_files": [
+    "reports/2026-Q2/exports/signals.csv",
+    "reports/2026-Q2/exports/discretionary.csv",
+    "reports/2026-Q2/exports/new_to_sample.csv",
+    "reports/2026-Q2/exports/fund_summary.csv"
+  ],
+  "facts_count": 273,
+  "facts_count_by_kind": {
+    "coverage": 19,
+    "diff": 21,
+    "discretionary": 36,
+    "fund": 49,
+    "limit": 6,
+    "market": 16,
+    "metadata": 2,
+    "new_to_sample": 8,
+    "quality": 15,
+    "sector": 61,
+    "signal": 40
+  },
+  "facts_path": "reports/2026-Q2/facts.json",
+  "generated_at": "2026-11-21T09:11:12.760040+00:00",
+  "llm": {
+    "attempts": 0,
+    "final_status": "deterministic",
+    "latency_ms": 0.0,
+    "llm_mode": "null",
+    "model": "deterministic-template",
+    "output_tokens": 0,
+    "prompt_tokens": 0,
+    "total_tokens": 0,
+    "validation_failures_per_rule": {}
+  },
+  "llm_mode": "null",
+  "llm_status": "deterministic",
+  "mode_label": "replay",
+  "period": "2026-Q2",
+  "published_files": [
+    "reports/2026-Q2/final.md",
+    "reports/2026-Q2/final_cited.md",
+    "reports/2026-Q2/validation_report.md",
+    "reports/2026-Q2/diff.md",
+    "reports/2026-Q2/run.json"
+  ],
+  "replay": true,
+  "stage": "facts",
+  "stage_seconds": {
+    "detect": 6.477,
+    "facts": 2.79,
+    "ingest": 8.644,
+    "narrate": 0.002,
+    "review": 0.0,
+    "validate": 0.006
+  },
+  "state_committed": false
+}

@@ -1,0 +1,10 @@
+period,ticker,company_name,cusip,sector,funds_buying,dollars_added,fund_type_breakdown,funds,fund_dollars_added
+2026-Q2,GOOGL/GOOG,ALPHABET INC,02079K305/02079K107,Technology,2,18665002497,"Conglomerate: 1, Sovereign Wealth Fund: 1",Berkshire Hathaway; Temasek Holdings,Berkshire Hathaway:17110074056; Temasek Holdings:1554928442
+2026-Q2,C,CITIGROUP INC,172967424,Financials,2,226493349,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:221318048; Temasek Holdings:5175301
+2026-Q2,WMT,WALMART INC,931142103,Consumer Staples,2,224060786,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:170708417; Temasek Holdings:53352369
+2026-Q2,AMD,ADVANCED MICRO DEVICES INC,007903107,Technology,2,204656336,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:190074333; Temasek Holdings:14582003
+2026-Q2,GLW,CORNING INC,219350105,Materials,2,89434217,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:66743604; Temasek Holdings:22690613
+2026-Q2,NTRA,NATERA INC,632307104,Healthcare,2,53204471,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:46940491; Temasek Holdings:6263980
+2026-Q2,ATAT,ATOUR LIFESTYLE HLDGS LTD,04965M106,Consumer Discretionary,2,40828370,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:9082080; Temasek Holdings:31746290
+2026-Q2,COHR,COHERENT CORP,19247G107,Technology,2,40785831,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:32383620; Temasek Holdings:8402211
+2026-Q2,UEC,URANIUM ENERGY CORP,916896103,Materials,2,5946553,"Public Pension Fund: 1, Sovereign Wealth Fund: 1",CalPERS; Temasek Holdings,CalPERS:2643883; Temasek Holdings:3302671
